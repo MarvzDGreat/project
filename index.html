@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marvin's Life Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #22263a;
+  --text: #f0f2ff;
+  --text2: #8b90b0;
+  --border: rgba(255,255,255,0.07);
+  --green: #00e5a0;
+  --green-dim: rgba(0,229,160,0.12);
+  --yellow: #ffd166;
+  --yellow-dim: rgba(255,209,102,0.12);
+  --radius: 20px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-x: hidden;
+}
+
+/* Background glow effects */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: -200px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -200px; right: -200px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,209,102,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.wrapper {
+  width: 100%; max-width: 480px;
+  animation: fadeUp 0.6s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* HERO */
+.hero { text-align: center; margin-bottom: 40px; }
+.hero-emoji { font-size: 52px; margin-bottom: 14px; display: block; animation: pulse 2.5s ease infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px; font-weight: 800;
+  line-height: 1.15; letter-spacing: -0.03em;
+  margin-bottom: 10px;
+}
+.hero-title span { color: var(--green); }
+.hero-sub { font-size: 14px; color: var(--text2); line-height: 1.7; max-width: 320px; margin: 0 auto; }
+
+/* CARDS */
+.cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+
+.card {
+  display: flex; align-items: center; gap: 18px;
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 22px 20px;
+  text-decoration: none; color: inherit;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+}
+.card::before {
+  content: ''; position: absolute;
+  inset: 0; opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: var(--radius);
+}
+.card.habits::before { background: var(--green-dim); }
+.card.money::before  { background: var(--yellow-dim); }
+.card:hover { transform: translateY(-3px); }
+.card:hover::before { opacity: 1; }
+.card.habits:hover { border-color: var(--green); }
+.card.money:hover  { border-color: var(--yellow); }
+.card:active { transform: translateY(0px); }
+
+.card-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0; position: relative; z-index: 1;
+}
+.card.habits .card-icon { background: var(--green-dim); }
+.card.money  .card-icon { background: var(--yellow-dim); }
+
+.card-body { flex: 1; position: relative; z-index: 1; }
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px; font-weight: 700; margin-bottom: 4px;
+}
+.card.habits .card-title { color: var(--green); }
+.card.money  .card-title { color: var(--yellow); }
+.card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+.card-arrow {
+  font-size: 20px; color: var(--text2);
+  position: relative; z-index: 1;
+  transition: transform 0.2s, color 0.2s;
+}
+.card:hover .card-arrow { transform: translateX(4px); }
+.card.habits:hover .card-arrow { color: var(--green); }
+.card.money:hover  .card-arrow { color: var(--yellow); }
+
+/* TAGS */
+.card-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.tag {
+  font-size: 10px; font-weight: 500; padding: 3px 8px;
+  border-radius: 99px; letter-spacing: 0.04em;
+}
+.card.habits .tag { background: rgba(0,229,160,0.1); color: var(--green); }
+.card.money  .tag { background: rgba(255,209,102,0.1); color: var(--yellow); }
+
+/* FOOTER */
+.footer { text-align: center; }
+.footer-quote {
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+  background: var(--surface); border-radius: 12px;
+  border: 0.5px solid var(--border); padding: 14px 18px;
+  margin-bottom: 14px;
+}
+.footer-quote strong { color: var(--text); }
+.footer-name { font-size: 12px; color: var(--text2); }
+.footer-name span { color: var(--green); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-emoji">🚀</span>
+    <div class="hero-title">Marvin's<br><span>Life Tracker</span></div>
+    <div class="hero-sub">Your personal tools to build better habits and take control of your money.</div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards">
+
+    <a class="card habits" href="marvin_habit_tracker_sync.html">
+      <div class="card-icon">✅</div>
+      <div class="card-body">
+        <div class="card-title">Habit Tracker</div>
+        <div class="card-desc">Build daily habits that change your life — Mon to Sun, every week.</div>
+        <div class="card-tags">
+          <span class="tag">DAILY HABITS</span>
+          <span class="tag">STREAK COUNTER</span>
+          <span class="tag">CLOUD SYNC</span>
+        </div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card money" href="marvin_money_tracker.html">
+      <div class="card-icon">💸</div>
+      <div class="card-body">
+        <div class="card-title">Money Tracker</div>
+        <div class="card-desc">Know your money flow — track income, spending, and savings goals.</div>
+        <div class="card-tags">
+          <span class="tag">INCOME & EXPENSES</span>
+          <span class="tag">SAVINGS GOAL</span>
+          <span class="tag">CLOUD SYNC</span>
+        </div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-quote">
+      <strong>"Consistency in small actions creates big transformations."</strong><br>
+      Work hard for yourself, your goals, and the people you love. 💪
+    </div>
+    <div class="footer-name">Built for <span>Marvin</span> · Calamba, Laguna 🇵🇭</div>
+  </div>
+
+</div>
+
+</body>
+</html>
