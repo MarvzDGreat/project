@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Tracker · Marvin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<!-- ✅ Same Firebase config as index.html -->
+<script>
+  const FIREBASE_CONFIG = {
+	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
+ 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
+  	projectId: "marvzdgreat-451c1",
+  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
+  	messagingSenderId: "961108110213",
+  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+};
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f45;
+  --text:#f0f2ff;--text2:#8b90b0;--border:rgba(255,255,255,0.07);
+  --green:#00e5a0;--green-dim:rgba(0,229,160,0.1);
+  --red:#ff5c7a;--red-dim:rgba(255,92,122,0.1);
+  --blue:#5c9aff;--blue-dim:rgba(92,154,255,0.1);
+  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.1);
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 60px}
+.container{max-width:820px;margin:0 auto}
+
+/* NO ACCESS */
+#noAccess{min-height:80vh;display:none;align-items:center;justify-content:center}
+.no-access-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border);padding:40px 32px;max-width:360px;text-align:center}
+.no-access-box h2{font-size:20px;margin-bottom:8px;font-family:'Syne',sans-serif}
+.no-access-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.back-btn{padding:11px 24px;background:var(--green);color:#000;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+
+/* MAIN APP */
+#mainApp{display:none}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:4px}
+.back-link:hover{background:var(--surface2)}
+.top-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;flex:1}
+.user-pill{font-size:12px;background:var(--green-dim);color:var(--green);padding:5px 12px;border-radius:99px;font-weight:500}
+.sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
+.sync-pill.synced{background:var(--green-dim);color:var(--green)}
+.sync-pill.saving{background:var(--yellow-dim);color:var(--yellow)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.month-nav{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--radius);padding:10px 16px;margin-bottom:20px;border:0.5px solid var(--border)}
+.month-nav button{background:var(--surface2);border:none;border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:18px;color:var(--text);display:flex;align-items:center;justify-content:center}
+.month-nav button:hover{background:var(--surface3)}
+.month-label{flex:1;text-align:center;font-family:'Syne',sans-serif;font-size:15px;font-weight:600}
+
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+@media(min-width:600px){.summary-grid{grid-template-columns:repeat(4,1fr)}}
+.sum-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:16px 14px}
+.sum-icon{font-size:20px;margin-bottom:8px}
+.sum-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.sum-amount{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.sum-card.income .sum-amount{color:var(--green)}
+.sum-card.expense .sum-amount{color:var(--red)}
+.sum-card.balance .sum-amount{color:var(--blue)}
+.sum-card.savings .sum-amount{color:var(--yellow)}
+
+.section-box{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:18px;margin-bottom:16px}
+.section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+.goal-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.goal-input{flex:1;min-width:120px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none}
+.goal-input:focus{border-color:var(--yellow)}
+.set-btn{padding:9px 16px;background:var(--yellow);color:#000;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.progress-track{background:var(--surface2);border-radius:99px;height:10px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:10px;border-radius:99px;background:var(--yellow);transition:width 0.5s ease}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2)}
+
+.type-toggle{display:flex;gap:8px;margin-bottom:14px}
+.type-btn{flex:1;padding:9px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.type-btn.active-income{background:var(--green-dim);color:var(--green);border-color:var(--green)}
+.type-btn.active-expense{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border 0.15s}
+.form-input:focus{border-color:var(--green)}
+select.form-input option{background:var(--surface2)}
+.add-btn{width:100%;padding:11px;background:var(--green);color:#000;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.15s}
+.add-btn:hover{opacity:0.85}
+
+.list-controls{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:99px;font-size:12px;font-weight:500;border:0.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.filter-btn.active{background:var(--surface2);color:var(--text);border-color:var(--text2)}
+.empty-state{text-align:center;padding:32px;color:var(--text2);font-size:13px}
+.txn-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border)}
+.txn-item:last-child{border-bottom:none}
+.txn-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.txn-icon.income{background:var(--green-dim)}
+.txn-icon.expense{background:var(--red-dim)}
+.txn-body{flex:1;min-width:0}
+.txn-desc{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txn-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.txn-amount{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;flex-shrink:0}
+.txn-amount.income{color:var(--green)}
+.txn-amount.expense{color:var(--red)}
+.del-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:4px;opacity:0.5;flex-shrink:0}
+.del-btn:hover{opacity:1;color:var(--red)}
+.cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cat-label{font-size:12px;color:var(--text2);width:100px;flex-shrink:0}
+.cat-bar-wrap{flex:1;background:var(--surface2);border-radius:99px;height:8px;overflow:hidden}
+.cat-bar{height:8px;border-radius:99px;background:var(--red);transition:width 0.4s}
+.cat-amount{font-size:12px;font-weight:500;color:var(--text);width:80px;text-align:right;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- NO ACCESS -->
+<div id="noAccess">
+  <div class="no-access-box">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <h2>Please Sign In First</h2>
+    <p>You need to sign in from the main menu to access your Money Tracker.</p>
+    <a class="back-btn" href="index.html">← Go to Sign In</a>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+<div class="container">
+  <div class="top-bar">
+    <a class="back-link" href="index.html">← Menu</a>
+    <span class="top-title">💸 Money Tracker</span>
+    <span class="user-pill">👤 <span id="userDisplay"></span></span>
+    <span class="sync-pill synced" id="syncPill"><span class="sync-dot"></span><span id="syncText">Synced</span></span>
+  </div>
+
+  <div class="month-nav">
+    <button id="prevMonth">&#8249;</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button id="nextMonth">&#8250;</button>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
+    <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
+    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
+    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">🎯 Savings Goal</div>
+    <div class="goal-row">
+      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
+      <button class="set-btn" id="setGoalBtn">Set Goal</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
+    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">📊 Spending by Category</div>
+    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">➕ Add Transaction</div>
+    <div class="type-toggle">
+      <button class="type-btn active-income" id="btnIncome" onclick="setType('income')">📥 Income</button>
+      <button class="type-btn" id="btnExpense" onclick="setType('expense')">📤 Expense</button>
+    </div>
+    <div class="form-grid">
+      <input class="form-input" id="txnDesc" type="text" placeholder="Description (e.g. Salary, Groceries)"/>
+      <input class="form-input" id="txnAmount" type="number" placeholder="Amount (₱)" min="0"/>
+      <select class="form-input" id="txnCategory">
+        <option value="">-- Category --</option>
+        <optgroup label="Income">
+          <option value="Salary">Salary</option>
+          <option value="Freelance">Freelance</option>
+          <option value="Business">Business</option>
+          <option value="Other Income">Other Income</option>
+        </optgroup>
+        <optgroup label="Expenses">
+          <option value="Food">🍚 Food</option>
+          <option value="Transport">🚌 Transport</option>
+          <option value="Bills">💡 Bills</option>
+          <option value="Family">👨‍👩‍👧 Family</option>
+          <option value="Education">📚 Education</option>
+          <option value="Health">🏥 Health</option>
+          <option value="Savings">🏦 Savings</option>
+          <option value="Shopping">🛒 Shopping</option>
+          <option value="Other">📦 Other</option>
+        </optgroup>
+      </select>
+      <input class="form-input" id="txnDate" type="date"/>
+    </div>
+    <button class="add-btn" id="addBtn">Add Transaction</button>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">📋 Transactions</div>
+    <div class="list-controls">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('income',this)">Income</button>
+      <button class="filter-btn" onclick="setFilter('expense',this)">Expenses</button>
+      <button class="filter-btn" onclick="setFilter('savings',this)">Savings</button>
+    </div>
+    <div id="txnList"><div class="empty-state">No transactions yet. Add your first one above! 💪</div></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 1: Firebase init FIRST (fixes multi-tab bug)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let db = null, unsubscribe = null;
+try {
+  const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+} catch(e) { console.warn('Firebase init:', e.message); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 2: All variables declared BEFORE use
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let currentFilter = 'all';
+let monthOffset   = 0;
+let txnType       = 'income';
+let data          = { transactions: [], savingGoals: {} };
+
+const CATEGORY_ICONS = {
+  Salary:'💼', Freelance:'💻', Business:'🏪', 'Other Income':'💵',
+  Food:'🍚', Transport:'🚌', Bills:'💡', Family:'👨‍👩‍👧',
+  Education:'📚', Health:'🏥', Savings:'🏦', Shopping:'🛒', Other:'📦'
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 3: Helper functions
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('mlt_session') || '{}');
+    if (s.userId) return s;
+  } catch(e) {}
+  return null;
+}
+
+function setSyncStatus(t, txt) {
+  document.getElementById('syncPill').className = 'sync-pill ' + t;
+  document.getElementById('syncText').textContent = txt;
+}
+
+function getCurrentMonth() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + monthOffset);
+  return { year: d.getFullYear(), month: d.getMonth() };
+}
+
+function renderMonthLabel() {
+  const { year, month } = getCurrentMonth();
+  document.getElementById('monthLabel').textContent =
+    new Date(year, month, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+}
+
+function inCurrentMonth(ds) {
+  if (!ds) return false;
+  const { year, month } = getCurrentMonth();
+  const d = new Date(ds);
+  return d.getFullYear() === year && d.getMonth() === month;
+}
+
+function fmt(n) {
+  return '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function setType(t) {
+  txnType = t;
+  document.getElementById('btnIncome').className  = 'type-btn' + (t === 'income'  ? ' active-income'  : '');
+  document.getElementById('btnExpense').className = 'type-btn' + (t === 'expense' ? ' active-expense' : '');
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTxnList();
+}
+
+function saveFirestore() {
+  const s = getSession();
+  if (!s || !db) { alert('Not connected to Firebase. Check your config.'); return; }
+  setSyncStatus('saving', 'Saving...');
+  db.collection('money').doc(s.userId).set(data)
+    .then(() => setSyncStatus('synced', 'Synced ✓'))
+    .catch(e => { console.warn(e); setSyncStatus('error', 'Save failed'); });
+}
+
+function deleteTxn(id) {
+  if (!confirm('Delete this transaction?')) return;
+  data.transactions = data.transactions.filter(t => t.id !== id);
+  saveFirestore();
+  renderAll();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 4: Render functions
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderAll() {
+  renderMonthLabel();
+  const { year, month } = getCurrentMonth();
+  const key = year + '-' + month;
+  const monthly  = data.transactions.filter(t => inCurrentMonth(t.date));
+  const income   = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const expense  = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const saved    = monthly.filter(t => t.category === 'Savings').reduce((s, t) => s + t.amount, 0);
+  const goal     = (data.savingGoals && data.savingGoals[key]) || 0;
+  const pct      = goal > 0 ? Math.min(100, Math.round(saved / goal * 100)) : 0;
+
+  document.getElementById('totalIncome').textContent  = fmt(income);
+  document.getElementById('totalExpense').textContent = fmt(expense);
+  document.getElementById('totalBalance').textContent = fmt(income - expense);
+  document.getElementById('totalSaved').textContent   = fmt(saved);
+  document.getElementById('goalBar').style.width      = pct + '%';
+  document.getElementById('goalSavedLabel').textContent   = fmt(saved) + ' saved (' + pct + '%)';
+  document.getElementById('goalTargetLabel').textContent  = 'Goal: ' + (goal > 0 ? fmt(goal) : 'not set');
+  if (goal > 0) document.getElementById('goalInput').placeholder = 'Current: ' + fmt(goal);
+  renderBreakdown(monthly);
+  renderTxnList();
+}
+
+function renderBreakdown(monthly) {
+  const expenses = monthly.filter(t => t.type === 'expense');
+  const total    = expenses.reduce((s, t) => s + t.amount, 0);
+  const cats     = {};
+  expenses.forEach(t => { cats[t.category] = (cats[t.category] || 0) + t.amount; });
+  const sorted   = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  const el = document.getElementById('breakdownList');
+  if (!sorted.length) { el.innerHTML = '<div class="empty-state">No expenses yet this month.</div>'; return; }
+  el.innerHTML = sorted.map(([cat, amt]) => {
+    const pct  = total > 0 ? Math.round(amt / total * 100) : 0;
+    const icon = CATEGORY_ICONS[cat] || '📦';
+    return `<div class="cat-row">
+      <div class="cat-label">${icon} ${cat}</div>
+      <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%"></div></div>
+      <div class="cat-amount">${fmt(amt)} <span style="color:var(--text2);font-size:10px">${pct}%</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTxnList() {
+  const monthly = data.transactions.filter(t => inCurrentMonth(t.date));
+  let filtered  = [...monthly];
+  if (currentFilter === 'income')  filtered = filtered.filter(t => t.type === 'income');
+  else if (currentFilter === 'expense') filtered = filtered.filter(t => t.type === 'expense');
+  else if (currentFilter === 'savings') filtered = filtered.filter(t => t.category === 'Savings');
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const el = document.getElementById('txnList');
+  if (!filtered.length) { el.innerHTML = '<div class="empty-state">No transactions found. Add one above! 💪</div>'; return; }
+  el.innerHTML = filtered.map(t => {
+    const icon    = CATEGORY_ICONS[t.category] || (t.type === 'income' ? '💵' : '💸');
+    const dateStr = new Date(t.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+    return `<div class="txn-item">
+      <div class="txn-icon ${t.type}">${icon}</div>
+      <div class="txn-body">
+        <div class="txn-desc">${t.desc}</div>
+        <div class="txn-meta">${t.category} · ${dateStr}</div>
+      </div>
+      <div class="txn-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
+      <button class="del-btn" onclick="deleteTxn('${t.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 5: Firebase listener
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function initApp(userId) {
+  renderAll(); // always render immediately so UI is never blank
+  if (!db) { setSyncStatus('error', 'Firebase not configured'); return; }
+  setSyncStatus('saving', 'Connecting...');
+  if (unsubscribe) unsubscribe();
+  unsubscribe = db.collection('money').doc(userId)
+    .onSnapshot(
+      doc => {
+        const d = doc.exists ? doc.data() : {};
+        data.transactions = d.transactions || [];
+        data.savingGoals  = d.savingGoals  || {};
+        setSyncStatus('synced', 'Synced ✓');
+        renderAll();
+      },
+      err => {
+        console.warn('Firestore:', err.message);
+        setSyncStatus('error', 'Offline');
+        renderAll();
+      }
+    );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 6: Event listeners
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function addTransaction() {
+  const desc     = document.getElementById('txnDesc').value.trim();
+  const amount   = parseFloat(document.getElementById('txnAmount').value);
+  const category = document.getElementById('txnCategory').value;
+  const date     = document.getElementById('txnDate').value;
+
+  if (!desc)     { document.getElementById('txnDesc').focus();     alert('Please enter a description.'); return; }
+  if (!amount || amount <= 0) { document.getElementById('txnAmount').focus(); alert('Please enter a valid amount.'); return; }
+  if (!category) { document.getElementById('txnCategory').focus(); alert('Please select a category.'); return; }
+  if (!date)     { document.getElementById('txnDate').focus();     alert('Please select a date.'); return; }
+
+  data.transactions.push({
+    id: Date.now().toString(),
+    type: txnType,
+    desc, amount, category, date
+  });
+
+  saveFirestore();
+  renderAll();
+
+  // Clear inputs
+  document.getElementById('txnDesc').value     = '';
+  document.getElementById('txnAmount').value   = '';
+  document.getElementById('txnCategory').value = '';
+  document.getElementById('txnDate').value     = new Date().toISOString().slice(0, 10);
+  document.getElementById('txnDesc').focus();
+}
+
+// Add button click
+document.getElementById('addBtn').addEventListener('click', addTransaction);
+
+// Enter key on amount field triggers add
+document.getElementById('txnAmount').addEventListener('keydown', e => { if (e.key === 'Enter') addTransaction(); });
+document.getElementById('txnDesc').addEventListener('keydown',   e => { if (e.key === 'Enter') document.getElementById('txnAmount').focus(); });
+
+// Month navigation
+document.getElementById('prevMonth').addEventListener('click', () => { monthOffset--; renderAll(); });
+document.getElementById('nextMonth').addEventListener('click', () => { monthOffset++; renderAll(); });
+
+// Savings goal
+document.getElementById('setGoalBtn').addEventListener('click', () => {
+  const val = parseFloat(document.getElementById('goalInput').value);
+  if (!val || val <= 0) { alert('Enter a valid savings goal amount!'); return; }
+  const { year, month } = getCurrentMonth();
+  data.savingGoals[year + '-' + month] = val;
+  saveFirestore();
+  renderAll();
+  document.getElementById('goalInput').value = '';
+});
+document.getElementById('goalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('setGoalBtn').click();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 7: Session check & start (LAST)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const session = getSession();
+if (!session) {
+  document.getElementById('noAccess').style.display = 'flex';
+} else {
+  document.getElementById('mainApp').style.display  = 'block';
+  document.getElementById('userDisplay').textContent = session.userId;
+  document.getElementById('txnDate').value = new Date().toISOString().slice(0, 10);
+  initApp(session.userId);
+}
+</script>
+</body>
+</html>

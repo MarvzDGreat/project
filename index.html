@@ -4,205 +4,348 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marvin's Life Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// ✅ Replace with YOUR Firebase config
+  const FIREBASE_CONFIG = {
+	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
+ 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
+  	projectId: "marvzdgreat-451c1",
+  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
+  	messagingSenderId: "961108110213",
+  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+};
+// ✅ Set your admin username here
+const ADMIN_ID = "marvin_admin";
+</script>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --surface2: #22263a;
-  --text: #f0f2ff;
-  --text2: #8b90b0;
-  --border: rgba(255,255,255,0.07);
-  --green: #00e5a0;
-  --green-dim: rgba(0,229,160,0.12);
-  --yellow: #ffd166;
-  --yellow-dim: rgba(255,209,102,0.12);
-  --radius: 20px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f45;
+  --text:#f0f2ff;--text2:#8b90b0;--border:rgba(255,255,255,0.07);
+  --green:#00e5a0;--green-dim:rgba(0,229,160,0.12);
+  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.12);
+  --red:#ff5c7a;--red-dim:rgba(255,92,122,0.12);
+  --blue:#5c9aff;--blue-dim:rgba(92,154,255,0.12);
+  --radius:20px;
 }
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+body::before{content:'';position:fixed;top:-200px;left:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(0,229,160,0.06) 0%,transparent 70%);pointer-events:none}
+body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(255,209,102,0.06) 0%,transparent 70%);pointer-events:none}
+.wrapper{width:100%;max-width:460px;animation:fadeUp 0.5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  overflow-x: hidden;
-}
+/* SHARED CARD */
+.auth-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:38px 32px}
+.card-logo{font-size:48px;display:block;text-align:center;margin-bottom:14px;animation:pulse 2.5s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.card-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;text-align:center;margin-bottom:6px}
+.card-title span{color:var(--green)}
+.card-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:26px;line-height:1.7}
 
-/* Background glow effects */
-body::before {
-  content: '';
-  position: fixed;
-  top: -200px; left: -200px;
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-body::after {
-  content: '';
-  position: fixed;
-  bottom: -200px; right: -200px;
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(255,209,102,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
+/* TABS */
+.auth-tabs{display:flex;gap:0;margin-bottom:24px;background:var(--surface2);border-radius:10px;padding:4px}
+.tab-btn{flex:1;padding:9px;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--text2);transition:all 0.15s}
+.tab-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
 
-.wrapper {
-  width: 100%; max-width: 480px;
-  animation: fadeUp 0.6s ease both;
-}
+/* FORM */
+.input-group{margin-bottom:12px}
+.input-label{font-size:11px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500;letter-spacing:0.05em;text-transform:uppercase}
+.auth-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--surface2);color:var(--text);outline:none;transition:border 0.15s}
+.auth-input:focus{border-color:var(--green)}
+.auth-btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity 0.15s;letter-spacing:0.02em}
+.auth-btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn-green{background:var(--green);color:#000}
+.btn-green:hover:not(:disabled){opacity:0.85}
+.btn-blue{background:var(--blue);color:#000}
+.btn-blue:hover:not(:disabled){opacity:0.85}
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+.msg{font-size:12px;margin-top:10px;padding:10px 12px;border-radius:8px;display:none;line-height:1.5}
+.msg.error{background:var(--red-dim);color:var(--red)}
+.msg.success{background:var(--green-dim);color:var(--green)}
+.msg.warning{background:var(--yellow-dim);color:var(--yellow)}
+.loading{font-size:12px;color:var(--text2);margin-top:10px;text-align:center;display:none}
 
-/* HERO */
-.hero { text-align: center; margin-bottom: 40px; }
-.hero-emoji { font-size: 52px; margin-bottom: 14px; display: block; animation: pulse 2.5s ease infinite; }
-@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-.hero-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 32px; font-weight: 800;
-  line-height: 1.15; letter-spacing: -0.03em;
-  margin-bottom: 10px;
-}
-.hero-title span { color: var(--green); }
-.hero-sub { font-size: 14px; color: var(--text2); line-height: 1.7; max-width: 320px; margin: 0 auto; }
-
-/* CARDS */
-.cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
-
-.card {
-  display: flex; align-items: center; gap: 18px;
-  background: var(--surface); border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 22px 20px;
-  text-decoration: none; color: inherit;
-  transition: transform 0.2s, border-color 0.2s, background 0.2s;
-  position: relative; overflow: hidden;
-  cursor: pointer;
-}
-.card::before {
-  content: ''; position: absolute;
-  inset: 0; opacity: 0;
-  transition: opacity 0.2s;
-  border-radius: var(--radius);
-}
-.card.habits::before { background: var(--green-dim); }
-.card.money::before  { background: var(--yellow-dim); }
-.card:hover { transform: translateY(-3px); }
-.card:hover::before { opacity: 1; }
-.card.habits:hover { border-color: var(--green); }
-.card.money:hover  { border-color: var(--yellow); }
-.card:active { transform: translateY(0px); }
-
-.card-icon {
-  width: 56px; height: 56px; border-radius: 16px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; flex-shrink: 0; position: relative; z-index: 1;
-}
-.card.habits .card-icon { background: var(--green-dim); }
-.card.money  .card-icon { background: var(--yellow-dim); }
-
-.card-body { flex: 1; position: relative; z-index: 1; }
-.card-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 17px; font-weight: 700; margin-bottom: 4px;
-}
-.card.habits .card-title { color: var(--green); }
-.card.money  .card-title { color: var(--yellow); }
-.card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
-
-.card-arrow {
-  font-size: 20px; color: var(--text2);
-  position: relative; z-index: 1;
-  transition: transform 0.2s, color 0.2s;
-}
-.card:hover .card-arrow { transform: translateX(4px); }
-.card.habits:hover .card-arrow { color: var(--green); }
-.card.money:hover  .card-arrow { color: var(--yellow); }
-
-/* TAGS */
-.card-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-.tag {
-  font-size: 10px; font-weight: 500; padding: 3px 8px;
-  border-radius: 99px; letter-spacing: 0.04em;
-}
-.card.habits .tag { background: rgba(0,229,160,0.1); color: var(--green); }
-.card.money  .tag { background: rgba(255,209,102,0.1); color: var(--yellow); }
-
-/* FOOTER */
-.footer { text-align: center; }
-.footer-quote {
-  font-size: 13px; color: var(--text2); line-height: 1.7;
-  background: var(--surface); border-radius: 12px;
-  border: 0.5px solid var(--border); padding: 14px 18px;
-  margin-bottom: 14px;
-}
-.footer-quote strong { color: var(--text); }
-.footer-name { font-size: 12px; color: var(--text2); }
-.footer-name span { color: var(--green); font-weight: 500; }
+/* MENU */
+#menuScreen{display:none}
+.menu-header{text-align:center;margin-bottom:28px}
+.menu-logo{font-size:48px;display:block;margin-bottom:12px;animation:pulse 2.5s ease infinite}
+.menu-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px}
+.menu-title span{color:var(--green)}
+.user-welcome{display:inline-flex;align-items:center;gap:8px;background:var(--green-dim);border-radius:99px;padding:6px 16px;font-size:13px;color:var(--green);font-weight:500}
+.cards{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.card{display:flex;align-items:center;gap:18px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:20px 18px;text-decoration:none;color:inherit;transition:transform 0.2s,border-color 0.2s;position:relative;overflow:hidden;cursor:pointer}
+.card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;border-radius:var(--radius)}
+.card.habits::before{background:var(--green-dim)}
+.card.money::before{background:var(--yellow-dim)}
+.card.admin-card::before{background:var(--blue-dim)}
+.card:hover{transform:translateY(-3px)}
+.card:hover::before{opacity:1}
+.card.habits:hover{border-color:var(--green)}
+.card.money:hover{border-color:var(--yellow)}
+.card.admin-card:hover{border-color:var(--blue)}
+.card-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;position:relative;z-index:1}
+.card.habits .card-icon{background:var(--green-dim)}
+.card.money .card-icon{background:var(--yellow-dim)}
+.card.admin-card .card-icon{background:var(--blue-dim)}
+.card-body{flex:1;position:relative;z-index:1}
+.card-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px}
+.card.habits .card-title{color:var(--green)}
+.card.money .card-title{color:var(--yellow)}
+.card.admin-card .card-title{color:var(--blue)}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.card-arrow{font-size:22px;color:var(--text2);position:relative;z-index:1;transition:transform 0.2s,color 0.2s}
+.card:hover .card-arrow{transform:translateX(4px)}
+.card.habits:hover .card-arrow{color:var(--green)}
+.card.money:hover .card-arrow{color:var(--yellow)}
+.card.admin-card:hover .card-arrow{color:var(--blue)}
+.logout-row{text-align:center;margin-top:16px}
+.logout-btn{font-size:13px;color:var(--text2);background:none;border:1px solid var(--border);border-radius:10px;padding:9px 24px;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.logout-btn:hover{background:var(--surface);color:var(--text)}
+.footer-quote{font-size:13px;color:var(--text2);line-height:1.7;background:var(--surface);border-radius:12px;border:0.5px solid var(--border);padding:14px 18px;margin-bottom:14px;text-align:center}
+.footer-quote strong{color:var(--text)}
+.footer-name{font-size:12px;color:var(--text2);text-align:center}
+.footer-name span{color:var(--green);font-weight:500}
 </style>
 </head>
 <body>
-
 <div class="wrapper">
 
-  <!-- HERO -->
-  <div class="hero">
-    <span class="hero-emoji">🚀</span>
-    <div class="hero-title">Marvin's<br><span>Life Tracker</span></div>
-    <div class="hero-sub">Your personal tools to build better habits and take control of your money.</div>
-  </div>
+  <!-- AUTH SCREENS -->
+  <div id="authScreen">
+    <div class="auth-card">
+      <span class="card-logo">🚀</span>
+      <div class="card-title">Marvin's <span>Life Tracker</span></div>
+      <div class="card-sub">Sign in to access your personal trackers.</div>
+      <div class="auth-tabs">
+        <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">Register</button>
+      </div>
 
-  <!-- CARDS -->
-  <div class="cards">
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="input-group">
+          <label class="input-label">User ID</label>
+          <input class="auth-input" id="loginUserId" type="text" placeholder="Enter your User ID" autocomplete="username"/>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password"/>
+        </div>
+        <div class="msg error" id="loginError"></div>
+        <div class="msg warning" id="loginWarning"></div>
+        <div class="loading" id="loginLoading">⏳ Verifying...</div>
+        <button class="auth-btn btn-green" id="loginBtn">Sign In ➜</button>
+      </div>
 
-    <a class="card habits" href="habits.html">
-      <div class="card-icon">✅</div>
-      <div class="card-body">
-        <div class="card-title">Habit Tracker</div>
-        <div class="card-desc">Build daily habits that change your life — Mon to Sun, every week.</div>
-        <div class="card-tags">
-          <span class="tag">DAILY HABITS</span>
-          <span class="tag">STREAK COUNTER</span>
-          <span class="tag">CLOUD SYNC</span>
+      <!-- REGISTER FORM -->
+      <div id="registerForm" style="display:none">
+        <div class="input-group">
+          <label class="input-label">Choose a User ID</label>
+          <input class="auth-input" id="regUserId" type="text" placeholder="e.g. juandelacruz" maxlength="30" autocomplete="username"/>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input class="auth-input" id="regPassword" type="password" placeholder="Create a password" autocomplete="new-password"/>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Confirm Password</label>
+          <input class="auth-input" id="regConfirm" type="password" placeholder="Repeat your password" autocomplete="new-password"/>
+        </div>
+        <div class="msg error" id="regError"></div>
+        <div class="msg success" id="regSuccess"></div>
+        <div class="loading" id="regLoading">⏳ Creating account...</div>
+        <button class="auth-btn btn-blue" id="registerBtn">Create Account ➜</button>
+        <div style="font-size:12px;color:var(--text2);margin-top:14px;text-align:center;line-height:1.7">
+          ⚠️ New accounts require <strong style="color:var(--text)">admin approval</strong> before you can sign in.
         </div>
       </div>
-      <div class="card-arrow">›</div>
-    </a>
-
-    <a class="card money" href="money.html">
-      <div class="card-icon">💸</div>
-      <div class="card-body">
-        <div class="card-title">Money Tracker</div>
-        <div class="card-desc">Know your money flow — track income, spending, and savings goals.</div>
-        <div class="card-tags">
-          <span class="tag">INCOME & EXPENSES</span>
-          <span class="tag">SAVINGS GOAL</span>
-          <span class="tag">CLOUD SYNC</span>
-        </div>
-      </div>
-      <div class="card-arrow">›</div>
-    </a>
-
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <div class="footer-quote">
-      <strong>"Consistency in small actions creates big transformations."</strong><br>
-      Work hard for yourself, your goals, and the people you love. 💪
     </div>
-    <div class="footer-name">Built for <span>Marvin</span> · Calamba, Laguna 🇵🇭</div>
+  </div>
+
+  <!-- MENU SCREEN -->
+  <div id="menuScreen">
+    <div class="menu-header">
+      <span class="menu-logo">🚀</span>
+      <div class="user-welcome">👋 Welcome, <span id="welcomeName"></span>!</div>
+      <br><br>
+      <div class="menu-title">Your <span>Life Tracker</span></div>
+    </div>
+    <div class="cards">
+      <a class="card habits" href="marvin_habit_tracker_sync.html">
+        <div class="card-icon">✅</div>
+        <div class="card-body">
+          <div class="card-title">Habit Tracker</div>
+          <div class="card-desc">Build daily habits — Mon to Sun, every week.</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
+      <a class="card money" href="marvin_money_tracker.html">
+        <div class="card-icon">💸</div>
+        <div class="card-body">
+          <div class="card-title">Money Tracker</div>
+          <div class="card-desc">Track income, expenses and savings goals.</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
+      <!-- Admin card — only shown if admin -->
+      <a class="card admin-card" id="adminCard" href="admin.html" style="display:none">
+        <div class="card-icon">🛡️</div>
+        <div class="card-body">
+          <div class="card-title">Admin Panel</div>
+          <div class="card-desc">Manage user accounts and approvals.</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
+    </div>
+    <div class="footer-quote">
+      <strong>"Ang malaking pagbabago ay nagsisimula sa maliliit na hakbang araw-araw."</strong><br>
+      Stay consistent. Para sa iyong pamilya. 💪
+    </div>
+    <div class="footer-name">Built for <span>Marvin</span> · Majayjay, Laguna 🇵🇭</div>
+    <div class="logout-row"><button class="logout-btn" id="logoutBtn">🚪 Sign Out</button></div>
   </div>
 
 </div>
+<script>
+let db;
+try {
+  const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+} catch(e) { console.warn('Firebase:', e.message); }
 
+// ── Helpers ────────────────────────────────────────────────
+async function hashPassword(pw) {
+  const data = new TextEncoder().encode(pw + 'mlt_salt_x9z2');
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function saveSession(userId, isAdmin) {
+  localStorage.setItem('mlt_session', JSON.stringify({ userId, isAdmin: !!isAdmin, ts: Date.now() }));
+}
+function getSession() {
+  try { const s = JSON.parse(localStorage.getItem('mlt_session')||'{}'); if(s.userId) return s; } catch(e) {}
+  return null;
+}
+function clearSession() { localStorage.removeItem('mlt_session'); }
+function showMsg(id, text) { const el=document.getElementById(id); el.textContent=text; el.style.display='block'; }
+function hideMsg(id) { document.getElementById(id).style.display='none'; }
+
+// ── Tab switch ─────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('loginForm').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+}
+
+// ── Auto-login ─────────────────────────────────────────────
+const existingSession = getSession();
+if (existingSession) showMenu(existingSession.userId, existingSession.isAdmin);
+
+// ── LOGIN ──────────────────────────────────────────────────
+document.getElementById('loginBtn').addEventListener('click', handleLogin);
+document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
+
+async function handleLogin() {
+  const userId = document.getElementById('loginUserId').value.trim().replace(/\s+/g,'_');
+  const password = document.getElementById('loginPassword').value;
+  hideMsg('loginError'); hideMsg('loginWarning');
+  if (!userId || !password) { showMsg('loginError', '❌ Please fill in all fields.'); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  document.getElementById('loginLoading').style.display = 'block';
+
+  try {
+    const hashed = await hashPassword(password);
+    const doc = await db.collection('users').doc(userId).get();
+    if (!doc.exists) {
+      showMsg('loginError', '❌ User ID not found. Please register first.');
+    } else {
+      const u = doc.data();
+      if (u.passwordHash !== hashed) {
+        showMsg('loginError', '❌ Wrong password. Try again.');
+      } else if (u.status === 'pending') {
+        showMsg('loginWarning', '⏳ Your account is pending admin approval. Please wait.');
+      } else if (u.status === 'disabled') {
+        showMsg('loginError', '🚫 Your account has been disabled. Contact the admin.');
+      } else {
+        saveSession(userId, u.isAdmin);
+        showMenu(userId, u.isAdmin);
+      }
+    }
+  } catch(e) {
+    showMsg('loginError', '❌ Connection error. Check Firebase config or internet.');
+  }
+  btn.disabled = false;
+  document.getElementById('loginLoading').style.display = 'none';
+}
+
+// ── REGISTER ───────────────────────────────────────────────
+document.getElementById('registerBtn').addEventListener('click', handleRegister);
+document.getElementById('regConfirm').addEventListener('keydown', e => { if(e.key==='Enter') handleRegister(); });
+
+async function handleRegister() {
+  const userId = document.getElementById('regUserId').value.trim().replace(/\s+/g,'_');
+  const password = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regConfirm').value;
+  hideMsg('regError'); hideMsg('regSuccess');
+
+  if (!userId || !password || !confirm) { showMsg('regError','❌ Please fill in all fields.'); return; }
+  if (userId.length < 3) { showMsg('regError','❌ User ID must be at least 3 characters.'); return; }
+  if (password.length < 6) { showMsg('regError','❌ Password must be at least 6 characters.'); return; }
+  if (password !== confirm) { showMsg('regError','❌ Passwords do not match.'); return; }
+
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true;
+  document.getElementById('regLoading').style.display = 'block';
+
+  try {
+    const existing = await db.collection('users').doc(userId).get();
+    if (existing.exists) {
+      showMsg('regError', '❌ User ID already taken. Please choose another.');
+    } else {
+      const hashed = await hashPassword(password);
+      const isAdmin = userId === ADMIN_ID;
+      await db.collection('users').doc(userId).set({
+        passwordHash: hashed,
+        status: isAdmin ? 'active' : 'pending',
+        isAdmin: isAdmin,
+        createdAt: new Date().toISOString()
+      });
+      if (isAdmin) {
+        showMsg('regSuccess', '✅ Admin account created! You can now sign in.');
+      } else {
+        showMsg('regSuccess', '✅ Account created! Please wait for admin approval before signing in.');
+      }
+      document.getElementById('regUserId').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regConfirm').value = '';
+    }
+  } catch(e) {
+    showMsg('regError', '❌ Connection error. Check Firebase config or internet.');
+  }
+  btn.disabled = false;
+  document.getElementById('regLoading').style.display = 'none';
+}
+
+// ── MENU ───────────────────────────────────────────────────
+function showMenu(userId, isAdmin) {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('menuScreen').style.display = 'block';
+  document.getElementById('welcomeName').textContent = userId;
+  if (isAdmin) document.getElementById('adminCard').style.display = 'flex';
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  clearSession();
+  document.getElementById('menuScreen').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'block';
+  document.getElementById('loginPassword').value = '';
+});
+</script>
 </body>
 </html>

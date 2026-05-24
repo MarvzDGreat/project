@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel · Marvin's Life Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// ✅ Same Firebase config as index.html
+  const FIREBASE_CONFIG = {
+	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
+ 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
+  	projectId: "marvzdgreat-451c1",
+  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
+  	messagingSenderId: "961108110213",
+  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+};
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f45;
+  --text:#f0f2ff;--text2:#8b90b0;--border:rgba(255,255,255,0.07);
+  --green:#00e5a0;--green-dim:rgba(0,229,160,0.1);
+  --red:#ff5c7a;--red-dim:rgba(255,92,122,0.1);
+  --blue:#5c9aff;--blue-dim:rgba(92,154,255,0.1);
+  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.1);
+  --orange:#ff9a3c;--orange-dim:rgba(255,154,60,0.1);
+  --radius:14px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 60px}
+.container{max-width:860px;margin:0 auto}
+
+/* NO ACCESS */
+#noAccess{min-height:80vh;display:none;align-items:center;justify-content:center}
+.no-access-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border);padding:40px 32px;max-width:360px;text-align:center}
+.no-access-box h2{font-size:20px;margin-bottom:8px;font-family:'Syne',sans-serif}
+.no-access-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.back-btn{padding:11px 24px;background:var(--blue);color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+
+/* MAIN */
+#mainApp{display:none}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:10px;display:inline-flex;align-items:center;gap:4px}
+.back-link:hover{background:var(--surface2)}
+.top-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;flex:1}
+.admin-badge{font-size:12px;background:var(--blue-dim);color:var(--blue);padding:5px 12px;border-radius:99px;font-weight:500}
+.sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
+.sync-pill.synced{background:var(--green-dim);color:var(--green)}
+.sync-pill.saving{background:var(--yellow-dim);color:var(--yellow)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* STATS ROW */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+@media(min-width:500px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:16px 14px;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:700}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:3px;text-transform:uppercase;letter-spacing:0.05em}
+.stat-card.total .stat-num{color:var(--blue)}
+.stat-card.active .stat-num{color:var(--green)}
+.stat-card.pending .stat-num{color:var(--yellow)}
+.stat-card.disabled .stat-num{color:var(--red)}
+
+/* SEARCH & FILTER */
+.controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-input{flex:1;min-width:160px;padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none}
+.search-input:focus{border-color:var(--blue)}
+.filter-wrap{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:7px 14px;border-radius:99px;font-size:12px;font-weight:500;border:0.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.filter-btn.active{background:var(--surface2);color:var(--text);border-color:var(--text2)}
+
+/* USER LIST */
+.section-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);overflow:hidden}
+.section-header{padding:16px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.count-badge{font-size:12px;background:var(--surface2);color:var(--text2);padding:3px 10px;border-radius:99px}
+.empty-state{padding:40px 20px;text-align:center;color:var(--text2);font-size:13px}
+.loading-state{padding:30px 20px;text-align:center;color:var(--text2);font-size:13px}
+
+/* USER ITEM */
+.user-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:0.5px solid var(--border);transition:background 0.15s}
+.user-item:last-child{border-bottom:none}
+.user-item:hover{background:var(--surface2)}
+.user-avatar{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.user-avatar.active-av{background:var(--green-dim)}
+.user-avatar.pending-av{background:var(--yellow-dim)}
+.user-avatar.disabled-av{background:var(--red-dim)}
+.user-info{flex:1;min-width:0}
+.user-id{font-size:14px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.user-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.status-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:99px;letter-spacing:0.04em;text-transform:uppercase}
+.status-badge.active{background:var(--green-dim);color:var(--green)}
+.status-badge.pending{background:var(--yellow-dim);color:var(--yellow)}
+.status-badge.disabled{background:var(--red-dim);color:var(--red)}
+.admin-tag{font-size:10px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--blue-dim);color:var(--blue);text-transform:uppercase;letter-spacing:0.04em}
+
+/* ACTION BUTTONS */
+.action-btns{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.act-btn{padding:6px 13px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;white-space:nowrap}
+.act-btn:hover{opacity:0.8}
+.act-btn:disabled{opacity:0.4;cursor:not-allowed}
+.btn-enable{background:var(--green-dim);color:var(--green)}
+.btn-disable{background:var(--orange-dim);color:var(--orange)}
+.btn-delete{background:var(--red-dim);color:var(--red)}
+
+/* CONFIRM MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border);padding:30px;max-width:360px;width:100%;text-align:center}
+.modal-icon{font-size:40px;margin-bottom:12px}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.modal-msg{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+.modal-btns{display:flex;gap:10px}
+.modal-btn{flex:1;padding:11px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s}
+.modal-cancel{background:var(--surface2);color:var(--text2)}
+.modal-confirm{background:var(--red);color:#fff}
+.modal-confirm-green{background:var(--green);color:#000}
+</style>
+</head>
+<body>
+
+<!-- NO ACCESS -->
+<div id="noAccess">
+  <div class="no-access-box">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <h2>Admin Access Only</h2>
+    <p>This page is only accessible to admin accounts. Please sign in with your admin credentials.</p>
+    <a class="back-btn" href="index.html">← Go to Sign In</a>
+  </div>
+</div>
+
+<!-- MAIN ADMIN APP -->
+<div id="mainApp">
+<div class="container">
+
+  <div class="top-bar">
+    <a class="back-link" href="index.html">← Menu</a>
+    <span class="top-title">🛡️ Admin Panel</span>
+    <span class="admin-badge">👤 <span id="adminName"></span></span>
+    <span class="sync-pill synced" id="syncPill"><span class="sync-dot"></span><span id="syncText">Live</span></span>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card total"><div class="stat-num" id="countTotal">0</div><div class="stat-lbl">Total Users</div></div>
+    <div class="stat-card active"><div class="stat-num" id="countActive">0</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-card pending"><div class="stat-num" id="countPending">0</div><div class="stat-lbl">Pending</div></div>
+    <div class="stat-card disabled"><div class="stat-num" id="countDisabled">0</div><div class="stat-lbl">Disabled</div></div>
+  </div>
+
+  <!-- SEARCH & FILTER -->
+  <div class="controls">
+    <input class="search-input" id="searchInput" type="text" placeholder="🔍 Search by User ID..." oninput="renderList()"/>
+    <div class="filter-wrap">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+      <button class="filter-btn" onclick="setFilter('active',this)">✅ Active</button>
+      <button class="filter-btn" onclick="setFilter('disabled',this)">🚫 Disabled</button>
+    </div>
+  </div>
+
+  <!-- USER LIST -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-title">Registered Users</span>
+      <span class="count-badge" id="listCount">0 users</span>
+    </div>
+    <div id="userList"><div class="loading-state">⏳ Loading users...</div></div>
+  </div>
+
+</div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-icon" id="modalIcon">⚠️</div>
+    <div class="modal-title" id="modalTitle">Confirm Action</div>
+    <div class="modal-msg" id="modalMsg">Are you sure?</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-confirm" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let db, allUsers = [], currentFilter = 'all', unsubscribe = null;
+
+try {
+  const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+} catch(e) { console.warn('Firebase:', e.message); }
+
+// ── Session check ──────────────────────────────────────────
+function getSession(){try{const s=JSON.parse(localStorage.getItem('mlt_session')||'{}');if(s.userId)return s;}catch(e){}return null;}
+const session = getSession();
+if (!session || !session.isAdmin) {
+  document.getElementById('noAccess').style.display = 'flex';
+} else {
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('adminName').textContent = session.userId;
+  loadUsers();
+}
+
+// ── Load users realtime ────────────────────────────────────
+function loadUsers() {
+  if (!db) return;
+  setSyncStatus('saving','Loading...');
+  if (unsubscribe) unsubscribe();
+  unsubscribe = db.collection('users').onSnapshot(snap => {
+    allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    allUsers.sort((a,b) => {
+      const order = {pending:0, active:1, disabled:2};
+      return (order[a.status]||1) - (order[b.status]||1);
+    });
+    setSyncStatus('synced','Live ●');
+    updateStats();
+    renderList();
+  }, () => setSyncStatus('saving','Offline'));
+}
+
+function setSyncStatus(t,txt){document.getElementById('syncPill').className='sync-pill '+t;document.getElementById('syncText').textContent=txt;}
+
+function updateStats() {
+  document.getElementById('countTotal').textContent = allUsers.length;
+  document.getElementById('countActive').textContent = allUsers.filter(u=>u.status==='active').length;
+  document.getElementById('countPending').textContent = allUsers.filter(u=>u.status==='pending').length;
+  document.getElementById('countDisabled').textContent = allUsers.filter(u=>u.status==='disabled').length;
+}
+
+// ── Filter ─────────────────────────────────────────────────
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+// ── Render list ────────────────────────────────────────────
+function renderList() {
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = allUsers;
+  if (currentFilter !== 'all') filtered = filtered.filter(u => u.status === currentFilter);
+  if (search) filtered = filtered.filter(u => u.id.toLowerCase().includes(search));
+
+  document.getElementById('listCount').textContent = filtered.length + ' user' + (filtered.length!==1?'s':'');
+  const el = document.getElementById('userList');
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state">No users found.</div>';
+    return;
+  }
+
+  const session = getSession();
+  el.innerHTML = filtered.map(u => {
+    const isMe = u.id === session.userId;
+    const avatarEmoji = u.status==='active'?'✅':u.status==='pending'?'⏳':'🚫';
+    const avatarClass = u.status+'-av';
+    const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+    const adminTag = u.isAdmin ? `<span class="admin-tag">Admin</span>` : '';
+    const meTag = isMe ? `<span class="admin-tag" style="background:var(--orange-dim);color:var(--orange)">You</span>` : '';
+
+    let actions = '';
+    if (!isMe) {
+      if (u.status === 'pending' || u.status === 'disabled') {
+        actions += `<button class="act-btn btn-enable" onclick="confirmAction('enable','${u.id}')">✅ Enable</button>`;
+      }
+      if (u.status === 'active') {
+        actions += `<button class="act-btn btn-disable" onclick="confirmAction('disable','${u.id}')">🚫 Disable</button>`;
+      }
+      if (!u.isAdmin) {
+        actions += `<button class="act-btn btn-delete" onclick="confirmAction('delete','${u.id}')">🗑 Delete</button>`;
+      }
+    } else {
+      actions = `<span style="font-size:12px;color:var(--text2)">Your account</span>`;
+    }
+
+    return `<div class="user-item">
+      <div class="user-avatar ${avatarClass}">${avatarEmoji}</div>
+      <div class="user-info">
+        <div class="user-id">
+          ${u.id}
+          <span class="status-badge ${u.status}">${u.status}</span>
+          ${adminTag}${meTag}
+        </div>
+        <div class="user-meta">Registered: ${date}</div>
+      </div>
+      <div class="action-btns">${actions}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Actions ────────────────────────────────────────────────
+let pendingAction = null;
+
+function confirmAction(action, userId) {
+  pendingAction = { action, userId };
+  const modal = document.getElementById('modalOverlay');
+  const iconEl = document.getElementById('modalIcon');
+  const titleEl = document.getElementById('modalTitle');
+  const msgEl = document.getElementById('modalMsg');
+  const confirmBtn = document.getElementById('modalConfirmBtn');
+
+  if (action === 'enable') {
+    iconEl.textContent = '✅';
+    titleEl.textContent = 'Enable Account';
+    msgEl.textContent = `Allow "${userId}" to sign in and use the trackers?`;
+    confirmBtn.textContent = 'Yes, Enable';
+    confirmBtn.className = 'modal-btn modal-confirm-green';
+  } else if (action === 'disable') {
+    iconEl.textContent = '🚫';
+    titleEl.textContent = 'Disable Account';
+    msgEl.textContent = `Block "${userId}" from signing in? They will see a disabled message.`;
+    confirmBtn.textContent = 'Yes, Disable';
+    confirmBtn.className = 'modal-btn modal-confirm';
+  } else if (action === 'delete') {
+    iconEl.textContent = '🗑️';
+    titleEl.textContent = 'Delete Account';
+    msgEl.textContent = `Permanently delete "${userId}"? This cannot be undone.`;
+    confirmBtn.textContent = 'Yes, Delete';
+    confirmBtn.className = 'modal-btn modal-confirm';
+  }
+
+  modal.style.display = 'flex';
+}
+
+document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
+  if (!pendingAction || !db) return;
+  const { action, userId } = pendingAction;
+  const confirmBtn = document.getElementById('modalConfirmBtn');
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = '...';
+
+  try {
+    if (action === 'enable') {
+      await db.collection('users').doc(userId).update({ status: 'active' });
+    } else if (action === 'disable') {
+      await db.collection('users').doc(userId).update({ status: 'disabled' });
+    } else if (action === 'delete') {
+      await db.collection('users').doc(userId).delete();
+    }
+  } catch(e) {
+    alert('Action failed. Check your internet connection.');
+  }
+
+  confirmBtn.disabled = false;
+  closeModal();
+});
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  pendingAction = null;
+}
+document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+</script>
+</body>
+</html>

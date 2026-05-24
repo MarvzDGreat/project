@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker · Marvin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// ✅ Replace with YOUR Firebase config
+  const FIREBASE_CONFIG = {
+	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
+ 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
+  	projectId: "marvzdgreat-451c1",
+  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
+  	messagingSenderId: "961108110213",
+  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+};
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#ffffff;--surface2:#f0efe9;
+  --text:#1a1a18;--text2:#6b6b66;--border:rgba(0,0,0,0.10);
+  --green:#1D9E75;--green-light:#e1f5ee;--radius:10px;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 48px}
+.container{max-width:780px;margin:0 auto}
+#noAccess{min-height:80vh;display:none;align-items:center;justify-content:center;flex-direction:column}
+.no-access-box{background:#fff;border-radius:16px;border:0.5px solid var(--border);padding:40px 32px;max-width:360px;text-align:center}
+.no-access-box h2{font-size:20px;margin-bottom:8px}
+.no-access-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.back-btn{padding:11px 24px;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+#mainApp{display:none}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--radius);display:inline-flex;align-items:center;gap:4px}
+.back-link:hover{background:var(--surface2)}
+.top-title{font-size:18px;font-weight:600;flex:1}
+.user-badge{font-size:12px;background:var(--green-light);color:#085041;padding:5px 12px;border-radius:99px;font-weight:500}
+.sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
+.sync-pill.synced{background:var(--green-light);color:#085041}
+.sync-pill.saving{background:#faeeda;color:#633806}
+.sync-pill.error{background:#fce8eb;color:#c0392b}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:14px 12px;text-align:center}
+.stat-num{font-size:24px;font-weight:600;color:var(--green)}
+.stat-lbl{font-size:12px;color:var(--text2);margin-top:2px}
+.week-nav{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;border:0.5px solid var(--border)}
+.week-nav button{background:var(--surface2);border:none;border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.week-nav button:hover{background:#e0dfda}
+.week-label{flex:1;text-align:center;font-size:14px;font-weight:500}
+.section-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin:20px 0 8px 4px}
+.tracker-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);overflow:hidden;margin-bottom:8px}
+.day-header{display:grid;grid-template-columns:1fr repeat(7,38px);gap:4px;padding:8px 12px 8px 14px;border-bottom:0.5px solid var(--border);background:var(--surface2)}
+.day-header span{font-size:11px;font-weight:600;text-align:center;color:var(--text2);letter-spacing:0.04em}
+.day-header span.today{color:var(--green)}
+.habit-row{display:grid;grid-template-columns:1fr repeat(7,38px);gap:4px;padding:8px 12px 8px 14px;align-items:center;border-bottom:0.5px solid var(--border);transition:background 0.1s}
+.habit-row:last-child{border-bottom:none}
+.habit-row:hover{background:#fafaf8}
+.habit-name{display:flex;align-items:center;gap:8px;font-size:13px}
+.check-cell{display:flex;align-items:center;justify-content:center}
+.check-cell input[type=checkbox]{width:20px;height:20px;cursor:pointer;accent-color:var(--green)}
+.check-cell input.past-unchecked{opacity:0.35}
+.reset-btn{margin-top:16px;font-size:13px;padding:9px 20px;border-radius:var(--radius);cursor:pointer;border:0.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:inherit}
+.reset-btn:hover{background:#e8e7e2}
+.motivation{margin-top:24px;background:var(--green-light);border-radius:var(--radius);padding:14px 16px;border-left:3px solid var(--green)}
+.motivation p{font-size:13px;color:#085041;line-height:1.6}
+@media(max-width:540px){
+  .day-header,.habit-row{grid-template-columns:1fr repeat(7,28px);gap:2px;padding:8px 8px 8px 10px}
+  .habit-name{font-size:12px}
+  .check-cell input[type=checkbox]{width:17px;height:17px}
+}
+</style>
+</head>
+<body>
+
+<div id="noAccess">
+  <div class="no-access-box">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <h2>Please Sign In First</h2>
+    <p>You need to sign in from the main menu to access your Habit Tracker.</p>
+    <a class="back-btn" href="index.html">← Go to Sign In</a>
+  </div>
+</div>
+
+<div id="mainApp">
+<div class="container">
+  <div class="top-bar">
+    <a class="back-link" href="index.html">← Menu</a>
+    <span class="top-title">✅ Habit Tracker</span>
+    <span class="user-badge">👤 <span id="userDisplay"></span></span>
+    <span class="sync-pill saving" id="syncPill"><span class="sync-dot"></span><span id="syncText">Connecting...</span></span>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="doneCount">0/9</div><div class="stat-lbl">Done today</div></div>
+    <div class="stat-card"><div class="stat-num" id="weekPct">0%</div><div class="stat-lbl">Week progress</div></div>
+    <div class="stat-card"><div class="stat-num" id="streakCount">0</div><div class="stat-lbl">Day streak 🔥</div></div>
+  </div>
+  <div class="week-nav">
+    <button id="prevBtn">&#8249;</button>
+    <span class="week-label" id="weekLabel"></span>
+    <button id="nextBtn">&#8250;</button>
+  </div>
+  <div id="trackerBody"></div>
+  <button class="reset-btn" id="resetBtn">↺ Reset this week</button>
+  <div class="motivation">
+    <p><strong>Remember, Marvin:</strong> Every checkbox you tick is one step closer to the life you want for your family. Kaya mo yan! 🔥</p>
+  </div>
+</div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 1: Init Firebase safely
+// Handles "already exists" error when
+// multiple tabs are open simultaneously
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let db = null, unsubscribe = null;
+try {
+  const app = firebase.apps.length
+    ? firebase.app()                        // reuse existing app
+    : firebase.initializeApp(FIREBASE_CONFIG); // or create new
+  db = firebase.firestore();
+} catch(e) {
+  console.warn('Firebase init error:', e.message);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 2: Session helpers
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('mlt_session') || '{}');
+    if (s.userId) return s;
+  } catch(e) {}
+  return null;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 3: Constants
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const TODAY_IDX = (new Date().getDay() + 6) % 7;
+const HABITS = [
+{ section:'☀️Morning', icon:'☀️', name:'Wake up on time<br><b>5:30am</b>' },
+{ section:'☀️Morning', icon:'🙏', name:'Prayer / Gratitude' },
+{ section: '☀️Morning', icon:'💧', name:'Drink water<br>1–2 glasses' },
+{ section:'☀️Morning', icon:'🚿', name:'Shower & hygiene' },
+{ section:'☀️Morning', icon:'🍳', name:'Healthy breakfast<br>Protein,Carbs,Fruit' },
+
+{ section:'Grow-Up', icon:'🗣️', name:'English practice  <br>(30 min)' },
+{ section:'Grow-Up', icon:'📚', name:'Study / upskill <br>(1 hr)' },
+{ section:'Grow-Up', icon:'💻', name:'Practice tech skills' },
+
+{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Warm-up/Stretch&nbsp' },
+{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Push-ups:&nbsp; 10–15' },
+{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Sit-ups:&nbsp; 10–15' },
+{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Squats:&nbsp; 15-20' },
+{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Plank:&nbsp; 10–15' },
+
+{ section:'🚫Discipline Rules', icon:'🛑', name:'No procrastination<br>( do it today )' },
+{ section:'🚫Discipline Rules', icon:'🛑', name:'No doom scrolling' },
+{ section:'🚫Discipline Rules', icon:'🛑', name:'No Gambling' },
+{ section:'🚫Discipline Rules', icon:'🛑', name:'No Smoking <br>No Alcohol <br>No Porn' },
+
+
+
+/*
+  { section:'Morning', icon:'🗣️', name:'English practice (30 min)' },
+  { section:'Daytime', icon:'💼', name:'Check job boards (15 min)' },
+  { section:'Daytime', icon:'🔧', name:'Work on certification' },
+  { section:'Daytime', icon:'🤝', name:'Talk to 1 potential client' },
+  { section:'Evening', icon:'💻', name:'Practice tech skills' },
+  { section:'Level-Up', icon:'❤️', name:'Family time' },
+  { section:'Grow-Up', icon:'📚', name:'Study / upskill (1 hr)' },
+  { section:'Evening', icon:'🌙', name:'Review progress & plan tomorrow' },
+*/
+];
+let weekOffset = 0, allData = {};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 4: Check session & start
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const session = getSession();
+if (!session) {
+  document.getElementById('noAccess').style.display = 'flex';
+} else {
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('userDisplay').textContent = session.userId;
+  startTracker(session.userId);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 5: Start tracker
+// Always renders UI even if Firebase fails
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function startTracker(userId) {
+  render(); // render immediately with empty data so UI is visible
+  if (!db) {
+    setSyncStatus('error', 'Check Firebase config');
+    return;
+  }
+  setSyncStatus('saving', 'Connecting...');
+  if (unsubscribe) unsubscribe();
+  unsubscribe = db.collection('habits').doc(userId)
+    .onSnapshot(
+      doc => {
+        allData = doc.exists ? (doc.data().checks || {}) : {};
+        setSyncStatus('synced', 'Synced ✓');
+        render();
+      },
+      err => {
+        console.warn('Firestore error:', err.message);
+        setSyncStatus('error', 'Offline — data may not save');
+        render();
+      }
+    );
+}
+
+function saveData() {
+  const s = getSession();
+  if (!s || !db) return;
+  setSyncStatus('saving', 'Saving...');
+  db.collection('habits').doc(s.userId)
+    .set({ checks: allData })
+    .then(() => setSyncStatus('synced', 'Synced ✓'))
+    .catch(e => { console.warn(e); setSyncStatus('error', 'Save failed'); });
+}
+
+function setSyncStatus(t, txt) {
+  document.getElementById('syncPill').className = 'sync-pill ' + t;
+  document.getElementById('syncText').textContent = txt;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Week helpers
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getWeekKey(o) {
+  const n = new Date(), m = new Date(n);
+  m.setDate(n.getDate() - TODAY_IDX + o * 7);
+  return m.toISOString().slice(0, 10);
+}
+function getWeekDates(o) {
+  const n = new Date(), m = new Date(n);
+  m.setDate(n.getDate() - TODAY_IDX + o * 7);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(m); d.setDate(m.getDate() + i); return d;
+  });
+}
+function getKey(wk, h, d) { return wk + '_h' + h + '_d' + d; }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Render
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function render() {
+  const wk = getWeekKey(weekOffset);
+  const dates = getWeekDates(weekOffset);
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  document.getElementById('weekLabel').textContent =
+    dates[0].toLocaleDateString('en-PH', { month:'short', day:'numeric' }) +
+    ' – ' +
+    dates[6].toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+
+  const sections = {};
+  HABITS.forEach((h, i) => {
+    if (!sections[h.section]) sections[h.section] = [];
+    sections[h.section].push({ h, i });
+  });
+
+  let html = '';
+  Object.entries(sections).forEach(([sec, habits]) => {
+    html += `<div class="section-title">${sec}</div><div class="tracker-card">`;
+    html += '<div class="day-header"><span></span>' +
+      DAYS.map((d, i) => {
+        const isToday = dates[i].toISOString().slice(0,10) === todayStr && weekOffset === 0;
+        return `<span class="${isToday ? 'today' : ''}">${d}${isToday ? '<br>●' : ''}</span>`;
+      }).join('') + '</div>';
+    habits.forEach(({ h, i: hIdx }) => {
+      html += '<div class="habit-row">';
+      html += `<div class="habit-name"><span>${h.icon}</span><span>${h.name}</span></div>`;
+      DAYS.forEach((_, dIdx) => {
+        const key = getKey(wk, hIdx, dIdx);
+        const checked = allData[key] ? 'checked' : '';
+        const isPast = dates[dIdx].toISOString().slice(0,10) < todayStr;
+        html += `<div class="check-cell"><input type="checkbox" ${checked} class="${isPast && !checked ? 'past-unchecked' : ''}" data-wk="${wk}" data-h="${hIdx}" data-d="${dIdx}"></div>`;
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('trackerBody').innerHTML = html;
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', function () {
+      const k = getKey(this.dataset.wk, this.dataset.h, this.dataset.d);
+      if (this.checked) allData[k] = 1; else delete allData[k];
+      saveData();
+      updateStats();
+    });
+  });
+  updateStats();
+}
+
+function updateStats() {
+  const wk = getWeekKey(weekOffset);
+  const dates = getWeekDates(weekOffset);
+  const todayStr = new Date().toISOString().slice(0,10);
+  let done = 0, todayDone = 0;
+  HABITS.forEach((_, h) => DAYS.forEach((_, d) => {
+    if (allData[getKey(wk, h, d)]) {
+      done++;
+      if (dates[d].toISOString().slice(0,10) === todayStr) todayDone++;
+    }
+  }));
+  document.getElementById('doneCount').textContent = todayDone + '/' + HABITS.length;
+  document.getElementById('weekPct').textContent = Math.round(done / (HABITS.length * 7) * 100) + '%';
+  let streak = 0;
+  outer: for (let w = 0; w <= 8; w++) {
+    const wkk = getWeekKey(-w), dw = getWeekDates(-w);
+    for (let d = (w === 0 ? TODAY_IDX : 6); d >= 0; d--) {
+      if (HABITS.filter((_, h) => allData[getKey(wkk, h, d)]).length >= Math.ceil(HABITS.length / 2)) streak++;
+      else break outer;
+    }
+  }
+  document.getElementById('streakCount').textContent = streak;
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => { weekOffset--; render(); });
+document.getElementById('nextBtn').addEventListener('click', () => { weekOffset++; render(); });
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Reset all habits for this week?')) return;
+  const wk = getWeekKey(weekOffset);
+  Object.keys(allData).filter(k => k.startsWith(wk)).forEach(k => delete allData[k]);
+  saveData(); render();
+});
+</script>
+</body>
+</html>
