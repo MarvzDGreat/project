@@ -81,11 +81,6 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
 .card.habits::before{background:var(--green-dim)}
 .card.money::before{background:var(--yellow-dim)}
 .card.admin-card::before{background:var(--blue-dim)}
-.card.notes-card::before{background:rgba(161,98,7,0.12)}
-.card.notes-card:hover{border-color:#a16207}
-.card.notes-card .card-icon{background:rgba(161,98,7,0.12)}
-.card.notes-card .card-title{color:#a16207}
-.card.notes-card:hover .card-arrow{color:#a16207}
 .card:hover{transform:translateY(-3px)}
 .card:hover::before{opacity:1}
 .card.habits:hover{border-color:var(--green)}
@@ -195,15 +190,15 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
         </div>
         <div class="card-arrow">›</div>
       </a>
-      <!-- Admin card — only shown if admin -->
-      <a class="card notes-card" href="notes.html">
+	  <a class="card notes-card" href="notes.html">
         <div class="card-icon">📝</div>
         <div class="card-body">
           <div class="card-title">Notes</div>
-          <div class="card-desc">Write ideas, reminders and thoughts. Like Google Keep!</div>
+          <div class="card-desc">Write ideas, reminders and thoughts</div>
         </div>
         <div class="card-arrow">›</div>
       </a>
+      <!-- Admin card — only shown if admin -->
       <a class="card admin-card" id="adminCard" href="admin.html" style="display:none">
         <div class="card-icon">🛡️</div>
         <div class="card-body">
