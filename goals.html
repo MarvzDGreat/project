@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals · Marvin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// ✅ Same Firebase config as index.html
+  const FIREBASE_CONFIG = {
+	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
+ 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
+  	projectId: "marvzdgreat-451c1",
+  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
+  	messagingSenderId: "961108110213",
+  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+};
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f45;
+  --text:#f0f2ff;--text2:#8b90b0;--text3:#4a5070;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --green:#00e5a0;--green-dim:rgba(0,229,160,0.1);
+  --blue:#5c9aff;--blue-dim:rgba(92,154,255,0.1);
+  --red:#ff5c7a;--red-dim:rgba(255,92,122,0.1);
+  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.1);
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px}
+
+/* NO ACCESS */
+#noAccess{min-height:100vh;display:none;align-items:center;justify-content:center}
+.no-access-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border);padding:40px 32px;max-width:360px;text-align:center}
+.no-access-box h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.no-access-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.back-btn{padding:11px 24px;background:var(--green);color:#000;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+
+/* MAIN */
+#mainApp{display:none}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(15,17,23,0.85);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:500}
+.back-link:hover{background:var(--surface2)}
+.topbar-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;flex:1;letter-spacing:-0.02em}
+.topbar-title span{color:var(--yellow)}
+.user-pill{font-size:12px;background:var(--yellow-dim);color:var(--yellow);padding:5px 12px;border-radius:99px;font-weight:500;font-family:'Syne',sans-serif}
+.sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
+.sync-pill.synced{background:var(--green-dim);color:var(--green)}
+.sync-pill.saving{background:var(--yellow-dim);color:var(--yellow)}
+.sync-pill.error{background:var(--red-dim);color:var(--red)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.main-content{max-width:700px;margin:0 auto;padding:24px 16px}
+
+/* SUMMARY */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:480px){.summary{grid-template-columns:1fr 1fr}.summary .metric:last-child{grid-column:span 2}}
+.metric{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 14px}
+.metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;font-family:'Syne',sans-serif}
+.metric-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text)}
+
+/* STATUS */
+#statusBar{display:none;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:16px;font-weight:500;font-family:'Syne',sans-serif}
+#statusBar.success{background:var(--green-dim);color:var(--green)}
+#statusBar.error{background:var(--red-dim);color:var(--red)}
+
+/* GOAL CARDS */
+.goals-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.goal-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color 0.2s,transform 0.2s}
+.goal-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.goal-card.done{border-color:rgba(0,229,160,0.25)}
+.gc-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.gc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.gc-info{flex:1;min-width:0}
+.gc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.gc-actions{display:flex;gap:6px}
+.icon-btn{width:32px;height:32px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:transparent;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-family:'Syne',sans-serif;font-weight:700}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn.danger:hover{background:var(--red-dim);color:var(--red);border-color:rgba(255,92,122,0.3)}
+.progress-track{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;border-radius:99px;transition:width 0.6s cubic-bezier(.4,0,.2,1)}
+.gc-foot{display:flex;justify-content:space-between;align-items:center}
+.gc-amounts{font-size:12px;color:var(--text2)}
+.gc-amounts strong{color:var(--text);font-family:'Syne',sans-serif}
+.gc-pct{font-size:13px;font-weight:700;font-family:'Syne',sans-serif}
+.done-badge{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--green-dim);color:var(--green);font-weight:600;font-family:'Syne',sans-serif}
+
+/* DEPOSIT */
+.deposit-panel{margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:0.5px solid var(--border);animation:slideDown 0.2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.deposit-panel label{font-size:12px;color:var(--text2);display:block;margin-bottom:8px}
+.deposit-row{display:flex;gap:8px}
+.deposit-row input{flex:1;height:38px;padding:0 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;font-family:'DM Sans',sans-serif}
+.deposit-row input:focus{border-color:var(--blue)}
+.btn-deposit{height:38px;padding:0 16px;font-size:13px;font-weight:700;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;transition:opacity 0.15s}
+.btn-deposit:hover{opacity:0.85}
+
+/* HISTORY */
+.history-panel{margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:0.5px solid var(--border)}
+.history-title{font-size:12px;color:var(--text2);margin-bottom:10px;font-family:'Syne',sans-serif;font-weight:600}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px}
+.history-item:last-child{border-bottom:none}
+.h-amount{color:var(--green);font-family:'Syne',sans-serif;font-weight:700}
+.h-date{color:var(--text3)}
+.no-history{font-size:12px;color:var(--text3);font-style:italic}
+
+/* ADD FORM */
+.add-form{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:14px;animation:slideDown 0.2s ease}
+.form-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:480px){.form-grid{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-family:'Syne',sans-serif}
+.fg input,.fg select,.fg textarea{padding:10px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border 0.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg select option{background:var(--surface2)}
+.fg textarea{resize:vertical;min-height:60px;line-height:1.5}
+.form-actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{height:38px;padding:0 18px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);cursor:pointer;font-family:'Syne',sans-serif;transition:opacity 0.15s}
+.btn-ghost{background:transparent;border:0.5px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-primary{background:var(--green);color:#000;border:none}
+.btn-primary:hover{opacity:0.85}
+.btn-new{width:100%;height:44px;font-size:13px;font-weight:700;background:transparent;border:1.5px dashed var(--border2);border-radius:var(--radius);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;font-family:'Syne',sans-serif}
+.btn-new:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:12px;display:block;opacity:0.5}
+.empty p{font-size:14px;line-height:1.6}
+
+.loader{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- NO ACCESS -->
+<div id="noAccess">
+  <div class="no-access-box">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <h2>Please Sign In First</h2>
+    <p>You need to sign in from the main menu to access your Goals.</p>
+    <a class="back-btn" href="index.html">← Go to Sign In</a>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Menu</a>
+    <div class="topbar-title">🎯 <span>Goals</span></div>
+    <span class="user-pill">👤 <span id="userDisplay"></span></span>
+    <span class="sync-pill saving" id="syncPill"><span class="sync-dot"></span><span id="syncText">Connecting...</span></span>
+  </div>
+
+  <div class="main-content">
+
+    <!-- SUMMARY -->
+    <div class="summary">
+      <div class="metric"><div class="metric-label">Total Goals</div><div class="metric-val" id="metGoals">0</div></div>
+      <div class="metric"><div class="metric-label">Total Saved</div><div class="metric-val" id="metSaved">₱0</div></div>
+      <div class="metric"><div class="metric-label">Completed</div><div class="metric-val" id="metDone">0</div></div>
+    </div>
+
+    <div id="statusBar"></div>
+
+    <!-- GOAL CARDS -->
+    <div class="goals-list" id="goalsList">
+      <div class="loader">⏳ Connecting to Firebase...</div>
+    </div>
+
+    <!-- ADD FORM -->
+    <div id="addFormWrap" style="display:none">
+      <div class="add-form">
+        <div class="form-title">➕ New Goal</div>
+        <div class="form-grid">
+          <div class="fg"><label>Goal Name</label><input type="text" id="fName" placeholder="e.g. Emergency Fund"/></div>
+          <div class="fg"><label>Target Amount (₱)</label><input type="number" id="fTarget" placeholder="50000" min="1"/></div>
+          <div class="fg"><label>Starting Amount (₱)</label><input type="number" id="fStart" placeholder="0" min="0" value="0"/></div>
+          <div class="fg">
+            <label>Category</label>
+            <select id="fCat">
+              <option value="💰">💰 Savings</option>
+              <option value="🏠">🏠 Home</option>
+              <option value="✈️">✈️ Travel</option>
+              <option value="🎓">🎓 Education</option>
+              <option value="🚗">🚗 Vehicle</option>
+              <option value="💻">💻 Tech / Gadget</option>
+              <option value="🏥">🏥 Health</option>
+              <option value="👨‍👩‍👧">👨‍👩‍👧 Family</option>
+              <option value="📈">📈 Investment</option>
+              <option value="🎯">🎯 Other</option>
+            </select>
+          </div>
+          <div class="fg" style="grid-column:span 2">
+            <label>Note (optional)</label>
+            <textarea id="fNote" placeholder="Why is this goal important to you?"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" onclick="toggleForm(false)">Cancel</button>
+          <button class="btn btn-primary" onclick="addGoal()">Save Goal</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-new" id="btnNew" onclick="toggleForm(true)">
+      <span style="font-size:18px">+</span> Add a new goal
+    </button>
+
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 1: Firebase init
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let db = null, unsubscribe = null;
+try {
+  const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+} catch(e) { console.warn('Firebase:', e.message); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 2: Variables
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let goals = [];
+let depositOpen = null;
+let historyOpen = null;
+let colorIndex  = 0;
+
+const COLORS  = ['#00e5a0','#5c9aff','#ff9a3c','#c084fc','#ffd166','#ff5c7a','#34d399','#60a5fa'];
+const CBGS    = [
+  'rgba(0,229,160,0.1)','rgba(92,154,255,0.1)','rgba(255,154,60,0.1)',
+  'rgba(192,132,252,0.1)','rgba(255,209,102,0.1)','rgba(255,92,122,0.1)',
+  'rgba(52,211,153,0.1)','rgba(96,165,250,0.1)'
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 3: Helpers
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getSession() {
+  try { const s = JSON.parse(localStorage.getItem('mlt_session')||'{}'); if(s.userId) return s; } catch(e) {}
+  return null;
+}
+function setSyncStatus(t, txt) {
+  document.getElementById('syncPill').className = 'sync-pill ' + t;
+  document.getElementById('syncText').textContent = txt;
+}
+function showStatus(msg, type) {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg;
+  bar.className = type;
+  bar.style.display = 'block';
+  setTimeout(() => { bar.style.display = 'none'; }, 3000);
+}
+function fmt(n) { return '₱' + Math.round(n||0).toLocaleString('en-PH'); }
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 4: Save to Firestore
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function saveGoals() {
+  const s = getSession();
+  if (!s || !db) return;
+  setSyncStatus('saving', 'Saving...');
+  db.collection('goals').doc(s.userId).set({ goals })
+    .then(() => setSyncStatus('synced', 'Synced ✓'))
+    .catch(e => { console.warn(e); setSyncStatus('error', 'Save failed'); });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 5: Form
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function toggleForm(show) {
+  document.getElementById('addFormWrap').style.display = show ? 'block' : 'none';
+  document.getElementById('btnNew').style.display = show ? 'none' : 'flex';
+  if (show) document.getElementById('fName').focus();
+}
+
+function addGoal() {
+  const name   = document.getElementById('fName').value.trim();
+  const target = parseFloat(document.getElementById('fTarget').value);
+  const start  = parseFloat(document.getElementById('fStart').value) || 0;
+  const cat    = document.getElementById('fCat').value;
+  const note   = document.getElementById('fNote').value.trim();
+
+  if (!name)            { showStatus('Please enter a goal name.', 'error'); document.getElementById('fName').focus(); return; }
+  if (!target || target <= 0) { showStatus('Please enter a valid target amount.', 'error'); document.getElementById('fTarget').focus(); return; }
+
+  const idx = colorIndex % COLORS.length;
+  colorIndex++;
+
+  goals.push({
+    id:        Date.now().toString(),
+    name, target,
+    saved:     Math.min(start, target),
+    cat, note,
+    color:     COLORS[idx],
+    colorBg:   CBGS[idx],
+    createdAt: new Date().toISOString(),
+    deposits:  start > 0 ? [{ amount: start, date: new Date().toISOString(), note: 'Starting amount' }] : []
+  });
+
+  saveGoals();
+  renderGoals();
+  showStatus('🎯 Goal added!', 'success');
+
+  // Reset form
+  document.getElementById('fName').value   = '';
+  document.getElementById('fTarget').value = '';
+  document.getElementById('fStart').value  = '0';
+  document.getElementById('fNote').value   = '';
+  document.getElementById('fCat').value    = '💰';
+  toggleForm(false);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 6: Actions
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openDeposit(id) {
+  depositOpen = depositOpen === id ? null : id;
+  historyOpen = null;
+  renderGoals();
+}
+function openHistory(id) {
+  historyOpen = historyOpen === id ? null : id;
+  depositOpen = null;
+  renderGoals();
+}
+
+function doDeposit(id) {
+  const inp  = document.getElementById('dep_' + id);
+  const noteInp = document.getElementById('depNote_' + id);
+  const amt  = parseFloat(inp.value);
+  if (!amt || amt <= 0) { showStatus('Enter a valid amount.', 'error'); return; }
+
+  const goal = goals.find(g => g.id === id);
+  if (!goal) return;
+
+  const newSaved = Math.min(goal.saved + amt, goal.target);
+  goal.saved = newSaved;
+  if (!goal.deposits) goal.deposits = [];
+  goal.deposits.push({
+    amount: amt,
+    date:   new Date().toISOString(),
+    note:   noteInp ? noteInp.value.trim() : ''
+  });
+
+  saveGoals();
+  depositOpen = null;
+  renderGoals();
+  showStatus('💰 Deposit saved!', 'success');
+}
+
+function deleteGoal(id) {
+  if (!confirm('Remove this goal and all its data?')) return;
+  goals = goals.filter(g => g.id !== id);
+  if (depositOpen === id) depositOpen = null;
+  if (historyOpen === id) historyOpen = null;
+  saveGoals();
+  renderGoals();
+  showStatus('Goal removed.', 'success');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 7: Render
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function renderGoals() {
+  const totalSaved = goals.reduce((s, g) => s + (g.saved || 0), 0);
+  const done       = goals.filter(g => (g.saved || 0) >= g.target).length;
+
+  document.getElementById('metGoals').textContent = goals.length;
+  document.getElementById('metSaved').textContent = fmt(totalSaved);
+  document.getElementById('metDone').textContent  = done;
+
+  const list = document.getElementById('goalsList');
+  if (!goals.length) {
+    list.innerHTML = `<div class="empty">
+      <span class="empty-icon">🎯</span>
+      <p>No goals yet.<br>Add your first goal below and start saving!</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = goals.map(g => {
+    const saved   = g.saved || 0;
+    const pct     = Math.min(100, Math.round((saved / g.target) * 100));
+    const isDone  = saved >= g.target;
+    const remaining = g.target - saved;
+    const color   = g.color   || '#00e5a0';
+    const colorBg = g.colorBg || 'rgba(0,229,160,0.1)';
+    const depOpen = depositOpen === g.id;
+    const hisOpen = historyOpen === g.id;
+    const deps    = g.deposits || [];
+
+    const histHTML = hisOpen ? `
+      <div class="history-panel">
+        <div class="history-title">📋 Deposit History (${deps.length})</div>
+        ${deps.length === 0
+          ? '<div class="no-history">No deposits yet.</div>'
+          : [...deps].reverse().map(d =>
+              `<div class="history-item">
+                <span>${d.note ? `<span style="color:var(--text2)">${d.note}</span>` : '<span style="color:var(--text3)">—</span>'}</span>
+                <span style="display:flex;gap:12px;align-items:center">
+                  <span class="h-date">${fmtDate(d.date)}</span>
+                  <span class="h-amount">+${fmt(d.amount)}</span>
+                </span>
+              </div>`
+            ).join('')
+        }
+      </div>` : '';
+
+    const depHTML = depOpen ? `
+      <div class="deposit-panel">
+        <label>Add deposit to "${g.name}"</label>
+        <div class="deposit-row">
+          <input type="number" id="dep_${g.id}" placeholder="Amount in ₱" min="1" style="flex:1"/>
+          <input type="text" id="depNote_${g.id}" placeholder="Note (optional)" style="flex:1"/>
+          <button class="btn-deposit" onclick="doDeposit('${g.id}')">+ Add</button>
+        </div>
+      </div>` : '';
+
+    return `<div class="goal-card${isDone ? ' done' : ''}">
+      <div class="gc-top">
+        <div class="gc-icon" style="background:${colorBg}">${g.cat || '🎯'}</div>
+        <div class="gc-info">
+          <div class="gc-name">${g.name}</div>
+          <div class="gc-sub">${isDone
+            ? '🎉 Goal reached! Congratulations!'
+            : `${fmt(remaining)} remaining · ${fmtDate(g.createdAt)}`}
+          </div>
+          ${g.note ? `<div style="font-size:11px;color:var(--text3);margin-top:3px;font-style:italic">${g.note}</div>` : ''}
+        </div>
+        <div class="gc-actions">
+          ${!isDone ? `<button class="icon-btn" onclick="openDeposit('${g.id}')" title="Add deposit" style="color:var(--green);font-size:18px">+</button>` : ''}
+          <button class="icon-btn" onclick="openHistory('${g.id}')" title="View history" style="font-size:14px">📋</button>
+          <button class="icon-btn danger" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+
+      <div class="gc-foot">
+        <div class="gc-amounts">Saved: <strong>${fmt(saved)}</strong> of ${fmt(g.target)}</div>
+        ${isDone
+          ? '<span class="done-badge">✓ Complete 🎉</span>'
+          : `<span class="gc-pct" style="color:${color}">${pct}%</span>`}
+      </div>
+
+      ${depHTML}
+      ${histHTML}
+    </div>`;
+  }).join('');
+}
+
+// Enter key on deposit amount
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && depositOpen) {
+    const inp = document.getElementById('dep_' + depositOpen);
+    if (document.activeElement === inp || document.activeElement === document.getElementById('depNote_' + depositOpen)) {
+      doDeposit(depositOpen);
+    }
+  }
+  if (e.key === 'Enter' && document.activeElement.id === 'fName') {
+    document.getElementById('fTarget').focus();
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 8: Firebase listener
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function initApp(userId) {
+  renderGoals();
+  if (!db) { setSyncStatus('error', 'Firebase not configured'); return; }
+  setSyncStatus('saving', 'Connecting...');
+  if (unsubscribe) unsubscribe();
+  unsubscribe = db.collection('goals').doc(userId).onSnapshot(
+    doc => {
+      goals = (doc.exists && doc.data().goals) ? doc.data().goals : [];
+      colorIndex = goals.length;
+      setSyncStatus('synced', 'Synced ✓');
+      renderGoals();
+    },
+    err => { console.warn(err); setSyncStatus('error', 'Offline'); }
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 9: Session check (LAST)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const session = getSession();
+if (!session) {
+  document.getElementById('noAccess').style.display = 'flex';
+} else {
+  document.getElementById('mainApp').style.display  = 'block';
+  document.getElementById('userDisplay').textContent = session.userId;
+  initApp(session.userId);
+}
+</script>
+</body>
+</html>

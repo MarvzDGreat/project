@@ -9,13 +9,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 // ✅ Replace with YOUR Firebase config
-  const FIREBASE_CONFIG = {
-	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
- 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
-  	projectId: "marvzdgreat-451c1",
-  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
-  	messagingSenderId: "961108110213",
-  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+const FIREBASE_CONFIG = {
+  apiKey:            "PASTE_YOUR_apiKey_HERE",
+  authDomain:        "PASTE_YOUR_authDomain_HERE",
+  projectId:         "PASTE_YOUR_projectId_HERE",
+  storageBucket:     "PASTE_YOUR_storageBucket_HERE",
+  messagingSenderId: "PASTE_YOUR_messagingSenderId_HERE",
+  appId:             "PASTE_YOUR_appId_HERE"
 };
 // ✅ Set your admin username here
 const ADMIN_ID = "marvin_admin";
@@ -81,6 +81,16 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
 .card.habits::before{background:var(--green-dim)}
 .card.money::before{background:var(--yellow-dim)}
 .card.admin-card::before{background:var(--blue-dim)}
+.card.goals-card::before{background:rgba(255,209,102,0.12)}
+.card.goals-card:hover{border-color:#ffd166}
+.card.goals-card .card-icon{background:rgba(255,209,102,0.12)}
+.card.goals-card .card-title{color:#ffd166}
+.card.goals-card:hover .card-arrow{color:#ffd166}
+.card.notes-card::before{background:rgba(161,98,7,0.12)}
+.card.notes-card:hover{border-color:#a16207}
+.card.notes-card .card-icon{background:rgba(161,98,7,0.12)}
+.card.notes-card .card-title{color:#a16207}
+.card.notes-card:hover .card-arrow{color:#a16207}
 .card:hover{transform:translateY(-3px)}
 .card:hover::before{opacity:1}
 .card.habits:hover{border-color:var(--green)}
@@ -95,7 +105,7 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
 .card.habits .card-title{color:var(--green)}
 .card.money .card-title{color:var(--yellow)}
 .card.admin-card .card-title{color:var(--blue)}
-.card-desc{font-size:12px;color:var(--text2);line-height:1.5;text-align:center;}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.5}
 .card-arrow{font-size:22px;color:var(--text2);position:relative;z-index:1;transition:transform 0.2s,color 0.2s}
 .card:hover .card-arrow{transform:translateX(4px)}
 .card.habits:hover .card-arrow{color:var(--green)}
@@ -190,15 +200,23 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
         </div>
         <div class="card-arrow">›</div>
       </a>
-	  <a class="card notes-card" href="notes.html">
-        <div class="card-icon">📝</div>
+      <!-- Admin card — only shown if admin -->
+      <a class="card goals-card" href="goals.html">
+        <div class="card-icon">🎯</div>
         <div class="card-body">
-          <div class="card-title">Notes</div>
-          <div class="card-desc">Write ideas, reminders and thoughts</div>
+          <div class="card-title">Goal Tracker</div>
+          <div class="card-desc">Set savings goals and track your progress.</div>
         </div>
         <div class="card-arrow">›</div>
       </a>
-      <!-- Admin card — only shown if admin -->
+      <a class="card notes-card" href="notes.html">
+        <div class="card-icon">📝</div>
+        <div class="card-body">
+          <div class="card-title">Notes</div>
+          <div class="card-desc">Write ideas, reminders and thoughts. Like Google Keep!</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
       <a class="card admin-card" id="adminCard" href="admin.html" style="display:none">
         <div class="card-icon">🛡️</div>
         <div class="card-body">
