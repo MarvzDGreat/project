@@ -4,136 +4,284 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Goals · Marvin</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-// ✅ Same Firebase config as index.html
-  const FIREBASE_CONFIG = {
-	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
- 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
-  	projectId: "marvzdgreat-451c1",
-  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
-  	messagingSenderId: "961108110213",
-  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+const FIREBASE_CONFIG = {
+  apiKey:            "PASTE_YOUR_apiKey_HERE",
+  authDomain:        "PASTE_YOUR_authDomain_HERE",
+  projectId:         "PASTE_YOUR_projectId_HERE",
+  storageBucket:     "PASTE_YOUR_storageBucket_HERE",
+  messagingSenderId: "PASTE_YOUR_messagingSenderId_HERE",
+  appId:             "PASTE_YOUR_appId_HERE"
 };
 </script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f45;
-  --text:#f0f2ff;--text2:#8b90b0;--text3:#4a5070;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --green:#00e5a0;--green-dim:rgba(0,229,160,0.1);
-  --blue:#5c9aff;--blue-dim:rgba(92,154,255,0.1);
-  --red:#ff5c7a;--red-dim:rgba(255,92,122,0.1);
-  --yellow:#ffd166;--yellow-dim:rgba(255,209,102,0.1);
-  --radius:14px;--radius-sm:8px;
+  --bg:#0c0e14;
+  --surface:#13161f;
+  --surface2:#1b1f2e;
+  --surface3:#232840;
+  --text:#eef0ff;
+  --text2:#7b82a8;
+  --text3:#3d4460;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.11);
+  --yellow:#ffd166;
+  --yellow-dim:rgba(255,209,102,0.1);
+  --green:#00e5a0;
+  --green-dim:rgba(0,229,160,0.1);
+  --blue:#60a5fa;
+  --blue-dim:rgba(96,165,250,0.1);
+  --red:#fb7185;
+  --red-dim:rgba(251,113,133,0.1);
+  --purple:#a78bfa;
+  --purple-dim:rgba(167,139,250,0.1);
+  --orange:#fb923c;
+  --orange-dim:rgba(251,146,60,0.1);
+  --pink:#f472b6;
+  --pink-dim:rgba(244,114,182,0.1);
+  --teal:#2dd4bf;
+  --teal-dim:rgba(45,212,191,0.1);
+  --r:12px;--rsm:8px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px}
 
-/* NO ACCESS */
-#noAccess{min-height:100vh;display:none;align-items:center;justify-content:center}
-.no-access-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border);padding:40px 32px;max-width:360px;text-align:center}
-.no-access-box h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
+body{
+  font-family:'Cabinet Grotesk',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;padding:0 0 80px;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* ── NO ACCESS ── */
+#noAccess{min-height:100vh;display:none;align-items:center;justify-content:center;position:relative;z-index:1}
+.no-access-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border2);padding:40px 32px;max-width:360px;text-align:center}
+.no-access-box h2{font-size:20px;font-weight:800;margin-bottom:8px}
 .no-access-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
-.back-btn{padding:11px 24px;background:var(--green);color:#000;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.back-btn-link{padding:11px 24px;background:var(--yellow);color:#000;border:none;border-radius:var(--rsm);font-size:14px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}
 
-/* MAIN */
-#mainApp{display:none}
-.topbar{position:sticky;top:0;z-index:50;background:rgba(15,17,23,0.85);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:500}
-.back-link:hover{background:var(--surface2)}
-.topbar-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;flex:1;letter-spacing:-0.02em}
-.topbar-title span{color:var(--yellow)}
-.user-pill{font-size:12px;background:var(--yellow-dim);color:var(--yellow);padding:5px 12px;border-radius:99px;font-weight:500;font-family:'Syne',sans-serif}
-.sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
+/* ── MAIN ── */
+#mainApp{display:none;position:relative;z-index:1}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(12,14,20,0.88);backdrop-filter:blur(16px);
+  border-bottom:0.5px solid var(--border);
+  padding:12px 20px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.back-link{font-size:12px;color:var(--text2);text-decoration:none;background:var(--surface2);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--rsm);display:inline-flex;align-items:center;gap:4px;font-weight:700;letter-spacing:0.03em;transition:background 0.15s}
+.back-link:hover{background:var(--surface3)}
+.topbar-title{font-size:18px;font-weight:900;flex:1;letter-spacing:-0.03em}
+.topbar-title em{font-family:'Instrument Serif',serif;font-style:italic;color:var(--yellow)}
+.user-pill{font-size:11px;background:var(--yellow-dim);color:var(--yellow);padding:4px 11px;border-radius:99px;font-weight:700;letter-spacing:0.03em}
+.sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px;font-weight:600}
 .sync-pill.synced{background:var(--green-dim);color:var(--green)}
 .sync-pill.saving{background:var(--yellow-dim);color:var(--yellow)}
 .sync-pill.error{background:var(--red-dim);color:var(--red)}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-.main-content{max-width:700px;margin:0 auto;padding:24px 16px}
+/* ── HERO SUMMARY ── */
+.hero{
+  padding:32px 20px 24px;
+  max-width:760px;margin:0 auto;
+}
+.hero-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.hero-title{font-family:'Instrument Serif',serif;font-size:36px;font-weight:400;color:var(--text);line-height:1.15;margin-bottom:24px}
+.hero-title span{color:var(--yellow)}
 
-/* SUMMARY */
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
-@media(max-width:480px){.summary{grid-template-columns:1fr 1fr}.summary .metric:last-child{grid-column:span 2}}
-.metric{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 14px}
-.metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;font-family:'Syne',sans-serif}
-.metric-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text)}
+.summary-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+@media(max-width:520px){.summary-strip{grid-template-columns:1fr 1fr}}
+.metric{
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;
+}
+.metric-lbl{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.metric-val{font-size:20px;font-weight:900;color:var(--text)}
+.metric-val.yellow{color:var(--yellow)}
+.metric-val.green{color:var(--green)}
 
-/* STATUS */
-#statusBar{display:none;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:16px;font-weight:500;font-family:'Syne',sans-serif}
-#statusBar.success{background:var(--green-dim);color:var(--green)}
-#statusBar.error{background:var(--red-dim);color:var(--red)}
+/* ── STATUS ── */
+#statusBar{display:none;max-width:760px;margin:0 auto 0;padding:0 20px}
+.status-inner{padding:10px 14px;border-radius:var(--rsm);font-size:13px;font-weight:600;margin-bottom:12px}
+.status-inner.success{background:var(--green-dim);color:var(--green)}
+.status-inner.error{background:var(--red-dim);color:var(--red)}
 
-/* GOAL CARDS */
-.goals-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
-.goal-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color 0.2s,transform 0.2s}
-.goal-card:hover{border-color:var(--border2);transform:translateY(-1px)}
-.goal-card.done{border-color:rgba(0,229,160,0.25)}
-.gc-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.gc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+/* ── CONTENT ── */
+.content{max-width:760px;margin:0 auto;padding:0 20px}
+
+/* ── CATEGORY GROUP ── */
+.cat-group{margin-bottom:28px}
+.cat-group-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:var(--r);
+  cursor:pointer;user-select:none;
+  background:var(--surface);border:0.5px solid var(--border);
+  margin-bottom:10px;transition:background 0.15s;
+}
+.cat-group-header:hover{background:var(--surface2)}
+.cat-group-icon{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0}
+.cat-group-name{font-size:14px;font-weight:800;letter-spacing:-0.01em;flex:1}
+.cat-group-meta{font-size:12px;color:var(--text2);font-weight:500}
+.cat-group-arrow{font-size:12px;color:var(--text3);transition:transform 0.2s}
+.cat-group-arrow.open{transform:rotate(180deg)}
+.cat-group-body{display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:all 0.25s ease}
+
+/* ── GOAL CARD ── */
+.goal-card{
+  background:var(--surface2);
+  border:0.5px solid var(--border);
+  border-radius:var(--r);
+  padding:18px;
+  transition:border-color 0.2s,transform 0.15s,box-shadow 0.15s;
+  position:relative;overflow:hidden;
+}
+.goal-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.goal-card.done{border-color:rgba(0,229,160,0.2)}
+.goal-card.done::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),rgba(0,229,160,0))}
+
+/* card top */
+.gc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
 .gc-info{flex:1;min-width:0}
-.gc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gc-sub{font-size:12px;color:var(--text2);margin-top:3px}
-.gc-actions{display:flex;gap:6px}
-.icon-btn{width:32px;height:32px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:transparent;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-family:'Syne',sans-serif;font-weight:700}
-.icon-btn:hover{background:var(--surface2);color:var(--text)}
-.icon-btn.danger:hover{background:var(--red-dim);color:var(--red);border-color:rgba(255,92,122,0.3)}
-.progress-track{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:10px}
-.progress-fill{height:100%;border-radius:99px;transition:width 0.6s cubic-bezier(.4,0,.2,1)}
+.gc-name{font-size:15px;font-weight:800;letter-spacing:-0.02em;margin-bottom:3px;line-height:1.3}
+.gc-note{font-size:12px;color:var(--text2);line-height:1.5;font-family:'Instrument Serif',serif;font-style:italic;margin-bottom:4px}
+.gc-sub{font-size:11px;color:var(--text3);font-weight:500}
+.gc-actions{display:flex;gap:5px;flex-shrink:0}
+
+.act-btn{
+  width:30px;height:30px;border-radius:var(--rsm);
+  border:0.5px solid var(--border2);background:transparent;
+  cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;color:var(--text2);
+}
+.act-btn:hover{background:var(--surface3);color:var(--text)}
+.act-btn.del:hover{background:var(--red-dim);color:var(--red);border-color:rgba(251,113,133,0.3)}
+.act-btn.add-dep{font-size:18px;font-weight:700;color:var(--green)}
+.act-btn.add-dep:hover{background:var(--green-dim);color:var(--green)}
+
+/* progress */
+.progress-track{height:8px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;border-radius:99px;transition:width 0.7s cubic-bezier(.4,0,.2,1)}
 .gc-foot{display:flex;justify-content:space-between;align-items:center}
-.gc-amounts{font-size:12px;color:var(--text2)}
-.gc-amounts strong{color:var(--text);font-family:'Syne',sans-serif}
-.gc-pct{font-size:13px;font-weight:700;font-family:'Syne',sans-serif}
-.done-badge{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--green-dim);color:var(--green);font-weight:600;font-family:'Syne',sans-serif}
+.gc-amounts{font-size:12px;color:var(--text2);font-weight:500}
+.gc-amounts strong{color:var(--text);font-weight:800}
+.gc-pct{font-size:13px;font-weight:900}
+.done-badge{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--green-dim);color:var(--green);font-weight:700}
 
-/* DEPOSIT */
-.deposit-panel{margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:0.5px solid var(--border);animation:slideDown 0.2s ease}
+/* ── PANELS ── */
+.sub-panel{
+  margin-top:14px;padding:14px;
+  background:var(--surface);border-radius:var(--rsm);
+  border:0.5px solid var(--border);
+  animation:slideDown 0.18s ease;
+}
 @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.deposit-panel label{font-size:12px;color:var(--text2);display:block;margin-bottom:8px}
-.deposit-row{display:flex;gap:8px}
-.deposit-row input{flex:1;height:38px;padding:0 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;font-family:'DM Sans',sans-serif}
-.deposit-row input:focus{border-color:var(--blue)}
-.btn-deposit{height:38px;padding:0 16px;font-size:13px;font-weight:700;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;transition:opacity 0.15s}
-.btn-deposit:hover{opacity:0.85}
+.panel-label{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.dep-row{display:flex;gap:8px;flex-wrap:wrap}
+.dep-input{
+  flex:1;min-width:120px;height:38px;padding:0 12px;font-size:13px;
+  border:0.5px solid var(--border2);border-radius:var(--rsm);
+  background:var(--surface2);color:var(--text);outline:none;
+  font-family:'Cabinet Grotesk',sans-serif;transition:border 0.15s;
+}
+.dep-input:focus{border-color:var(--blue)}
+.dep-btn{
+  height:38px;padding:0 16px;font-size:13px;font-weight:800;
+  background:var(--green);color:#000;border:none;border-radius:var(--rsm);
+  cursor:pointer;white-space:nowrap;font-family:'Cabinet Grotesk',sans-serif;
+  transition:opacity 0.15s;
+}
+.dep-btn:hover{opacity:0.85}
 
-/* HISTORY */
-.history-panel{margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:0.5px solid var(--border)}
-.history-title{font-size:12px;color:var(--text2);margin-bottom:10px;font-family:'Syne',sans-serif;font-weight:600}
-.history-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px}
+/* history */
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px}
 .history-item:last-child{border-bottom:none}
-.h-amount{color:var(--green);font-family:'Syne',sans-serif;font-weight:700}
+.h-note{color:var(--text2);font-style:italic;flex:1;padding-right:8px}
+.h-right{display:flex;gap:12px;align-items:center;flex-shrink:0}
 .h-date{color:var(--text3)}
-.no-history{font-size:12px;color:var(--text3);font-style:italic}
+.h-amount{color:var(--green);font-weight:800;font-family:'Cabinet Grotesk',sans-serif}
 
-/* ADD FORM */
-.add-form{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:14px;animation:slideDown 0.2s ease}
-.form-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:16px;color:var(--text)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-@media(max-width:480px){.form-grid{grid-template-columns:1fr}}
+/* ── ADD / EDIT MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  display:none;align-items:center;justify-content:center;
+  z-index:200;padding:20px;backdrop-filter:blur(6px);
+}
+.modal-box{
+  background:var(--surface);border:0.5px solid var(--border2);
+  border-radius:20px;width:100%;max-width:520px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.5);
+  animation:modalIn 0.2s ease;overflow:hidden;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95)translateY(10px)}to{opacity:1;transform:scale(1)translateY(0)}}
+.modal-head{
+  padding:22px 24px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.modal-head-title{font-size:18px;font-weight:900;letter-spacing:-0.02em}
+.modal-close{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--rsm);width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background 0.15s}
+.modal-close:hover{background:var(--surface3);color:var(--text)}
+.modal-body{padding:0 24px 24px;display:flex;flex-direction:column;gap:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
 .fg{display:flex;flex-direction:column;gap:6px}
-.fg label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;font-family:'Syne',sans-serif}
-.fg input,.fg select,.fg textarea{padding:10px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border 0.15s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg label{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3)}
+.fg input,.fg select,.fg textarea{
+  padding:10px 12px;font-size:14px;
+  border:0.5px solid var(--border2);border-radius:var(--rsm);
+  background:var(--surface2);color:var(--text);outline:none;
+  font-family:'Cabinet Grotesk',sans-serif;transition:border 0.15s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--yellow)}
 .fg select option{background:var(--surface2)}
-.fg textarea{resize:vertical;min-height:60px;line-height:1.5}
-.form-actions{display:flex;gap:8px;justify-content:flex-end}
-.btn{height:38px;padding:0 18px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);cursor:pointer;font-family:'Syne',sans-serif;transition:opacity 0.15s}
+.fg textarea{resize:vertical;min-height:70px;line-height:1.55}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+.btn{height:40px;padding:0 20px;font-size:13px;font-weight:800;border-radius:var(--rsm);cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;letter-spacing:0.02em;transition:opacity 0.15s}
 .btn-ghost{background:transparent;border:0.5px solid var(--border2);color:var(--text2)}
 .btn-ghost:hover{background:var(--surface2)}
-.btn-primary{background:var(--green);color:#000;border:none}
-.btn-primary:hover{opacity:0.85}
-.btn-new{width:100%;height:44px;font-size:13px;font-weight:700;background:transparent;border:1.5px dashed var(--border2);border-radius:var(--radius);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;font-family:'Syne',sans-serif}
-.btn-new:hover{border-color:var(--yellow);color:var(--yellow)}
+.btn-yellow{background:var(--yellow);color:#000;border:none}
+.btn-yellow:hover{opacity:0.85}
 
-/* EMPTY */
-.empty{text-align:center;padding:48px 20px;color:var(--text3)}
-.empty-icon{font-size:48px;margin-bottom:12px;display:block;opacity:0.5}
-.empty p{font-size:14px;line-height:1.6}
+/* ── COLOR SWATCHES ── */
+.color-swatches{display:flex;gap:7px;flex-wrap:wrap}
+.swatch{
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform 0.15s,border-color 0.15s;
+  flex-shrink:0;
+}
+.swatch:hover{transform:scale(1.2)}
+.swatch.active{border-color:#fff;transform:scale(1.15)}
 
-.loader{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+/* ── ADD BUTTON ── */
+.add-btn-wrap{margin-bottom:20px}
+.btn-new{
+  width:100%;height:46px;font-size:14px;font-weight:800;
+  background:transparent;border:1.5px dashed var(--border2);
+  border-radius:var(--r);color:var(--text2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all 0.2s;font-family:'Cabinet Grotesk',sans-serif;letter-spacing:0.02em;
+}
+.btn-new:hover{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-dim)}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:56px 20px;color:var(--text3)}
+.empty-icon{font-size:52px;display:block;margin-bottom:14px;opacity:0.4}
+.empty-state p{font-size:14px;line-height:1.7;font-family:'Instrument Serif',serif;font-style:italic}
+
+.loader{text-align:center;padding:40px;color:var(--text3);font-size:13px}
 </style>
 </head>
 <body>
@@ -143,82 +291,109 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="no-access-box">
     <div style="font-size:40px;margin-bottom:12px">🔒</div>
     <h2>Please Sign In First</h2>
-    <p>You need to sign in from the main menu to access your Goals.</p>
-    <a class="back-btn" href="index.html">← Go to Sign In</a>
+    <p>You need to sign in from the main menu.</p>
+    <a class="back-btn-link" href="index.html">← Sign In</a>
   </div>
 </div>
 
 <!-- MAIN APP -->
 <div id="mainApp">
 
+  <!-- TOPBAR -->
   <div class="topbar">
     <a class="back-link" href="index.html">← Menu</a>
-    <div class="topbar-title">🎯 <span>Goals</span></div>
+    <div class="topbar-title">🎯 <em>Goals</em></div>
     <span class="user-pill">👤 <span id="userDisplay"></span></span>
     <span class="sync-pill saving" id="syncPill"><span class="sync-dot"></span><span id="syncText">Connecting...</span></span>
   </div>
 
-  <div class="main-content">
-
-    <!-- SUMMARY -->
-    <div class="summary">
-      <div class="metric"><div class="metric-label">Total Goals</div><div class="metric-val" id="metGoals">0</div></div>
-      <div class="metric"><div class="metric-label">Total Saved</div><div class="metric-val" id="metSaved">₱0</div></div>
-      <div class="metric"><div class="metric-label">Completed</div><div class="metric-val" id="metDone">0</div></div>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Your progress</div>
+    <div class="hero-title">Every peso saved is a step<br><span>closer to the dream.</span></div>
+    <div class="summary-strip">
+      <div class="metric"><div class="metric-lbl">Total Goals</div><div class="metric-val" id="metGoals">0</div></div>
+      <div class="metric"><div class="metric-lbl">Total Saved</div><div class="metric-val yellow" id="metSaved">₱0</div></div>
+      <div class="metric"><div class="metric-lbl">Total Target</div><div class="metric-val" id="metTarget">₱0</div></div>
+      <div class="metric"><div class="metric-lbl">Completed</div><div class="metric-val green" id="metDone">0</div></div>
     </div>
+  </div>
 
-    <div id="statusBar"></div>
+  <!-- STATUS BAR -->
+  <div id="statusBar"><div class="status-inner" id="statusInner"></div></div>
 
-    <!-- GOAL CARDS -->
-    <div class="goals-list" id="goalsList">
-      <div class="loader">⏳ Connecting to Firebase...</div>
+  <!-- CONTENT -->
+  <div class="content">
+    <div id="goalsList"><div class="loader">⏳ Connecting...</div></div>
+    <div class="add-btn-wrap">
+      <button class="btn-new" id="btnNew" onclick="openAddModal()">
+        <span style="font-size:20px;line-height:1">+</span> Add a new goal
+      </button>
     </div>
+  </div>
 
-    <!-- ADD FORM -->
-    <div id="addFormWrap" style="display:none">
-      <div class="add-form">
-        <div class="form-title">➕ New Goal</div>
-        <div class="form-grid">
-          <div class="fg"><label>Goal Name</label><input type="text" id="fName" placeholder="e.g. Emergency Fund"/></div>
-          <div class="fg"><label>Target Amount (₱)</label><input type="number" id="fTarget" placeholder="50000" min="1"/></div>
-          <div class="fg"><label>Starting Amount (₱)</label><input type="number" id="fStart" placeholder="0" min="0" value="0"/></div>
-          <div class="fg">
-            <label>Category</label>
-            <select id="fCat">
-              <option value="💰">💰 Savings</option>
-              <option value="🏠">🏠 Home</option>
-              <option value="✈️">✈️ Travel</option>
-              <option value="🎓">🎓 Education</option>
-              <option value="🚗">🚗 Vehicle</option>
-              <option value="💻">💻 Tech / Gadget</option>
-              <option value="🏥">🏥 Health</option>
-              <option value="👨‍👩‍👧">👨‍👩‍👧 Family</option>
-              <option value="📈">📈 Investment</option>
-              <option value="🎯">🎯 Other</option>
-            </select>
-          </div>
-          <div class="fg" style="grid-column:span 2">
-            <label>Note (optional)</label>
-            <textarea id="fNote" placeholder="Why is this goal important to you?"></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-ghost" onclick="toggleForm(false)">Cancel</button>
-          <button class="btn btn-primary" onclick="addGoal()">Save Goal</button>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleModalBg(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-head">
+      <div class="modal-head-title" id="modalHeadTitle">New Goal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="fg" style="grid-column:span 2">
+          <label>Goal Name</label>
+          <input type="text" id="mName" placeholder="e.g. Emergency Fund"/>
         </div>
       </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Target Amount (₱)</label>
+          <input type="number" id="mTarget" placeholder="50000" min="1"/>
+        </div>
+        <div class="fg">
+          <label>Starting Amount (₱)</label>
+          <input type="number" id="mStart" placeholder="0" min="0" value="0"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Category</label>
+          <select id="mCat">
+            <option value="💰 Savings">💰 Savings</option>
+            <option value="🏠 Home">🏠 Home</option>
+            <option value="✈️ Travel">✈️ Travel</option>
+            <option value="🎓 Education">🎓 Education</option>
+            <option value="🚗 Vehicle">🚗 Vehicle</option>
+            <option value="💻 Tech">💻 Tech / Gadget</option>
+            <option value="🏥 Health">🏥 Health</option>
+            <option value="👨‍👩‍👧 Family">👨‍👩‍👧 Family</option>
+            <option value="📈 Investment">📈 Investment</option>
+            <option value="🎯 Other">🎯 Other</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Color</label>
+          <div class="color-swatches" id="colorSwatches"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Personal Note (your "why")</label>
+        <textarea id="mNote" placeholder="Why is this goal important to you?"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-yellow" id="modalSaveBtn" onclick="saveGoal()">Save Goal</button>
+      </div>
     </div>
-
-    <button class="btn-new" id="btnNew" onclick="toggleForm(true)">
-      <span style="font-size:18px">+</span> Add a new goal
-    </button>
-
   </div>
 </div>
 
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 1: Firebase init
+// STEP 1: Firebase
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let db = null, unsubscribe = null;
 try {
@@ -227,18 +402,20 @@ try {
 } catch(e) { console.warn('Firebase:', e.message); }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 2: Variables
+// STEP 2: State
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let goals = [];
-let depositOpen = null;
-let historyOpen = null;
-let colorIndex  = 0;
+let goals        = [];
+let depositOpen  = null;
+let historyOpen  = null;
+let collapsedCats = new Set();
+let editingId    = null;   // null = add mode, string = edit mode
+let selectedColor = 0;
 
-const COLORS  = ['#00e5a0','#5c9aff','#ff9a3c','#c084fc','#ffd166','#ff5c7a','#34d399','#60a5fa'];
-const CBGS    = [
-  'rgba(0,229,160,0.1)','rgba(92,154,255,0.1)','rgba(255,154,60,0.1)',
-  'rgba(192,132,252,0.1)','rgba(255,209,102,0.1)','rgba(255,92,122,0.1)',
-  'rgba(52,211,153,0.1)','rgba(96,165,250,0.1)'
+const COLORS = ['#ffd166','#00e5a0','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#fb7185'];
+const CBGS   = [
+  'rgba(255,209,102,0.12)','rgba(0,229,160,0.12)','rgba(96,165,250,0.12)',
+  'rgba(167,139,250,0.12)','rgba(251,146,60,0.12)','rgba(244,114,182,0.12)',
+  'rgba(45,212,191,0.12)','rgba(251,113,133,0.12)'
 ];
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -254,8 +431,9 @@ function setSyncStatus(t, txt) {
 }
 function showStatus(msg, type) {
   const bar = document.getElementById('statusBar');
-  bar.textContent = msg;
-  bar.className = type;
+  const inner = document.getElementById('statusInner');
+  inner.textContent = msg;
+  inner.className = 'status-inner ' + type;
   bar.style.display = 'block';
   setTimeout(() => { bar.style.display = 'none'; }, 3000);
 }
@@ -264,240 +442,330 @@ function fmtDate(iso) {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 4: Save to Firestore
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function saveGoals() {
   const s = getSession();
   if (!s || !db) return;
-  setSyncStatus('saving', 'Saving...');
+  setSyncStatus('saving','Saving...');
   db.collection('goals').doc(s.userId).set({ goals })
-    .then(() => setSyncStatus('synced', 'Synced ✓'))
-    .catch(e => { console.warn(e); setSyncStatus('error', 'Save failed'); });
+    .then(()  => setSyncStatus('synced','Synced ✓'))
+    .catch(e  => { console.warn(e); setSyncStatus('error','Save failed'); });
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 5: Form
+// STEP 4: Color swatches builder
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function toggleForm(show) {
-  document.getElementById('addFormWrap').style.display = show ? 'block' : 'none';
-  document.getElementById('btnNew').style.display = show ? 'none' : 'flex';
-  if (show) document.getElementById('fName').focus();
+function buildSwatches() {
+  const el = document.getElementById('colorSwatches');
+  el.innerHTML = COLORS.map((c, i) =>
+    `<div class="swatch ${i===selectedColor?'active':''}"
+      style="background:${c}"
+      onclick="selectColor(${i})"></div>`
+  ).join('');
+}
+function selectColor(i) {
+  selectedColor = i;
+  buildSwatches();
 }
 
-function addGoal() {
-  const name   = document.getElementById('fName').value.trim();
-  const target = parseFloat(document.getElementById('fTarget').value);
-  const start  = parseFloat(document.getElementById('fStart').value) || 0;
-  const cat    = document.getElementById('fCat').value;
-  const note   = document.getElementById('fNote').value.trim();
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 5: Modal open / close
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openAddModal() {
+  editingId = null;
+  selectedColor = goals.length % COLORS.length;
+  document.getElementById('modalHeadTitle').textContent = '✨ New Goal';
+  document.getElementById('modalSaveBtn').textContent   = 'Save Goal';
+  document.getElementById('mName').value   = '';
+  document.getElementById('mTarget').value = '';
+  document.getElementById('mStart').value  = '0';
+  document.getElementById('mNote').value   = '';
+  document.getElementById('mCat').value    = '💰 Savings';
+  buildSwatches();
+  document.getElementById('modalOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('mName').focus(), 50);
+}
 
-  if (!name)            { showStatus('Please enter a goal name.', 'error'); document.getElementById('fName').focus(); return; }
-  if (!target || target <= 0) { showStatus('Please enter a valid target amount.', 'error'); document.getElementById('fTarget').focus(); return; }
+function openEditModal(id) {
+  const g = goals.find(g => g.id === id);
+  if (!g) return;
+  editingId = id;
+  selectedColor = COLORS.indexOf(g.color);
+  if (selectedColor < 0) selectedColor = 0;
 
-  const idx = colorIndex % COLORS.length;
-  colorIndex++;
+  document.getElementById('modalHeadTitle').textContent = '✏️ Edit Goal';
+  document.getElementById('modalSaveBtn').textContent   = 'Update Goal';
+  document.getElementById('mName').value   = g.name   || '';
+  document.getElementById('mTarget').value = g.target || '';
+  document.getElementById('mStart').value  = g.saved  || 0;
+  document.getElementById('mNote').value   = g.note   || '';
+  document.getElementById('mCat').value    = g.cat    || '💰 Savings';
+  buildSwatches();
+  document.getElementById('modalOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('mName').focus(), 50);
+}
 
-  goals.push({
-    id:        Date.now().toString(),
-    name, target,
-    saved:     Math.min(start, target),
-    cat, note,
-    color:     COLORS[idx],
-    colorBg:   CBGS[idx],
-    createdAt: new Date().toISOString(),
-    deposits:  start > 0 ? [{ amount: start, date: new Date().toISOString(), note: 'Starting amount' }] : []
-  });
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  editingId = null;
+}
+function handleModalBg(e) { if (e.target === e.currentTarget) closeModal(); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 6: Save (add or edit)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function saveGoal() {
+  const name   = document.getElementById('mName').value.trim();
+  const target = parseFloat(document.getElementById('mTarget').value);
+  const start  = parseFloat(document.getElementById('mStart').value) || 0;
+  const cat    = document.getElementById('mCat').value;
+  const note   = document.getElementById('mNote').value.trim();
+
+  if (!name)           { showStatus('Please enter a goal name.','error'); document.getElementById('mName').focus(); return; }
+  if (!target||target<=0){ showStatus('Please enter a valid target amount.','error'); document.getElementById('mTarget').focus(); return; }
+
+  if (editingId) {
+    // ── EDIT ──
+    const g = goals.find(g => g.id === editingId);
+    if (!g) return;
+    const oldSaved = g.saved || 0;
+    const newSaved = Math.min(start, target);
+    // if start amount changed and > old saved, add a deposit record
+    if (newSaved > oldSaved) {
+      if (!g.deposits) g.deposits = [];
+      g.deposits.push({ amount: newSaved - oldSaved, date: new Date().toISOString(), note: 'Manual adjustment' });
+    }
+    g.name   = name;
+    g.target = target;
+    g.saved  = newSaved;
+    g.cat    = cat;
+    g.note   = note;
+    g.color  = COLORS[selectedColor];
+    g.colorBg= CBGS[selectedColor];
+    g.updatedAt = new Date().toISOString();
+    showStatus('✅ Goal updated!', 'success');
+  } else {
+    // ── ADD ──
+    const initialSaved = Math.min(start, target);
+    goals.push({
+      id:        Date.now().toString(),
+      name, target, cat, note,
+      saved:     initialSaved,
+      color:     COLORS[selectedColor],
+      colorBg:   CBGS[selectedColor],
+      createdAt: new Date().toISOString(),
+      deposits:  initialSaved > 0
+        ? [{ amount: initialSaved, date: new Date().toISOString(), note: 'Starting amount' }]
+        : []
+    });
+    showStatus('🎯 Goal added!', 'success');
+  }
 
   saveGoals();
   renderGoals();
-  showStatus('🎯 Goal added!', 'success');
-
-  // Reset form
-  document.getElementById('fName').value   = '';
-  document.getElementById('fTarget').value = '';
-  document.getElementById('fStart').value  = '0';
-  document.getElementById('fNote').value   = '';
-  document.getElementById('fCat').value    = '💰';
-  toggleForm(false);
+  closeModal();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 6: Actions
+// STEP 7: Deposit & History
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function openDeposit(id) {
   depositOpen = depositOpen === id ? null : id;
   historyOpen = null;
   renderGoals();
+  if (depositOpen) setTimeout(() => { const el = document.getElementById('dep_'+id); if(el) el.focus(); }, 50);
 }
 function openHistory(id) {
   historyOpen = historyOpen === id ? null : id;
   depositOpen = null;
   renderGoals();
 }
-
 function doDeposit(id) {
-  const inp  = document.getElementById('dep_' + id);
-  const noteInp = document.getElementById('depNote_' + id);
-  const amt  = parseFloat(inp.value);
-  if (!amt || amt <= 0) { showStatus('Enter a valid amount.', 'error'); return; }
-
-  const goal = goals.find(g => g.id === id);
-  if (!goal) return;
-
-  const newSaved = Math.min(goal.saved + amt, goal.target);
-  goal.saved = newSaved;
-  if (!goal.deposits) goal.deposits = [];
-  goal.deposits.push({
-    amount: amt,
-    date:   new Date().toISOString(),
-    note:   noteInp ? noteInp.value.trim() : ''
-  });
-
+  const amtEl  = document.getElementById('dep_'+id);
+  const noteEl = document.getElementById('depNote_'+id);
+  const amt    = parseFloat(amtEl.value);
+  if (!amt||amt<=0) { showStatus('Enter a valid amount.','error'); return; }
+  const g = goals.find(g=>g.id===id);
+  if (!g) return;
+  g.saved = Math.min((g.saved||0) + amt, g.target);
+  if (!g.deposits) g.deposits = [];
+  g.deposits.push({ amount: amt, date: new Date().toISOString(), note: noteEl?.value.trim()||'' });
   saveGoals();
   depositOpen = null;
   renderGoals();
   showStatus('💰 Deposit saved!', 'success');
 }
-
 function deleteGoal(id) {
   if (!confirm('Remove this goal and all its data?')) return;
-  goals = goals.filter(g => g.id !== id);
-  if (depositOpen === id) depositOpen = null;
-  if (historyOpen === id) historyOpen = null;
-  saveGoals();
+  goals = goals.filter(g=>g.id!==id);
+  if (depositOpen===id) depositOpen=null;
+  if (historyOpen===id) historyOpen=null;
+  saveGoals(); renderGoals();
+  showStatus('Goal removed.','success');
+}
+function toggleCat(cat) {
+  if (collapsedCats.has(cat)) collapsedCats.delete(cat); else collapsedCats.add(cat);
   renderGoals();
-  showStatus('Goal removed.', 'success');
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 7: Render
+// STEP 8: Render
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function renderGoals() {
-  const totalSaved = goals.reduce((s, g) => s + (g.saved || 0), 0);
-  const done       = goals.filter(g => (g.saved || 0) >= g.target).length;
+  const totalSaved  = goals.reduce((s,g)=>s+(g.saved||0),0);
+  const totalTarget = goals.reduce((s,g)=>s+g.target,0);
+  const done        = goals.filter(g=>(g.saved||0)>=g.target).length;
 
-  document.getElementById('metGoals').textContent = goals.length;
-  document.getElementById('metSaved').textContent = fmt(totalSaved);
-  document.getElementById('metDone').textContent  = done;
+  document.getElementById('metGoals').textContent  = goals.length;
+  document.getElementById('metSaved').textContent  = fmt(totalSaved);
+  document.getElementById('metTarget').textContent = fmt(totalTarget);
+  document.getElementById('metDone').textContent   = done;
 
   const list = document.getElementById('goalsList');
+
   if (!goals.length) {
-    list.innerHTML = `<div class="empty">
+    list.innerHTML = `<div class="empty-state">
       <span class="empty-icon">🎯</span>
-      <p>No goals yet.<br>Add your first goal below and start saving!</p>
+      <p>No goals yet.<br>Add your first goal and start building your future.</p>
     </div>`;
     return;
   }
 
-  list.innerHTML = goals.map(g => {
-    const saved   = g.saved || 0;
-    const pct     = Math.min(100, Math.round((saved / g.target) * 100));
-    const isDone  = saved >= g.target;
-    const remaining = g.target - saved;
-    const color   = g.color   || '#00e5a0';
-    const colorBg = g.colorBg || 'rgba(0,229,160,0.1)';
-    const depOpen = depositOpen === g.id;
-    const hisOpen = historyOpen === g.id;
-    const deps    = g.deposits || [];
+  // ── Group by category ──
+  const catMap = {};
+  goals.forEach(g => {
+    const cat = g.cat || '🎯 Other';
+    if (!catMap[cat]) catMap[cat] = [];
+    catMap[cat].push(g);
+  });
 
-    const histHTML = hisOpen ? `
-      <div class="history-panel">
-        <div class="history-title">📋 Deposit History (${deps.length})</div>
-        ${deps.length === 0
-          ? '<div class="no-history">No deposits yet.</div>'
-          : [...deps].reverse().map(d =>
-              `<div class="history-item">
-                <span>${d.note ? `<span style="color:var(--text2)">${d.note}</span>` : '<span style="color:var(--text3)">—</span>'}</span>
-                <span style="display:flex;gap:12px;align-items:center">
-                  <span class="h-date">${fmtDate(d.date)}</span>
-                  <span class="h-amount">+${fmt(d.amount)}</span>
-                </span>
-              </div>`
-            ).join('')
+  // Sort categories: incomplete first, then complete
+  const sortedCats = Object.keys(catMap).sort((a,b) => {
+    const aDone = catMap[a].every(g=>(g.saved||0)>=g.target);
+    const bDone = catMap[b].every(g=>(g.saved||0)>=g.target);
+    return aDone - bDone;
+  });
+
+  list.innerHTML = sortedCats.map(cat => {
+    const catGoals   = catMap[cat];
+    const catSaved   = catGoals.reduce((s,g)=>s+(g.saved||0),0);
+    const catTarget  = catGoals.reduce((s,g)=>s+g.target,0);
+    const catPct     = catTarget > 0 ? Math.round(catSaved/catTarget*100) : 0;
+    const catDone    = catGoals.filter(g=>(g.saved||0)>=g.target).length;
+    const icon       = cat.split(' ')[0];
+    const isCollapsed = collapsedCats.has(cat);
+    const firstColor  = catGoals[0]?.color || '#ffd166';
+
+    const cardsHTML = catGoals.map(g => {
+      const saved   = g.saved || 0;
+      const pct     = Math.min(100, Math.round((saved/g.target)*100));
+      const isDone  = saved >= g.target;
+      const color   = g.color || '#ffd166';
+      const colorBg = g.colorBg || 'rgba(255,209,102,0.12)';
+      const depOpen = depositOpen === g.id;
+      const hisOpen = historyOpen === g.id;
+      const deps    = g.deposits || [];
+
+      const depHTML = depOpen ? `<div class="sub-panel">
+        <div class="panel-label">Add Deposit to "${g.name}"</div>
+        <div class="dep-row">
+          <input class="dep-input" type="number" id="dep_${g.id}" placeholder="Amount ₱" min="1"/>
+          <input class="dep-input" type="text" id="depNote_${g.id}" placeholder="Note (optional)"/>
+          <button class="dep-btn" onclick="doDeposit('${g.id}')">+ Add</button>
+        </div>
+      </div>` : '';
+
+      const hisHTML = hisOpen ? `<div class="sub-panel">
+        <div class="panel-label">Deposit History (${deps.length})</div>
+        ${!deps.length
+          ? '<div style="font-size:12px;color:var(--text3);font-style:italic">No deposits yet.</div>'
+          : [...deps].reverse().map(d=>`
+            <div class="history-item">
+              <span class="h-note">${d.note||'—'}</span>
+              <div class="h-right">
+                <span class="h-date">${fmtDate(d.date)}</span>
+                <span class="h-amount">+${fmt(d.amount)}</span>
+              </div>
+            </div>`).join('')
         }
       </div>` : '';
 
-    const depHTML = depOpen ? `
-      <div class="deposit-panel">
-        <label>Add deposit to "${g.name}"</label>
-        <div class="deposit-row">
-          <input type="number" id="dep_${g.id}" placeholder="Amount in ₱" min="1" style="flex:1"/>
-          <input type="text" id="depNote_${g.id}" placeholder="Note (optional)" style="flex:1"/>
-          <button class="btn-deposit" onclick="doDeposit('${g.id}')">+ Add</button>
-        </div>
-      </div>` : '';
-
-    return `<div class="goal-card${isDone ? ' done' : ''}">
-      <div class="gc-top">
-        <div class="gc-icon" style="background:${colorBg}">${g.cat || '🎯'}</div>
-        <div class="gc-info">
-          <div class="gc-name">${g.name}</div>
-          <div class="gc-sub">${isDone
-            ? '🎉 Goal reached! Congratulations!'
-            : `${fmt(remaining)} remaining · ${fmtDate(g.createdAt)}`}
+      return `<div class="goal-card${isDone?' done':''}">
+        <div class="gc-top">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+              <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+              <div class="gc-name">${g.name}</div>
+            </div>
+            ${g.note?`<div class="gc-note">"${g.note}"</div>`:''}
+            <div class="gc-sub">${isDone?'🎉 Goal reached!':fmt(g.target-saved)+' remaining'}</div>
           </div>
-          ${g.note ? `<div style="font-size:11px;color:var(--text3);margin-top:3px;font-style:italic">${g.note}</div>` : ''}
+          <div class="gc-actions">
+            ${!isDone?`<button class="act-btn add-dep" onclick="openDeposit('${g.id}')" title="Add deposit">+</button>`:''}
+            <button class="act-btn" onclick="openEditModal('${g.id}')" title="Edit">✏️</button>
+            <button class="act-btn" onclick="openHistory('${g.id}')" title="History">📋</button>
+            <button class="act-btn del" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
+          </div>
         </div>
-        <div class="gc-actions">
-          ${!isDone ? `<button class="icon-btn" onclick="openDeposit('${g.id}')" title="Add deposit" style="color:var(--green);font-size:18px">+</button>` : ''}
-          <button class="icon-btn" onclick="openHistory('${g.id}')" title="View history" style="font-size:14px">📋</button>
-          <button class="icon-btn danger" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
         </div>
-      </div>
+        <div class="gc-foot">
+          <div class="gc-amounts">Saved: <strong>${fmt(saved)}</strong> of ${fmt(g.target)}</div>
+          ${isDone
+            ? '<span class="done-badge">✓ Complete 🎉</span>'
+            : `<span class="gc-pct" style="color:${color}">${pct}%</span>`}
+        </div>
+        ${depHTML}${hisHTML}
+      </div>`;
+    }).join('');
 
-      <div class="progress-track">
-        <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+    return `<div class="cat-group">
+      <div class="cat-group-header" onclick="toggleCat('${cat.replace(/'/g,"\\'")}')">
+        <div class="cat-group-icon" style="background:${catMap[cat][0]?.colorBg||'rgba(255,209,102,0.12)'}">${icon}</div>
+        <div class="cat-group-name">${cat.split(' ').slice(1).join(' ')||cat}</div>
+        <div class="cat-group-meta">${catGoals.length} goal${catGoals.length!==1?'s':''} &nbsp;·&nbsp; ${fmt(catSaved)} / ${fmt(catTarget)} &nbsp;·&nbsp; ${catPct}%</div>
+        <div class="cat-group-arrow${isCollapsed?'':' open'}">▼</div>
       </div>
-
-      <div class="gc-foot">
-        <div class="gc-amounts">Saved: <strong>${fmt(saved)}</strong> of ${fmt(g.target)}</div>
-        ${isDone
-          ? '<span class="done-badge">✓ Complete 🎉</span>'
-          : `<span class="gc-pct" style="color:${color}">${pct}%</span>`}
+      <div class="cat-group-body" style="${isCollapsed?'display:none':''}">
+        ${cardsHTML}
       </div>
-
-      ${depHTML}
-      ${histHTML}
     </div>`;
   }).join('');
 }
 
-// Enter key on deposit amount
+// Enter key support
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
   if (e.key === 'Enter' && depositOpen) {
-    const inp = document.getElementById('dep_' + depositOpen);
-    if (document.activeElement === inp || document.activeElement === document.getElementById('depNote_' + depositOpen)) {
-      doDeposit(depositOpen);
-    }
+    const d = document.getElementById('dep_'+depositOpen);
+    const n = document.getElementById('depNote_'+depositOpen);
+    if (document.activeElement===d || document.activeElement===n) doDeposit(depositOpen);
   }
-  if (e.key === 'Enter' && document.activeElement.id === 'fName') {
-    document.getElementById('fTarget').focus();
-  }
+});
+document.getElementById('modalBox').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) saveGoal();
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 8: Firebase listener
+// STEP 9: Firebase listener
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function initApp(userId) {
   renderGoals();
-  if (!db) { setSyncStatus('error', 'Firebase not configured'); return; }
-  setSyncStatus('saving', 'Connecting...');
+  if (!db) { setSyncStatus('error','Firebase not configured'); return; }
+  setSyncStatus('saving','Connecting...');
   if (unsubscribe) unsubscribe();
   unsubscribe = db.collection('goals').doc(userId).onSnapshot(
     doc => {
-      goals = (doc.exists && doc.data().goals) ? doc.data().goals : [];
-      colorIndex = goals.length;
-      setSyncStatus('synced', 'Synced ✓');
+      goals = doc.exists && doc.data().goals ? doc.data().goals : [];
+      setSyncStatus('synced','Synced ✓');
       renderGoals();
     },
-    err => { console.warn(err); setSyncStatus('error', 'Offline'); }
+    err => { console.warn(err); setSyncStatus('error','Offline'); }
   );
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 9: Session check (LAST)
+// STEP 10: Session check (LAST)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const session = getSession();
 if (!session) {
