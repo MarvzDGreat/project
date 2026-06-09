@@ -105,13 +105,12 @@ select.form-input option{background:var(--surface2)}
 .txn-amount{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;flex-shrink:0}
 .txn-amount.income{color:var(--green)}
 .txn-amount.expense{color:var(--red)}
-.txn-btns{display:flex;gap:4px;flex-shrink:0}
-.del-btn,.edit-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:5px 6px;border-radius:6px;opacity:0;transition:opacity 0.15s,background 0.15s;flex-shrink:0}
-.txn-item:hover .del-btn,.txn-item:hover .edit-btn{opacity:1}
+.txn-btns{display:flex;gap:4px;flex-shrink:0;align-items:center}
+.del-btn,.edit-btn{background:var(--surface2);border:0.5px solid var(--border);cursor:pointer;font-size:12px;padding:5px 7px;border-radius:6px;transition:background 0.15s,border-color 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .del-btn{color:var(--red)}
 .edit-btn{color:var(--blue)}
-.del-btn:hover{background:var(--red-dim)}
-.edit-btn:hover{background:var(--blue-dim)}
+.del-btn:hover{background:var(--red-dim);border-color:rgba(255,92,122,0.3)}
+.edit-btn:hover{background:var(--blue-dim);border-color:rgba(92,154,255,0.3)}
 
 /* EDIT MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(6px)}
