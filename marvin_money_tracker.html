@@ -9,13 +9,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <!-- ✅ Same Firebase config as index.html -->
 <script>
-  const FIREBASE_CONFIG = {
-	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
- 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
-  	projectId: "marvzdgreat-451c1",
-  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
-  	messagingSenderId: "961108110213",
-  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+const FIREBASE_CONFIG = {
+  apiKey:            "PASTE_YOUR_apiKey_HERE",
+  authDomain:        "PASTE_YOUR_authDomain_HERE",
+  projectId:         "PASTE_YOUR_projectId_HERE",
+  storageBucket:     "PASTE_YOUR_storageBucket_HERE",
+  messagingSenderId: "PASTE_YOUR_messagingSenderId_HERE",
+  appId:             "PASTE_YOUR_appId_HERE"
 };
 </script>
 <style>
@@ -105,8 +105,39 @@ select.form-input option{background:var(--surface2)}
 .txn-amount{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;flex-shrink:0}
 .txn-amount.income{color:var(--green)}
 .txn-amount.expense{color:var(--red)}
-.del-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:4px;opacity:0.5;flex-shrink:0}
-.del-btn:hover{opacity:1;color:var(--red)}
+.txn-btns{display:flex;gap:4px;flex-shrink:0}
+.del-btn,.edit-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:5px 6px;border-radius:6px;opacity:0;transition:opacity 0.15s,background 0.15s;flex-shrink:0}
+.txn-item:hover .del-btn,.txn-item:hover .edit-btn{opacity:1}
+.del-btn{color:var(--red)}
+.edit-btn{color:var(--blue)}
+.del-btn:hover{background:var(--red-dim)}
+.edit-btn:hover{background:var(--blue-dim)}
+
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(6px)}
+.modal-box{background:var(--surface);border:0.5px solid rgba(255,255,255,0.12);border-radius:20px;width:100%;max-width:480px;box-shadow:0 24px 80px rgba(0,0,0,0.5);animation:modalIn 0.2s ease;overflow:hidden}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-head{padding:20px 22px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-head-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.modal-x{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background 0.15s}
+.modal-x:hover{background:var(--surface3);color:var(--text)}
+.modal-body{padding:0 22px 22px;display:flex;flex-direction:column;gap:12px}
+.modal-type-toggle{display:flex;gap:8px;margin-bottom:2px}
+.modal-type-btn{flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.modal-type-btn.active-income{background:var(--green-dim);color:var(--green);border-color:var(--green)}
+.modal-type-btn.active-expense{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.modal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:440px){.modal-form-grid{grid-template-columns:1fr}}
+.modal-fg{display:flex;flex-direction:column;gap:5px}
+.modal-fg label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+.modal-input{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border 0.15s}
+.modal-input:focus{border-color:var(--blue)}
+select.modal-input option{background:var(--surface2)}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+.modal-cancel{height:38px;padding:0 16px;font-size:13px;font-weight:600;background:transparent;border:0.5px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit}
+.modal-cancel:hover{background:var(--surface2)}
+.modal-save{height:38px;padding:0 20px;font-size:13px;font-weight:700;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:'Syne',sans-serif;transition:opacity 0.15s}
+.modal-save:hover{opacity:0.85}
 .cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .cat-label{font-size:12px;color:var(--text2);width:100px;flex-shrink:0}
 .cat-bar-wrap{flex:1;background:var(--surface2);border-radius:99px;height:8px;overflow:hidden}
@@ -211,6 +242,63 @@ select.form-input option{background:var(--surface2)}
 </div>
 </div>
 
+<!-- EDIT TRANSACTION MODAL -->
+<div class="modal-overlay" id="editModalOverlay" onclick="handleEditOverlay(event)">
+  <div class="modal-box" id="editModalBox">
+    <div class="modal-head">
+      <div class="modal-head-title">✏️ Edit Transaction</div>
+      <button class="modal-x" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-type-toggle">
+        <button class="modal-type-btn active-income" id="editBtnIncome" onclick="setEditType('income')">📥 Income</button>
+        <button class="modal-type-btn" id="editBtnExpense" onclick="setEditType('expense')">📤 Expense</button>
+      </div>
+      <div class="modal-form-grid">
+        <div class="modal-fg" style="grid-column:span 2">
+          <label>Description</label>
+          <input class="modal-input" id="editDesc" type="text" placeholder="e.g. Salary, Groceries"/>
+        </div>
+        <div class="modal-fg">
+          <label>Amount (₱)</label>
+          <input class="modal-input" id="editAmount" type="number" placeholder="Amount" min="0"/>
+        </div>
+        <div class="modal-fg">
+          <label>Date</label>
+          <input class="modal-input" id="editDate" type="date"/>
+        </div>
+        <div class="modal-fg" style="grid-column:span 2">
+          <label>Category</label>
+          <select class="modal-input" id="editCategory">
+            <option value="">-- Category --</option>
+            <optgroup label="Income">
+              <option value="Salary">Salary</option>
+              <option value="Freelance">Freelance</option>
+              <option value="Business">Business</option>
+              <option value="Other Income">Other Income</option>
+            </optgroup>
+            <optgroup label="Expenses">
+              <option value="Food">🍚 Food</option>
+              <option value="Transport">🚌 Transport</option>
+              <option value="Bills">💡 Bills</option>
+              <option value="Family">👨‍👩‍👧 Family</option>
+              <option value="Education">📚 Education</option>
+              <option value="Health">🏥 Health</option>
+              <option value="Savings">🏦 Savings</option>
+              <option value="Shopping">🛒 Shopping</option>
+              <option value="Other">📦 Other</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="modal-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="modal-save" onclick="saveEditedTxn()">Update ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // STEP 1: Firebase init FIRST (fixes multi-tab bug)
@@ -227,6 +315,8 @@ try {
 let currentFilter = 'all';
 let monthOffset   = 0;
 let txnType       = 'income';
+let editTxnType   = 'income';
+let editingTxnId  = null;
 let data          = { transactions: [], savingGoals: {} };
 
 const CATEGORY_ICONS = {
@@ -303,6 +393,63 @@ function deleteTxn(id) {
   renderAll();
 }
 
+// ── EDIT MODAL ─────────────────────────────
+function openEditModal(id) {
+  const t = data.transactions.find(t => t.id === id);
+  if (!t) return;
+  editingTxnId = id;
+  editTxnType  = t.type;
+
+  document.getElementById('editDesc').value     = t.desc     || '';
+  document.getElementById('editAmount').value   = t.amount   || '';
+  document.getElementById('editDate').value     = t.date     || '';
+  document.getElementById('editCategory').value = t.category || '';
+  setEditType(t.type);
+
+  document.getElementById('editModalOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('editDesc').focus(), 50);
+}
+
+function closeEditModal() {
+  document.getElementById('editModalOverlay').style.display = 'none';
+  editingTxnId = null;
+}
+
+function handleEditOverlay(e) {
+  if (e.target === e.currentTarget) closeEditModal();
+}
+
+function setEditType(t) {
+  editTxnType = t;
+  document.getElementById('editBtnIncome').className  = 'modal-type-btn' + (t === 'income'  ? ' active-income'  : '');
+  document.getElementById('editBtnExpense').className = 'modal-type-btn' + (t === 'expense' ? ' active-expense' : '');
+}
+
+function saveEditedTxn() {
+  const desc     = document.getElementById('editDesc').value.trim();
+  const amount   = parseFloat(document.getElementById('editAmount').value);
+  const date     = document.getElementById('editDate').value;
+  const category = document.getElementById('editCategory').value;
+
+  if (!desc)            { document.getElementById('editDesc').focus();   alert('Please enter a description.'); return; }
+  if (!amount||amount<=0){ document.getElementById('editAmount').focus();alert('Please enter a valid amount.'); return; }
+  if (!category)        { document.getElementById('editCategory').focus();alert('Please select a category.'); return; }
+  if (!date)            { document.getElementById('editDate').focus();   alert('Please select a date.'); return; }
+
+  const idx = data.transactions.findIndex(t => t.id === editingTxnId);
+  if (idx === -1) return;
+
+  data.transactions[idx] = {
+    ...data.transactions[idx],
+    type: editTxnType,
+    desc, amount, category, date
+  };
+
+  saveFirestore();
+  renderAll();
+  closeEditModal();
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // STEP 4: Render functions
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -368,7 +515,10 @@ function renderTxnList() {
         <div class="txn-meta">${t.category} · ${dateStr}</div>
       </div>
       <div class="txn-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
-      <button class="del-btn" onclick="deleteTxn('${t.id}')">✕</button>
+      <div class="txn-btns">
+        <button class="edit-btn" onclick="openEditModal('${t.id}')" title="Edit">✏️</button>
+        <button class="del-btn" onclick="deleteTxn('${t.id}')" title="Delete">✕</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -431,6 +581,9 @@ function addTransaction() {
 
 // Add button click
 document.getElementById('addBtn').addEventListener('click', addTransaction);
+
+// ESC closes edit modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
 
 // Enter key on amount field triggers add
 document.getElementById('txnAmount').addEventListener('keydown', e => { if (e.key === 'Enter') addTransaction(); });
