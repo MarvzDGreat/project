@@ -134,8 +134,21 @@ body::before{
 .cat-group-icon{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0}
 .cat-group-name{font-size:14px;font-weight:800;letter-spacing:-0.01em;flex:1}
 .cat-group-meta{font-size:12px;color:var(--text2);font-weight:500}
-.cat-group-arrow{font-size:12px;color:var(--text3);transition:transform 0.25s;flex-shrink:0;display:inline-block}
-.cat-group-arrow.open{transform:rotate(180deg);color:var(--yellow)}
+.cat-group-arrow{
+  font-size:12px;
+  color:var(--text3);
+  transition:all 0.25s ease;
+  flex-shrink:0;
+  display:inline-block;
+}
+.cat-group-arrow.open{
+  color:var(--text2);
+}
+
+.cat-group-arrow.collapsed{
+  color:var(--yellow);
+}
+	
 .cat-group-body{display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:all 0.25s ease}
 
 /* ── GOAL CARD ── */
@@ -426,7 +439,7 @@ try {
 let goals        = [];
 let depositOpen  = null;
 let historyOpen  = null;
-let collapsedCats = new Set(); // empty = all categories open by default
+let collapsedCats = new Set(); // stores expanded categories
 let editingId    = null;
 let selectedColor = 0;
 
@@ -623,8 +636,13 @@ function deleteGoal(id) {
 }
 function toggleCat(catKey) {
   const stateKey = decodeURIComponent(catKey);
-  if (collapsedCats.has(stateKey)) collapsedCats.delete(stateKey);
-  else collapsedCats.add(stateKey);
+
+  if (collapsedCats.has(stateKey)) {
+    collapsedCats.delete(stateKey); // collapse
+  } else {
+    collapsedCats.add(stateKey); // expand
+  }
+
   renderGoals();
 }
 
@@ -682,7 +700,7 @@ function renderGoals() {
     const icon       = cat.split(' ')[0];
     const catKey     = encodeURIComponent(cat + (isCompleted ? '__done' : ''));
     const stateKey   = cat + (isCompleted ? '__done' : '');
-    const isCollapsed = collapsedCats.has(stateKey);
+    const isCollapsed = !collapsedCats.has(stateKey);
     const colorBg    = catGoals[0]?.colorBg || 'rgba(255,209,102,0.12)';
 
     const cardsHTML = catGoals.map(g => {
@@ -753,7 +771,9 @@ function renderGoals() {
         <div class="cat-group-icon" style="background:${isCompleted?'var(--green-dim)':colorBg}">${isCompleted?'✅':icon}</div>
         <div class="cat-group-name">${cat.split(' ').slice(1).join(' ')||cat}</div>
         <div class="cat-group-meta">${catGoals.length} goal${catGoals.length!==1?'s':''} &nbsp;·&nbsp; ${fmt(catSaved)} / ${fmt(catTarget)} &nbsp;·&nbsp; ${catPct}%</div>
-        <div class="cat-group-arrow ${isCollapsed?'':'open'}" data-cat="${catKey}">▼</div>
+        <div class="cat-group-arrow ${isCollapsed ? 'collapsed' : 'open'}" data-cat="${catKey}">
+		${isCollapsed ? '▲' : '▼'}
+		</div>
       </div>
       <div class="cat-group-body" style="${isCollapsed?'display:none':''}">
         ${cardsHTML}
