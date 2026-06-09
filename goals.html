@@ -614,17 +614,84 @@ function openHistory(id) {
 function doDeposit(id) {
   const amtEl  = document.getElementById('dep_'+id);
   const noteEl = document.getElementById('depNote_'+id);
-  const amt    = parseFloat(amtEl.value);
-  if (!amt||amt<=0) { showStatus('Enter a valid amount.','error'); return; }
-  const g = goals.find(g=>g.id===id);
+
+  const amt = parseFloat(amtEl.value);
+  if (!amt || amt <= 0) {
+    showStatus('Enter a valid amount.','error');
+    return;
+  }
+
+  const g = goals.find(g => g.id === id);
   if (!g) return;
-  g.saved = Math.min((g.saved||0) + amt, g.target);
+
   if (!g.deposits) g.deposits = [];
-  g.deposits.push({ amount: amt, date: new Date().toISOString(), note: noteEl?.value.trim()||'' });
+
+  const deposit = {
+    amount: amt,
+    date: new Date().toISOString(),
+    note: noteEl?.value.trim() || ''
+  };
+
+  g.deposits.push(deposit);
+
+  g.saved = Math.min((g.saved || 0) + amt, g.target);
+
   saveGoals();
-  depositOpen = null;
   renderGoals();
   showStatus('💰 Deposit saved!', 'success');
+}
+function editDeposit(goalId, index) {
+  const g = goals.find(x => x.id === goalId);
+  if (!g || !g.deposits || !g.deposits[index]) return;
+
+  const dep = g.deposits[index];
+
+  const newAmount = prompt('Edit amount:', dep.amount);
+  if (newAmount === null) return;
+
+  const amount = parseFloat(newAmount);
+  if (!amount || amount <= 0) {
+    showStatus('Invalid amount','error');
+    return;
+  }
+
+  const newNote = prompt('Edit note:', dep.note || '');
+
+  dep.amount = amount;
+  dep.note = newNote || '';
+
+  recalcGoal(goalId);
+
+  saveGoals();
+  renderGoals();
+  showStatus('✏️ Deposit updated!', 'success');
+}
+
+function deleteDeposit(goalId, index) {
+  if (!confirm('Delete this deposit?')) return;
+
+  const g = goals.find(x => x.id === goalId);
+  if (!g || !g.deposits) return;
+
+  g.deposits.splice(index, 1);
+
+  recalcGoal(goalId);
+
+  saveGoals();
+  renderGoals();
+  showStatus('🗑 Deposit deleted!', 'success');
+}
+
+function recalcGoal(goalId) {
+  const g = goals.find(x => x.id === goalId);
+  if (!g) return;
+
+  const total = (g.deposits || []).reduce(
+    (sum, d) => sum + (Number(d.amount) || 0),
+    0
+  );
+
+  g.saved = Math.min(total, g.target);
 }
 function deleteGoal(id) {
   if (!confirm('Remove this goal and all its data?')) return;
@@ -725,7 +792,26 @@ function renderGoals() {
         <div class="panel-label">Deposit History (${deps.length})</div>
         ${!deps.length
           ? '<div style="font-size:12px;color:var(--text3);font-style:italic">No deposits yet.</div>'
-          : [...deps].reverse().map(d=>`
+          : [...deps].reverse().map((d, i)=>`
+  <div class="history-item">
+    <span class="h-note">${d.note||'—'}</span>
+
+    <div class="h-right">
+      <span class="h-date">${fmtDate(d.date)}</span>
+      <span class="h-amount">+${fmt(d.amount)}</span>
+
+      <button onclick="editDeposit('${g.id}', ${i})" 
+        style="border:none;background:transparent;cursor:pointer;color:var(--blue)">
+        ✏️
+      </button>
+
+      <button onclick="deleteDeposit('${g.id}', ${i})"
+        style="border:none;background:transparent;cursor:pointer;color:var(--red)">
+        🗑
+      </button>
+    </div>
+  </div>
+`)
             <div class="history-item">
               <span class="h-note">${d.note||'—'}</span>
               <div class="h-right">
