@@ -8,13 +8,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-  const FIREBASE_CONFIG = {
-	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
- 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
-  	projectId: "marvzdgreat-451c1",
-  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
-  	messagingSenderId: "961108110213",
-  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+const FIREBASE_CONFIG = {
+  apiKey:            "PASTE_YOUR_apiKey_HERE",
+  authDomain:        "PASTE_YOUR_authDomain_HERE",
+  projectId:         "PASTE_YOUR_projectId_HERE",
+  storageBucket:     "PASTE_YOUR_storageBucket_HERE",
+  messagingSenderId: "PASTE_YOUR_messagingSenderId_HERE",
+  appId:             "PASTE_YOUR_appId_HERE"
 };
 </script>
 <style>
@@ -134,8 +134,8 @@ body::before{
 .cat-group-icon{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0}
 .cat-group-name{font-size:14px;font-weight:800;letter-spacing:-0.01em;flex:1}
 .cat-group-meta{font-size:12px;color:var(--text2);font-weight:500}
-.cat-group-arrow{font-size:12px;color:var(--text3);transition:transform 0.2s}
-.cat-group-arrow.open{transform:rotate(180deg)}
+.cat-group-arrow{font-size:12px;color:var(--text3);transition:transform 0.25s;flex-shrink:0;display:inline-block}
+.cat-group-arrow.open{transform:rotate(180deg);color:var(--yellow)}
 .cat-group-body{display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:all 0.25s ease}
 
 /* ── GOAL CARD ── */
@@ -281,7 +281,26 @@ body::before{
 .empty-icon{font-size:52px;display:block;margin-bottom:14px;opacity:0.4}
 .empty-state p{font-size:14px;line-height:1.7;font-family:'Instrument Serif',serif;font-style:italic}
 
-.loader{text-align:center;padding:40px;color:var(--text3);font-size:13px}
+/* ── COMPLETED SECTION ── */
+.completed-section { margin-top: 32px; }
+.completed-divider {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.completed-divider-line { flex: 1; height: 1px; background: var(--border); }
+.completed-divider-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--green); white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.completed-count {
+  background: var(--green-dim); color: var(--green);
+  font-size: 11px; font-weight: 700; padding: 2px 9px;
+  border-radius: 99px;
+}
+.cat-group.completed-cat .cat-group-header { border-color: rgba(0,229,160,0.15); }
+.cat-group.completed-cat .cat-group-icon { background: var(--green-dim) !important; }
+.cat-group.completed-cat .cat-group-name { color: var(--green); }
+.goal-card.done { border-color: rgba(0,229,160,0.2); opacity: 0.85; }
 </style>
 </head>
 <body>
@@ -312,10 +331,10 @@ body::before{
     <div class="hero-label">Your progress</div>
     <div class="hero-title">Every peso saved is a step<br><span>closer to the dream.</span></div>
     <div class="summary-strip">
-      <div class="metric"><div class="metric-lbl">Total Goals</div><div class="metric-val" id="metGoals">0</div></div>
+      <div class="metric"><div class="metric-lbl">Active Goals</div><div class="metric-val" id="metGoals">0</div></div>
+      <div class="metric"><div class="metric-lbl">Completed</div><div class="metric-val green" id="metDone">0</div></div>
       <div class="metric"><div class="metric-lbl">Total Saved</div><div class="metric-val yellow" id="metSaved">₱0</div></div>
       <div class="metric"><div class="metric-lbl">Total Target</div><div class="metric-val" id="metTarget">₱0</div></div>
-      <div class="metric"><div class="metric-lbl">Completed</div><div class="metric-val green" id="metDone">0</div></div>
     </div>
   </div>
 
@@ -407,8 +426,8 @@ try {
 let goals        = [];
 let depositOpen  = null;
 let historyOpen  = null;
-let collapsedCats = new Set();
-let editingId    = null;   // null = add mode, string = edit mode
+let collapsedCats = new Set(); // empty = all categories open by default
+let editingId    = null;
 let selectedColor = 0;
 
 const COLORS = ['#ffd166','#00e5a0','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#fb7185'];
@@ -602,10 +621,20 @@ function deleteGoal(id) {
   saveGoals(); renderGoals();
   showStatus('Goal removed.','success');
 }
-function toggleCat(cat) {
-  if (collapsedCats.has(cat)) collapsedCats.delete(cat); else collapsedCats.add(cat);
+function toggleCat(catKey) {
+  const stateKey = decodeURIComponent(catKey);
+  if (collapsedCats.has(stateKey)) collapsedCats.delete(stateKey);
+  else collapsedCats.add(stateKey);
   renderGoals();
 }
+
+// Delegated click handler for category headers — avoids inline onclick issues
+document.addEventListener('click', function(e) {
+  const header = e.target.closest('.cat-group-header');
+  if (!header) return;
+  const catKey = header.getAttribute('data-cat');
+  if (catKey) toggleCat(catKey);
+});
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // STEP 8: Render
@@ -614,8 +643,9 @@ function renderGoals() {
   const totalSaved  = goals.reduce((s,g)=>s+(g.saved||0),0);
   const totalTarget = goals.reduce((s,g)=>s+g.target,0);
   const done        = goals.filter(g=>(g.saved||0)>=g.target).length;
+  const active      = goals.length - done;
 
-  document.getElementById('metGoals').textContent  = goals.length;
+  document.getElementById('metGoals').textContent  = active;
   document.getElementById('metSaved').textContent  = fmt(totalSaved);
   document.getElementById('metTarget').textContent = fmt(totalTarget);
   document.getElementById('metDone').textContent   = done;
@@ -630,37 +660,36 @@ function renderGoals() {
     return;
   }
 
-  // ── Group by category ──
-  const catMap = {};
-  goals.forEach(g => {
-    const cat = g.cat || '🎯 Other';
-    if (!catMap[cat]) catMap[cat] = [];
-    catMap[cat].push(g);
-  });
+  // ── Separate active and completed ──
+  const activeGoals    = goals.filter(g => (g.saved||0) < g.target);
+  const completedGoals = goals.filter(g => (g.saved||0) >= g.target);
 
-  // Sort categories: incomplete first, then complete
-  const sortedCats = Object.keys(catMap).sort((a,b) => {
-    const aDone = catMap[a].every(g=>(g.saved||0)>=g.target);
-    const bDone = catMap[b].every(g=>(g.saved||0)>=g.target);
-    return aDone - bDone;
-  });
+  // ── Build category groups ──
+  function buildCatMap(goalsList) {
+    const map = {};
+    goalsList.forEach(g => {
+      const cat = g.cat || '🎯 Other';
+      if (!map[cat]) map[cat] = [];
+      map[cat].push(g);
+    });
+    return map;
+  }
 
-  list.innerHTML = sortedCats.map(cat => {
-    const catGoals   = catMap[cat];
+  function buildCatGroupHTML(cat, catGoals, isCompleted) {
     const catSaved   = catGoals.reduce((s,g)=>s+(g.saved||0),0);
     const catTarget  = catGoals.reduce((s,g)=>s+g.target,0);
     const catPct     = catTarget > 0 ? Math.round(catSaved/catTarget*100) : 0;
-    const catDone    = catGoals.filter(g=>(g.saved||0)>=g.target).length;
     const icon       = cat.split(' ')[0];
-    const isCollapsed = collapsedCats.has(cat);
-    const firstColor  = catGoals[0]?.color || '#ffd166';
+    const catKey     = encodeURIComponent(cat + (isCompleted ? '__done' : ''));
+    const stateKey   = cat + (isCompleted ? '__done' : '');
+    const isCollapsed = collapsedCats.has(stateKey);
+    const colorBg    = catGoals[0]?.colorBg || 'rgba(255,209,102,0.12)';
 
     const cardsHTML = catGoals.map(g => {
       const saved   = g.saved || 0;
       const pct     = Math.min(100, Math.round((saved/g.target)*100));
       const isDone  = saved >= g.target;
       const color   = g.color || '#ffd166';
-      const colorBg = g.colorBg || 'rgba(255,209,102,0.12)';
       const depOpen = depositOpen === g.id;
       const hisOpen = historyOpen === g.id;
       const deps    = g.deposits || [];
@@ -693,11 +722,11 @@ function renderGoals() {
         <div class="gc-top">
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-              <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+              <div style="width:10px;height:10px;border-radius:50%;background:${isDone?'var(--green)':color};flex-shrink:0"></div>
               <div class="gc-name">${g.name}</div>
             </div>
             ${g.note?`<div class="gc-note">"${g.note}"</div>`:''}
-            <div class="gc-sub">${isDone?'🎉 Goal reached!':fmt(g.target-saved)+' remaining'}</div>
+            <div class="gc-sub">${isDone?'🎉 Goal reached! Well done!':fmt(g.target-saved)+' remaining'}</div>
           </div>
           <div class="gc-actions">
             ${!isDone?`<button class="act-btn add-dep" onclick="openDeposit('${g.id}')" title="Add deposit">+</button>`:''}
@@ -707,7 +736,7 @@ function renderGoals() {
           </div>
         </div>
         <div class="progress-track">
-          <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+          <div class="progress-fill" style="width:${pct}%;background:${isDone?'var(--green)':color}"></div>
         </div>
         <div class="gc-foot">
           <div class="gc-amounts">Saved: <strong>${fmt(saved)}</strong> of ${fmt(g.target)}</div>
@@ -719,18 +748,47 @@ function renderGoals() {
       </div>`;
     }).join('');
 
-    return `<div class="cat-group">
-      <div class="cat-group-header" onclick="toggleCat('${cat.replace(/'/g,"\\'")}')">
-        <div class="cat-group-icon" style="background:${catMap[cat][0]?.colorBg||'rgba(255,209,102,0.12)'}">${icon}</div>
+    return `<div class="cat-group${isCompleted?' completed-cat':''}" data-cat="${catKey}">
+      <div class="cat-group-header" data-cat="${catKey}">
+        <div class="cat-group-icon" style="background:${isCompleted?'var(--green-dim)':colorBg}">${isCompleted?'✅':icon}</div>
         <div class="cat-group-name">${cat.split(' ').slice(1).join(' ')||cat}</div>
         <div class="cat-group-meta">${catGoals.length} goal${catGoals.length!==1?'s':''} &nbsp;·&nbsp; ${fmt(catSaved)} / ${fmt(catTarget)} &nbsp;·&nbsp; ${catPct}%</div>
-        <div class="cat-group-arrow${isCollapsed?'':' open'}">▼</div>
+        <div class="cat-group-arrow ${isCollapsed?'':'open'}" data-cat="${catKey}">▼</div>
       </div>
       <div class="cat-group-body" style="${isCollapsed?'display:none':''}">
         ${cardsHTML}
       </div>
     </div>`;
-  }).join('');
+  }
+
+  // ── Render active section ──
+  const activeCatMap   = buildCatMap(activeGoals);
+  const activeCatKeys  = Object.keys(activeCatMap).sort();
+  const activeHTML     = activeCatKeys.length
+    ? activeCatKeys.map(cat => buildCatGroupHTML(cat, activeCatMap[cat], false)).join('')
+    : `<div class="empty-state" style="padding:24px">
+        <span style="font-size:32px;display:block;margin-bottom:8px">🎯</span>
+        <p style="font-size:13px">All goals completed! Add a new one below.</p>
+      </div>`;
+
+  // ── Render completed section ──
+  const completedCatMap  = buildCatMap(completedGoals);
+  const completedCatKeys = Object.keys(completedCatMap).sort();
+  const completedHTML    = completedCatKeys.length
+    ? `<div class="completed-section">
+        <div class="completed-divider">
+          <div class="completed-divider-line"></div>
+          <div class="completed-divider-label">
+            🏆 Completed Goals
+            <span class="completed-count">${completedGoals.length}</span>
+          </div>
+          <div class="completed-divider-line"></div>
+        </div>
+        ${completedCatKeys.map(cat => buildCatGroupHTML(cat, completedCatMap[cat], true)).join('')}
+      </div>`
+    : '';
+
+  list.innerHTML = activeHTML + completedHTML;
 }
 
 // Enter key support
