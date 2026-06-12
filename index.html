@@ -81,6 +81,11 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
 .card.habits::before{background:var(--green-dim)}
 .card.money::before{background:var(--yellow-dim)}
 .card.admin-card::before{background:var(--blue-dim)}
+.card.tasks-card::before{background:rgba(92,154,255,0.12)}
+.card.tasks-card:hover{border-color:#5c9aff}
+.card.tasks-card .card-icon{background:rgba(92,154,255,0.12)}
+.card.tasks-card .card-title{color:#5c9aff}
+.card.tasks-card:hover .card-arrow{color:#5c9aff}
 .card.goals-card::before{background:rgba(255,209,102,0.12)}
 .card.goals-card:hover{border-color:#ffd166}
 .card.goals-card .card-icon{background:rgba(255,209,102,0.12)}
@@ -105,7 +110,7 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
 .card.habits .card-title{color:var(--green)}
 .card.money .card-title{color:var(--yellow)}
 .card.admin-card .card-title{color:var(--blue)}
-.card-desc{font-size:12px;color:var(--text2);line-height:1.5;text-align: center;}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.5}
 .card-arrow{font-size:22px;color:var(--text2);position:relative;z-index:1;transition:transform 0.2s,color 0.2s}
 .card:hover .card-arrow{transform:translateX(4px)}
 .card.habits:hover .card-arrow{color:var(--green)}
@@ -201,6 +206,14 @@ body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:500px;hei
         <div class="card-arrow">›</div>
       </a>
       <!-- Admin card — only shown if admin -->
+      <a class="card tasks-card" href="tasks.html">
+        <div class="card-icon">✅</div>
+        <div class="card-body">
+          <div class="card-title">Tasks</div>
+          <div class="card-desc">Daily, weekly, monthly tasks — auto-reset each period.</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
       <a class="card goals-card" href="goals.html">
         <div class="card-icon">🎯</div>
         <div class="card-body">
