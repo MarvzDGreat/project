@@ -222,41 +222,10 @@ select.modal-input option{background:var(--surface2)}
   </div>
 
   <div class="summary-grid">
+	<div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
+    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
     <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
     <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
-    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
-    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
-  </div>
-
-  <div class="section-box">
-    <div class="section-title">🎯 Savings Goal</div>
-    <div class="goal-row">
-      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
-      <button class="set-btn" id="setGoalBtn">Set Goal</button>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
-    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
-  </div>
-
-  <!-- EXPENSE LIMITS -->
-  <div class="section-box">
-    <div class="expense-limits-header" onclick="toggleExpenseLimits()">
-      <div class="section-title" style="margin-bottom:0">🚨 Expense Limits by Category</div>
-      <span id="expenseLimitsToggle" class="expense-limits-toggle collapsed">▼</span>
-    </div>
-    <div id="expenseLimitsContent" class="expense-limits-content collapsed">
-    <div class="limits-summary">
-      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
-      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
-      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
-    </div>
-    <div class="limit-grid" id="limitGrid"></div>
-    </div>
-  </div>
-
-  <div class="section-box">
-    <div class="section-title">📊 Spending by Category</div>
-    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
   </div>
 
   <div class="section-box">
@@ -292,6 +261,38 @@ select.modal-input option{background:var(--surface2)}
     </div>
     <button class="add-btn" id="addBtn">Add Transaction</button>
   </div>
+
+  <div class="section-box">
+    <div class="section-title">🎯 Savings Goal</div>
+    <div class="goal-row">
+      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
+      <button class="set-btn" id="setGoalBtn">Set Goal</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
+    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
+  </div>
+
+  <!-- EXPENSE LIMITS -->
+  <div class="section-box">
+    <div class="expense-limits-header" onclick="toggleExpenseLimits()">
+      <div class="section-title" style="margin-bottom:0">🚨 Expense Limits by Category</div>
+      <span id="expenseLimitsToggle" class="expense-limits-toggle collapsed">▼</span>
+    </div>
+    <div id="expenseLimitsContent" class="expense-limits-content collapsed">
+    <div class="limits-summary">
+      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
+    </div>
+    <div class="limit-grid" id="limitGrid"></div>
+    </div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">📊 Spending by Category</div>
+    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
+  </div>
+
 
   <div class="section-box">
     <div class="section-title">📋 Transactions</div>
