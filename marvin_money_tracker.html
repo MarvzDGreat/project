@@ -62,9 +62,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .sum-icon{font-size:20px;margin-bottom:8px}
 .sum-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
 .sum-amount{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
-.sum-card.income .sum-amount{color:var(--blue)}
+.sum-card.income .sum-amount{color:var(--green)}
 .sum-card.expense .sum-amount{color:var(--red)}
-.sum-card.balance .sum-amount{color:var(--green)}
+.sum-card.balance .sum-amount{color:var(--blue)}
 .sum-card.savings .sum-amount{color:var(--yellow)}
 
 .section-box{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:18px;margin-bottom:16px}
@@ -142,6 +142,55 @@ select.modal-input option{background:var(--surface2)}
 .cat-bar-wrap{flex:1;background:var(--surface2);border-radius:99px;height:8px;overflow:hidden}
 .cat-bar{height:8px;border-radius:99px;background:var(--red);transition:width 0.4s}
 .cat-amount{font-size:12px;font-weight:500;color:var(--text);width:80px;text-align:right;flex-shrink:0}
+
+/* EXPENSE LIMITS */
+.limit-grid{display:flex;flex-direction:column;gap:10px}
+.limit-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.limit-cat-label{font-size:13px;color:var(--text);width:120px;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.limit-input-wrap{flex:1;min-width:120px;display:flex;gap:6px}
+.limit-input{flex:1;padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border 0.15s}
+.limit-input:focus{border-color:var(--red)}
+.limit-set-btn{padding:8px 12px;background:var(--red-dim);color:var(--red);border:0.5px solid rgba(255,92,122,0.3);border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.limit-set-btn:hover{background:var(--red);color:#fff}
+.limit-bar-wrap{width:100%;background:var(--surface2);border-radius:99px;height:7px;overflow:hidden;margin-top:4px}
+.limit-bar{height:7px;border-radius:99px;transition:width 0.4s,background 0.3s}
+.limit-bar.ok{background:var(--green)}
+.limit-bar.warn{background:var(--yellow)}
+.limit-bar.over{background:var(--red)}
+.limit-status{font-size:11px;display:flex;justify-content:space-between;margin-top:3px}
+.limit-status .spent{color:var(--text2)}
+.limit-status .remaining.ok{color:var(--green)}
+.limit-status .remaining.warn{color:var(--yellow)}
+.limit-status .remaining.over{color:var(--red);font-weight:700}
+.limit-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;border:0.5px solid var(--border);transition:border-color 0.2s}
+.limit-card.over-budget{border-color:rgba(255,92,122,0.4);background:rgba(255,92,122,0.05)}
+.limit-card.near-budget{border-color:rgba(255,209,102,0.3);background:rgba(255,209,102,0.04)}
+.limit-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.limit-card-label{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.limit-card-right{display:flex;align-items:center;gap:8px}
+.limit-badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
+.limit-badge.over{background:var(--red-dim);color:var(--red)}
+.limit-badge.warn{background:var(--yellow-dim);color:var(--yellow)}
+.limit-badge.ok{background:var(--green-dim);color:var(--green)}
+.limit-clear-btn{background:none;border:none;font-size:11px;color:var(--text2);cursor:pointer;padding:2px 6px;border-radius:4px;font-family:inherit}
+.limit-clear-btn:hover{color:var(--red)}
+.limit-set-row{display:flex;gap:6px;margin-top:6px}
+.limit-small-input{flex:1;padding:7px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface3);color:var(--text);font-family:inherit;font-size:12px;outline:none;transition:border 0.15s}
+.limit-small-input:focus{border-color:var(--red)}
+.limit-small-btn{padding:7px 12px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.15s}
+.limit-small-btn:hover{opacity:0.85}
+.limits-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:480px){.limits-summary{grid-template-columns:1fr 1fr}}
+.lsum-card{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center}
+.lsum-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.lsum-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+
+.expense-limits-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.expense-limits-toggle{font-size:18px;transition:transform .2s}
+.expense-limits-content{overflow:hidden;transition:max-height .3s ease,opacity .3s ease;max-height:3000px;opacity:1}
+.expense-limits-content.collapsed{max-height:0;opacity:0}
+.expense-limits-toggle.collapsed{transform:rotate(-90deg)}
+
 </style>
 </head>
 <body>
@@ -173,10 +222,10 @@ select.modal-input option{background:var(--surface2)}
   </div>
 
   <div class="summary-grid">
-	<div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
-    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
     <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
     <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
+    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
+    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
   </div>
 
   <div class="section-box">
@@ -187,6 +236,22 @@ select.modal-input option{background:var(--surface2)}
     </div>
     <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
     <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
+  </div>
+
+  <!-- EXPENSE LIMITS -->
+  <div class="section-box">
+    <div class="expense-limits-header" onclick="toggleExpenseLimits()">
+      <div class="section-title" style="margin-bottom:0">🚨 Expense Limits by Category</div>
+      <span id="expenseLimitsToggle" class="expense-limits-toggle collapsed">▼</span>
+    </div>
+    <div id="expenseLimitsContent" class="expense-limits-content collapsed">
+    <div class="limits-summary">
+      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
+    </div>
+    <div class="limit-grid" id="limitGrid"></div>
+    </div>
   </div>
 
   <div class="section-box">
@@ -316,7 +381,10 @@ let monthOffset   = 0;
 let txnType       = 'income';
 let editTxnType   = 'income';
 let editingTxnId  = null;
-let data          = { transactions: [], savingGoals: {} };
+let data          = { transactions: [], savingGoals: {}, expenseLimits: {} };
+
+const EXPENSE_CATS = ['Food','Transport','Bills','Family','Education','Health','Savings','Shopping','Other'];
+const CAT_ICONS = { Food:'🍚', Transport:'🚌', Bills:'💡', Family:'👨‍👩‍👧', Education:'📚', Health:'🏥', Savings:'🏦', Shopping:'🛒', Other:'📦' };
 
 const CATEGORY_ICONS = {
   Salary:'💼', Freelance:'💻', Business:'🏪', 'Other Income':'💵',
@@ -472,7 +540,98 @@ function renderAll() {
   document.getElementById('goalTargetLabel').textContent  = 'Goal: ' + (goal > 0 ? fmt(goal) : 'not set');
   if (goal > 0) document.getElementById('goalInput').placeholder = 'Current: ' + fmt(goal);
   renderBreakdown(monthly);
+  renderLimits(monthly);
   renderTxnList();
+}
+
+function renderLimits(monthly) {
+  const { year, month } = getCurrentMonth();
+  const key = year + '-' + month;
+  const limits = (data.expenseLimits && data.expenseLimits[key]) || {};
+
+  const catSpent = {};
+  EXPENSE_CATS.forEach(c => { catSpent[c] = 0; });
+  monthly.filter(t => t.type === 'expense').forEach(t => {
+    if (catSpent[t.category] !== undefined) catSpent[t.category] += t.amount;
+  });
+
+  const limitedCats = Object.keys(limits);
+  const totalBudget = limitedCats.reduce((s, c) => s + (limits[c] || 0), 0);
+  const totalSpent  = limitedCats.reduce((s, c) => s + (catSpent[c] || 0), 0);
+  const totalLeft   = totalBudget - totalSpent;
+
+  document.getElementById('limTotalBudget').textContent = fmt(totalBudget);
+  document.getElementById('limTotalSpent').textContent  = fmt(totalSpent);
+  document.getElementById('limTotalLeft').textContent   = fmt(Math.abs(totalLeft));
+  document.getElementById('limTotalLeft').style.color   = totalLeft < 0 ? 'var(--red)' : 'var(--green)';
+
+  const grid = document.getElementById('limitGrid');
+  grid.innerHTML = EXPENSE_CATS.map(cat => {
+    const icon   = CAT_ICONS[cat] || '📦';
+    const limit  = limits[cat] || 0;
+    const spent  = catSpent[cat] || 0;
+    const pct    = limit > 0 ? Math.min(100, Math.round(spent / limit * 100)) : 0;
+    const left   = limit - spent;
+    const hasLim = limit > 0;
+    const status = !hasLim ? 'none' : pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    const cardCls= status === 'over' ? 'over-budget' : status === 'warn' ? 'near-budget' : '';
+
+    return `<div class="limit-card ${cardCls}">
+      <div class="limit-card-top">
+        <div class="limit-card-label">${icon} ${cat}
+          ${hasLim ? `<span style="font-size:11px;color:var(--text2);font-weight:400">— ${fmt(limit)}/mo</span>` : ''}
+        </div>
+        <div class="limit-card-right">
+          ${hasLim ? `
+            <span class="limit-badge ${status}">
+              ${status==='over'?'🚨 Over!':status==='warn'?'⚠️ Near limit':'✅ OK'}
+            </span>
+            <button class="limit-clear-btn" onclick="clearLimit('${cat}')" title="Remove limit">✕</button>
+          ` : ''}
+        </div>
+      </div>
+      ${hasLim ? `
+        <div class="limit-bar-wrap">
+          <div class="limit-bar ${status}" style="width:${pct}%"></div>
+        </div>
+        <div class="limit-status">
+          <span class="spent">${fmt(spent)} of ${fmt(limit)}</span>
+          <span class="remaining ${status}">${left < 0 ? '🚨 '+fmt(Math.abs(left))+' over!' : fmt(left)+' left'}</span>
+        </div>
+      ` : `<div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-style:italic">No limit set</div>`}
+      <div class="limit-set-row">
+        <input class="limit-small-input" id="limInput_${cat}" type="number"
+          placeholder="${hasLim?'Update limit ₱':'Set limit ₱'}" min="1"
+          onkeydown="if(event.key==='Enter') setLimit('${cat}')"/>
+        <button class="limit-small-btn" onclick="setLimit('${cat}')">${hasLim?'Update':'Set'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setLimit(cat) {
+  const inp = document.getElementById('limInput_' + cat);
+  const val = parseFloat(inp.value);
+  if (!val || val <= 0) { inp.focus(); alert('Please enter a valid limit amount.'); return; }
+  const { year, month } = getCurrentMonth();
+  const key = year + '-' + month;
+  if (!data.expenseLimits) data.expenseLimits = {};
+  if (!data.expenseLimits[key]) data.expenseLimits[key] = {};
+  data.expenseLimits[key][cat] = val;
+  saveFirestore();
+  renderAll();
+  inp.value = '';
+}
+
+function clearLimit(cat) {
+  if (!confirm('Remove limit for ' + cat + '?')) return;
+  const { year, month } = getCurrentMonth();
+  const key = year + '-' + month;
+  if (data.expenseLimits && data.expenseLimits[key]) {
+    delete data.expenseLimits[key][cat];
+    saveFirestore();
+    renderAll();
+  }
 }
 
 function renderBreakdown(monthly) {
@@ -522,6 +681,14 @@ function renderTxnList() {
   }).join('');
 }
 
+
+function toggleExpenseLimits(){
+  const content=document.getElementById('expenseLimitsContent');
+  const icon=document.getElementById('expenseLimitsToggle');
+  content.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed');
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // STEP 5: Firebase listener
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -534,8 +701,9 @@ function initApp(userId) {
     .onSnapshot(
       doc => {
         const d = doc.exists ? doc.data() : {};
-        data.transactions = d.transactions || [];
-        data.savingGoals  = d.savingGoals  || {};
+        data.transactions  = d.transactions  || [];
+        data.savingGoals   = d.savingGoals   || {};
+        data.expenseLimits = d.expenseLimits || {};
         setSyncStatus('synced', 'Synced ✓');
         renderAll();
       },
