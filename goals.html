@@ -443,7 +443,7 @@ try {
 let goals        = [];
 let depositOpen  = null;
 let historyOpen  = null;
-let collapsedCats = new Set(); // empty = all categories open by default
+let collapsedCats = new Set(['__ALL__']); // all collapsed by default
 let editingId    = null;
 let selectedColor = 0;
 let editingDepGoalId  = null;  // which goal the deposit belongs to
@@ -697,8 +697,19 @@ function deleteGoal(id) {
 }
 function toggleCat(catKey) {
   const stateKey = decodeURIComponent(catKey);
-  if (collapsedCats.has(stateKey)) collapsedCats.delete(stateKey);
-  else collapsedCats.add(stateKey);
+  // First interaction: remove __ALL__ and set each cat individually
+  if (collapsedCats.has('__ALL__')) {
+    collapsedCats.delete('__ALL__');
+    // All cats should be collapsed except the one being opened
+    const allCats = goals.map(g => g.cat || '🎯 Other');
+    const uniqueCats = [...new Set(allCats)];
+    uniqueCats.forEach(c => { collapsedCats.add(c); collapsedCats.add(c + '__done'); });
+    // Now toggle the clicked one (open it)
+    collapsedCats.delete(stateKey);
+  } else {
+    if (collapsedCats.has(stateKey)) collapsedCats.delete(stateKey);
+    else collapsedCats.add(stateKey);
+  }
   renderGoals();
 }
 
@@ -756,7 +767,7 @@ function renderGoals() {
     const icon       = cat.split(' ')[0];
     const catKey     = encodeURIComponent(cat + (isCompleted ? '__done' : ''));
     const stateKey   = cat + (isCompleted ? '__done' : '');
-    const isCollapsed = collapsedCats.has(stateKey);
+    const isCollapsed = collapsedCats.has('__ALL__') ? true : collapsedCats.has(stateKey);
     const colorBg    = catGoals[0]?.colorBg || 'rgba(255,209,102,0.12)';
 
     const cardsHTML = catGoals.map(g => {
@@ -843,7 +854,7 @@ function renderGoals() {
 
   // ── Render active section ──
   const activeCatMap   = buildCatMap(activeGoals);
-  const activeCatKeys  = Object.keys(activeCatMap).sort();
+  const activeCatKeys  = Object.keys(activeCatMap).sort((a,b) => a.localeCompare(b));
   const activeHTML     = activeCatKeys.length
     ? activeCatKeys.map(cat => buildCatGroupHTML(cat, activeCatMap[cat], false)).join('')
     : `<div class="empty-state" style="padding:24px">
@@ -853,7 +864,7 @@ function renderGoals() {
 
   // ── Render completed section ──
   const completedCatMap  = buildCatMap(completedGoals);
-  const completedCatKeys = Object.keys(completedCatMap).sort();
+  const completedCatKeys = Object.keys(completedCatMap).sort((a,b) => a.localeCompare(b));
   const completedHTML    = completedCatKeys.length
     ? `<div class="completed-section">
         <div class="completed-divider">
