@@ -134,21 +134,8 @@ body::before{
 .cat-group-icon{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0}
 .cat-group-name{font-size:14px;font-weight:800;letter-spacing:-0.01em;flex:1}
 .cat-group-meta{font-size:12px;color:var(--text2);font-weight:500}
-.cat-group-arrow{
-  font-size:12px;
-  color:var(--text3);
-  transition:all 0.25s ease;
-  flex-shrink:0;
-  display:inline-block;
-}
-.cat-group-arrow.open{
-  color:var(--text2);
-}
-
-.cat-group-arrow.collapsed{
-  color:var(--yellow);
-}
-	
+.cat-group-arrow{font-size:12px;color:var(--text3);transition:transform 0.25s;flex-shrink:0;display:inline-block}
+.cat-group-arrow.open{transform:rotate(180deg);color:var(--yellow)}
 .cat-group-body{display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:all 0.25s ease}
 
 /* ── GOAL CARD ── */
@@ -278,7 +265,24 @@ body::before{
 .swatch:hover{transform:scale(1.2)}
 .swatch.active{border-color:#fff;transform:scale(1.15)}
 
-/* ── ADD BUTTON ── */
+/* ── DEPOSIT EDIT MODAL ── */
+.dep-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:300;padding:20px;backdrop-filter:blur(6px)}
+.dep-modal-box{background:var(--surface);border:0.5px solid var(--border2);border-radius:20px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(0,0,0,0.5);animation:modalIn 0.2s ease;overflow:hidden}
+.dep-modal-head{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.dep-modal-title{font-family:'Cabinet Grotesk',sans-serif;font-size:15px;font-weight:800}
+.dep-modal-x{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background 0.15s}
+.dep-modal-x:hover{background:var(--surface3)}
+.dep-modal-body{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px}
+.dep-modal-foot{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+.dep-modal-cancel{height:36px;padding:0 14px;font-size:12px;font-weight:700;background:transparent;border:0.5px solid var(--border);color:var(--text2);border-radius:var(--rsm);cursor:pointer;font-family:inherit}
+.dep-modal-save{height:36px;padding:0 18px;font-size:12px;font-weight:800;background:var(--green);color:#000;border:none;border-radius:var(--rsm);cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:opacity 0.15s}
+.dep-modal-save:hover{opacity:0.85}
+/* history item action buttons */
+.history-item .h-acts{display:flex;gap:4px;opacity:0;transition:opacity 0.15s;flex-shrink:0}
+.history-item:hover .h-acts{opacity:1}
+.h-act-btn{background:var(--surface3);border:none;width:24px;height:24px;border-radius:6px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all 0.15s}
+.h-act-btn:hover{color:var(--text)}
+.h-act-btn.del:hover{background:var(--red-dim);color:var(--red)}
 .add-btn-wrap{margin-bottom:20px}
 .btn-new{
   width:100%;height:46px;font-size:14px;font-weight:800;
@@ -439,9 +443,11 @@ try {
 let goals        = [];
 let depositOpen  = null;
 let historyOpen  = null;
-let collapsedCats = new Set(); // stores expanded categories
+let collapsedCats = new Set(); // empty = all categories open by default
 let editingId    = null;
 let selectedColor = 0;
+let editingDepGoalId  = null;  // which goal the deposit belongs to
+let editingDepIndex   = null;  // index of deposit being edited
 
 const COLORS = ['#ffd166','#00e5a0','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#fb7185'];
 const CBGS   = [
@@ -626,6 +632,61 @@ function doDeposit(id) {
   renderGoals();
   showStatus('💰 Deposit saved!', 'success');
 }
+
+function openDepositEdit(goalId, depIdx) {
+  const g = goals.find(g=>g.id===goalId);
+  if (!g || !g.deposits[depIdx]) return;
+  editingDepGoalId = goalId;
+  editingDepIndex  = depIdx;
+  const dep = g.deposits[depIdx];
+  document.getElementById('depEditAmount').value = dep.amount || '';
+  document.getElementById('depEditNote').value   = dep.note   || '';
+  document.getElementById('depModalOverlay').style.display = 'flex';
+  setTimeout(()=>document.getElementById('depEditAmount').focus(),50);
+}
+
+function closeDepModal() {
+  document.getElementById('depModalOverlay').style.display = 'none';
+  editingDepGoalId = null;
+  editingDepIndex  = null;
+}
+function handleDepModalBg(e){ if(e.target===e.currentTarget) closeDepModal(); }
+
+function saveDepositEdit() {
+  const amt  = parseFloat(document.getElementById('depEditAmount').value);
+  const note = document.getElementById('depEditNote').value.trim();
+  if (!amt||amt<=0) { document.getElementById('depEditAmount').focus(); alert('Please enter a valid amount.'); return; }
+
+  const g = goals.find(g=>g.id===editingDepGoalId);
+  if (!g || editingDepIndex===null) return;
+
+  const oldAmt = g.deposits[editingDepIndex].amount || 0;
+  const diff   = amt - oldAmt;
+
+  g.deposits[editingDepIndex].amount = amt;
+  g.deposits[editingDepIndex].note   = note;
+  g.deposits[editingDepIndex].editedAt = new Date().toISOString();
+  // Recalc saved total from all deposits
+  g.saved = Math.min(g.deposits.reduce((s,d)=>s+(d.amount||0),0), g.target);
+
+  saveGoals();
+  renderGoals();
+  closeDepModal();
+  showStatus('✅ Deposit updated!', 'success');
+}
+
+function deleteDeposit(goalId, depIdx) {
+  if (!confirm('Delete this deposit?')) return;
+  const g = goals.find(g=>g.id===goalId);
+  if (!g) return;
+  const removedAmt = g.deposits[depIdx]?.amount || 0;
+  g.deposits.splice(depIdx, 1);
+  // Recalc saved from remaining deposits
+  g.saved = Math.min(g.deposits.reduce((s,d)=>s+(d.amount||0),0), g.target);
+  saveGoals();
+  renderGoals();
+  showStatus('Deposit deleted.', 'success');
+}
 function deleteGoal(id) {
   if (!confirm('Remove this goal and all its data?')) return;
   goals = goals.filter(g=>g.id!==id);
@@ -636,13 +697,8 @@ function deleteGoal(id) {
 }
 function toggleCat(catKey) {
   const stateKey = decodeURIComponent(catKey);
-
-  if (collapsedCats.has(stateKey)) {
-    collapsedCats.delete(stateKey); // collapse
-  } else {
-    collapsedCats.add(stateKey); // expand
-  }
-
+  if (collapsedCats.has(stateKey)) collapsedCats.delete(stateKey);
+  else collapsedCats.add(stateKey);
   renderGoals();
 }
 
@@ -700,7 +756,7 @@ function renderGoals() {
     const icon       = cat.split(' ')[0];
     const catKey     = encodeURIComponent(cat + (isCompleted ? '__done' : ''));
     const stateKey   = cat + (isCompleted ? '__done' : '');
-    const isCollapsed = !collapsedCats.has(stateKey);
+    const isCollapsed = collapsedCats.has(stateKey);
     const colorBg    = catGoals[0]?.colorBg || 'rgba(255,209,102,0.12)';
 
     const cardsHTML = catGoals.map(g => {
@@ -722,17 +778,23 @@ function renderGoals() {
       </div>` : '';
 
       const hisHTML = hisOpen ? `<div class="sub-panel">
-        <div class="panel-label">Deposit History (${deps.length})</div>
+        <div class="panel-label">📋 Deposit History (${deps.length})</div>
         ${!deps.length
-          ? '<div style="font-size:12px;color:var(--text3);font-style:italic">No deposits yet.</div>'
-          : [...deps].reverse().map(d=>`
-            <div class="history-item">
-              <span class="h-note">${d.note||'—'}</span>
-              <div class="h-right">
-                <span class="h-date">${fmtDate(d.date)}</span>
-                <span class="h-amount">+${fmt(d.amount)}</span>
-              </div>
-            </div>`).join('')
+          ? '<div style="font-size:12px;color:var(--text3);font-style:italic;padding:4px 0">No deposits yet.</div>'
+          : [...deps].map((d,i)=> {
+              const realIdx = deps.length - 1 - i; // because we reverse for display
+              return `<div class="history-item">
+                <span class="h-note">${d.note||'—'}</span>
+                <div class="h-right">
+                  <span class="h-date">${fmtDate(d.date)}</span>
+                  <span class="h-amount">+${fmt(d.amount)}</span>
+                  <div class="h-acts">
+                    <button class="h-act-btn" onclick="openDepositEdit('${g.id}',${deps.length-1-i})" title="Edit">✏️</button>
+                    <button class="h-act-btn del" onclick="deleteDeposit('${g.id}',${deps.length-1-i})" title="Delete">✕</button>
+                  </div>
+                </div>
+              </div>`;
+            }).reverse().join('')
         }
       </div>` : '';
 
@@ -771,9 +833,7 @@ function renderGoals() {
         <div class="cat-group-icon" style="background:${isCompleted?'var(--green-dim)':colorBg}">${isCompleted?'✅':icon}</div>
         <div class="cat-group-name">${cat.split(' ').slice(1).join(' ')||cat}</div>
         <div class="cat-group-meta">${catGoals.length} goal${catGoals.length!==1?'s':''} &nbsp;·&nbsp; ${fmt(catSaved)} / ${fmt(catTarget)} &nbsp;·&nbsp; ${catPct}%</div>
-        <div class="cat-group-arrow ${isCollapsed ? 'collapsed' : 'open'}" data-cat="${catKey}">
-		${isCollapsed ? '▲' : '▼'}
-		</div>
+        <div class="cat-group-arrow ${isCollapsed?'':'open'}" data-cat="${catKey}">▼</div>
       </div>
       <div class="cat-group-body" style="${isCollapsed?'display:none':''}">
         ${cardsHTML}
@@ -783,7 +843,7 @@ function renderGoals() {
 
   // ── Render active section ──
   const activeCatMap   = buildCatMap(activeGoals);
-  const activeCatKeys  = Object.keys(activeCatMap);
+  const activeCatKeys  = Object.keys(activeCatMap).sort();
   const activeHTML     = activeCatKeys.length
     ? activeCatKeys.map(cat => buildCatGroupHTML(cat, activeCatMap[cat], false)).join('')
     : `<div class="empty-state" style="padding:24px">
@@ -793,7 +853,7 @@ function renderGoals() {
 
   // ── Render completed section ──
   const completedCatMap  = buildCatMap(completedGoals);
-  const completedCatKeys = Object.keys(completedCatMap);
+  const completedCatKeys = Object.keys(completedCatMap).sort();
   const completedHTML    = completedCatKeys.length
     ? `<div class="completed-section">
         <div class="completed-divider">
@@ -813,7 +873,7 @@ function renderGoals() {
 
 // Enter key support
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') { closeModal(); closeDepModal(); }
   if (e.key === 'Enter' && depositOpen) {
     const d = document.getElementById('dep_'+depositOpen);
     const n = document.getElementById('depNote_'+depositOpen);
@@ -854,5 +914,35 @@ if (!session) {
   initApp(session.userId);
 }
 </script>
+<!-- DEPOSIT EDIT MODAL -->
+<div class="dep-modal-overlay" id="depModalOverlay" onclick="handleDepModalBg(event)">
+  <div class="dep-modal-box">
+    <div class="dep-modal-head">
+      <div class="dep-modal-title">✏️ Edit Deposit</div>
+      <button class="dep-modal-x" onclick="closeDepModal()">✕</button>
+    </div>
+    <div class="dep-modal-body">
+      <div class="fg">
+        <label style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:block">Amount (₱)</label>
+        <input id="depEditAmount" type="number" min="1" placeholder="Amount"
+          style="width:100%;padding:10px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:inherit;outline:none;transition:border 0.15s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor=''"
+          onkeydown="if(event.key==='Enter')saveDepositEdit();if(event.key==='Escape')closeDepModal()"/>
+      </div>
+      <div class="fg">
+        <label style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:block">Note</label>
+        <input id="depEditNote" type="text" placeholder="Note (optional)"
+          style="width:100%;padding:10px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:inherit;outline:none;transition:border 0.15s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor=''"
+          onkeydown="if(event.key==='Enter')saveDepositEdit();if(event.key==='Escape')closeDepModal()"/>
+      </div>
+      <div class="dep-modal-foot">
+        <button class="dep-modal-cancel" onclick="closeDepModal()">Cancel</button>
+        <button class="dep-modal-save" onclick="saveDepositEdit()">Update ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
