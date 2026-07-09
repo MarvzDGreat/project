@@ -860,8 +860,9 @@ function renderGoals() {
   }
 
   // ── Render active section ──
-  const activeCatMap   = buildCatMap(activeGoals);
-  const activeCatKeys  = Object.keys(activeCatMap);
+  const completedCatMap = buildCatMap(completedGoals);
+  const completedCatKeys = Object.keys(completedCatMap).sort((a, b) =>
+	    a.localeCompare(b));
   const activeHTML     = activeCatKeys.length
     ? activeCatKeys.map(cat => buildCatGroupHTML(cat, activeCatMap[cat], false)).join('')
     : `<div class="empty-state" style="padding:24px">
