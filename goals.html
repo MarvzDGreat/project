@@ -213,6 +213,15 @@ body::before{
 .h-date{color:var(--text3)}
 .h-amount{color:var(--green);font-weight:800;font-family:'Cabinet Grotesk',sans-serif}
 
+/* ── DRAG TO REORDER ── */
+.cat-group.dragging{opacity:0.35;border:1.5px dashed var(--yellow);border-radius:var(--r)}
+.cat-group.drag-over-top{border-top:2.5px solid var(--yellow)}
+.cat-group.drag-over-bot{border-bottom:2.5px solid var(--yellow)}
+.drag-hint{font-size:11px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.drag-hint-badge{background:var(--yellow-dim);color:var(--yellow);padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:0.04em}
+.cat-group-header{cursor:grab}
+.cat-group-header:active{cursor:grabbing}
+
 /* ── ADD / EDIT MODAL ── */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,0.7);
@@ -453,8 +462,9 @@ let historyOpen  = null;
 let collapsedCats = new Set(['__ALL__']); // all collapsed by default
 let editingId    = null;
 let selectedColor = 0;
-let editingDepGoalId  = null;  // which goal the deposit belongs to
-let editingDepIndex   = null;  // index of deposit being edited
+let editingDepGoalId  = null;
+let editingDepIndex   = null;
+let catOrder     = []; // user-defined category order
 
 const COLORS = ['#ffd166','#00e5a0','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#fb7185'];
 const CBGS   = [
@@ -860,9 +870,20 @@ function renderGoals() {
   }
 
   // ── Render active section ──
-  const completedCatMap = buildCatMap(completedGoals);
-  const completedCatKeys = Object.keys(completedCatMap).sort((a, b) =>
-	    a.localeCompare(b));
+  // ── Sort by user-defined catOrder, fallback to insertion order ──
+  function sortCats(keys) {
+    return [...keys].sort((a, b) => {
+      const ai = catOrder.indexOf(a);
+      const bi = catOrder.indexOf(b);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+
+  const activeCatMap   = buildCatMap(activeGoals);
+  const activeCatKeys  = sortCats(Object.keys(activeCatMap));
   const activeHTML     = activeCatKeys.length
     ? activeCatKeys.map(cat => buildCatGroupHTML(cat, activeCatMap[cat], false)).join('')
     : `<div class="empty-state" style="padding:24px">
@@ -872,7 +893,7 @@ function renderGoals() {
 
   // ── Render completed section ──
   const completedCatMap  = buildCatMap(completedGoals);
-  const completedCatKeys = Object.keys(completedCatMap);
+  const completedCatKeys = sortCats(Object.keys(completedCatMap));
   const completedHTML    = completedCatKeys.length
     ? `<div class="completed-section">
         <div class="completed-divider">
@@ -887,7 +908,90 @@ function renderGoals() {
       </div>`
     : '';
 
-  list.innerHTML = activeHTML + completedHTML;
+  const dragHint = activeCatKeys.length > 1
+    ? `<div class="drag-hint"><span class="drag-hint-badge">⠿ Drag</span> headers to reorder</div>`
+    : '';
+
+  list.innerHTML = dragHint + activeHTML + completedHTML;
+  initDragDrop();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Drag-and-drop category reorder
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function initDragDrop() {
+  let dragSrc = null;
+
+  document.querySelectorAll('.cat-group:not(.completed-cat)').forEach(group => {
+    const header = group.querySelector('.cat-group-header');
+    if (!header) return;
+
+    header.setAttribute('draggable', true);
+
+    header.addEventListener('dragstart', e => {
+      dragSrc = group;
+      group.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    header.addEventListener('dragend', () => {
+      group.classList.remove('dragging');
+      document.querySelectorAll('.cat-group').forEach(g => {
+        g.classList.remove('drag-over-top','drag-over-bot');
+      });
+      dragSrc = null;
+    });
+
+    group.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === group) return;
+      e.dataTransfer.dropEffect = 'move';
+      const rect = group.getBoundingClientRect();
+      const mid  = rect.top + rect.height / 2;
+      group.classList.toggle('drag-over-top', e.clientY < mid);
+      group.classList.toggle('drag-over-bot', e.clientY >= mid);
+    });
+
+    group.addEventListener('dragleave', () => {
+      group.classList.remove('drag-over-top','drag-over-bot');
+    });
+
+    group.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === group) return;
+      group.classList.remove('drag-over-top','drag-over-bot');
+
+      const rect     = group.getBoundingClientRect();
+      const dropBefore = e.clientY < rect.top + rect.height / 2;
+
+      // Get current visible active cat order from DOM
+      const allGroups = [...document.querySelectorAll('.cat-group:not(.completed-cat)')];
+      const ordered   = allGroups.map(g => decodeURIComponent(g.getAttribute('data-cat')));
+
+      const srcCat  = decodeURIComponent(dragSrc.getAttribute('data-cat'));
+      const tgtCat  = decodeURIComponent(group.getAttribute('data-cat'));
+
+      // Build new order
+      const filtered = ordered.filter(c => c !== srcCat);
+      const tgtIdx   = filtered.indexOf(tgtCat);
+      filtered.splice(dropBefore ? tgtIdx : tgtIdx + 1, 0, srcCat);
+
+      catOrder = filtered;
+      saveCatOrder();
+      renderGoals();
+    });
+  });
+}
+
+function saveCatOrder() {
+  const s = getSession();
+  if (!s) return;
+  try { localStorage.setItem('mlt_catorder_' + s.userId, JSON.stringify(catOrder)); } catch(e) {}
+}
+function loadCatOrder() {
+  const s = getSession();
+  if (!s) return;
+  try { const saved = localStorage.getItem('mlt_catorder_' + s.userId); if(saved) catOrder = JSON.parse(saved); } catch(e) {}
 }
 
 // Enter key support
@@ -930,6 +1034,7 @@ if (!session) {
 } else {
   document.getElementById('mainApp').style.display  = 'block';
   document.getElementById('userDisplay').textContent = session.userId;
+  loadCatOrder();
   initApp(session.userId);
 }
 </script>
