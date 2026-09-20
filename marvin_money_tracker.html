@@ -7,15 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="session.js"></script>
+
 <!-- ✅ Same Firebase config as index.html -->
 <script>
-  const FIREBASE_CONFIG = {
-	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
- 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
-  	projectId: "marvzdgreat-451c1",
-  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
-  	messagingSenderId: "961108110213",
-  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+const FIREBASE_CONFIG = {
+  apiKey:            "PASTE_YOUR_apiKey_HERE",
+  authDomain:        "PASTE_YOUR_authDomain_HERE",
+  projectId:         "PASTE_YOUR_projectId_HERE",
+  storageBucket:     "PASTE_YOUR_storageBucket_HERE",
+  messagingSenderId: "PASTE_YOUR_messagingSenderId_HERE",
+  appId:             "PASTE_YOUR_appId_HERE"
 };
 </script>
 <style>
@@ -184,13 +186,6 @@ select.modal-input option{background:var(--surface2)}
 .lsum-card{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center}
 .lsum-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
 .lsum-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
-
-.expense-limits-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.expense-limits-toggle{font-size:18px;transition:transform .2s}
-.expense-limits-content{overflow:hidden;transition:max-height .3s ease,opacity .3s ease;max-height:3000px;opacity:1}
-.expense-limits-content.collapsed{max-height:0;opacity:0}
-.expense-limits-toggle.collapsed{transform:rotate(-90deg)}
-
 </style>
 </head>
 <body>
@@ -222,10 +217,36 @@ select.modal-input option{background:var(--surface2)}
   </div>
 
   <div class="summary-grid">
-	<div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
-    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
     <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
     <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
+    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
+    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">🎯 Savings Goal</div>
+    <div class="goal-row">
+      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
+      <button class="set-btn" id="setGoalBtn">Set Goal</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
+    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
+  </div>
+
+  <!-- EXPENSE LIMITS -->
+  <div class="section-box">
+    <div class="section-title">🚨 Expense Limits by Category</div>
+    <div class="limits-summary">
+      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
+    </div>
+    <div class="limit-grid" id="limitGrid"></div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">📊 Spending by Category</div>
+    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
   </div>
 
   <div class="section-box">
@@ -261,38 +282,6 @@ select.modal-input option{background:var(--surface2)}
     </div>
     <button class="add-btn" id="addBtn">Add Transaction</button>
   </div>
-
-  <div class="section-box">
-    <div class="section-title">🎯 Savings Goal</div>
-    <div class="goal-row">
-      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
-      <button class="set-btn" id="setGoalBtn">Set Goal</button>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
-    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
-  </div>
-
-  <!-- EXPENSE LIMITS -->
-  <div class="section-box">
-    <div class="expense-limits-header" onclick="toggleExpenseLimits()">
-      <div class="section-title" style="margin-bottom:0">🚨 Expense Limits by Category</div>
-      <span id="expenseLimitsToggle" class="expense-limits-toggle collapsed">▼</span>
-    </div>
-    <div id="expenseLimitsContent" class="expense-limits-content collapsed">
-    <div class="limits-summary">
-      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
-      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
-      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
-    </div>
-    <div class="limit-grid" id="limitGrid"></div>
-    </div>
-  </div>
-
-  <div class="section-box">
-    <div class="section-title">📊 Spending by Category</div>
-    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
-  </div>
-
 
   <div class="section-box">
     <div class="section-title">📋 Transactions</div>
@@ -680,14 +669,6 @@ function renderTxnList() {
       </div>
     </div>`;
   }).join('');
-}
-
-
-function toggleExpenseLimits(){
-  const content=document.getElementById('expenseLimitsContent');
-  const icon=document.getElementById('expenseLimitsToggle');
-  content.classList.toggle('collapsed');
-  icon.classList.toggle('collapsed');
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

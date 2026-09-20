@@ -7,15 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="session.js"></script>
+
 <script>
 // ✅ Replace with YOUR Firebase config
-  const FIREBASE_CONFIG = {
-	apiKey: "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
- 	authDomain: "marvzdgreat-451c1.firebaseapp.com",
-  	projectId: "marvzdgreat-451c1",
-  	storageBucket: "marvzdgreat-451c1.firebasestorage.app",
-  	messagingSenderId: "961108110213",
-  	appId: "1:961108110213:web:264c263c8e1cc2f946f2ec"
+const FIREBASE_CONFIG = {
+  apiKey:            "PASTE_YOUR_apiKey_HERE",
+  authDomain:        "PASTE_YOUR_authDomain_HERE",
+  projectId:         "PASTE_YOUR_projectId_HERE",
+  storageBucket:     "PASTE_YOUR_storageBucket_HERE",
+  messagingSenderId: "PASTE_YOUR_messagingSenderId_HERE",
+  appId:             "PASTE_YOUR_appId_HERE"
 };
 </script>
 <style>
@@ -144,39 +146,15 @@ function getSession() {
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const TODAY_IDX = (new Date().getDay() + 6) % 7;
 const HABITS = [
-{ section:'☀️Morning', icon:'☀️', name:'Wake up on time<br><b>5:30am</b>' },
-{ section:'☀️Morning', icon:'🙏', name:'Prayer / Gratitude' },
-{ section: '☀️Morning', icon:'💧', name:'Drink water<br>1–2 glasses' },
-{ section:'☀️Morning', icon:'🚿', name:'Shower & hygiene' },
-{ section:'☀️Morning', icon:'🍳', name:'Healthy breakfast<br>Protein,Carbs,Fruit' },
-
-{ section:'Grow-Up', icon:'🗣️', name:'English practice  <br>(30 min)' },
-{ section:'Grow-Up', icon:'📚', name:'Study / upskill <br>(1 hr)' },
-{ section:'Grow-Up', icon:'💻', name:'Practice tech skills' },
-
-{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Warm-up/Stretch&nbsp' },
-{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Push-ups:&nbsp; 10–15' },
-{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Sit-ups:&nbsp; 10–15' },
-{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Squats:&nbsp; 15-20' },
-{ section:'💪Basic Workout:<br>(Repeat 2–3 rounds)', icon:'🔥', name:'Plank:&nbsp; 10–15' },
-
-{ section:'🚫Discipline Rules', icon:'🛑', name:'No procrastination<br>( do it today )' },
-{ section:'🚫Discipline Rules', icon:'🛑', name:'No doom scrolling' },
-{ section:'🚫Discipline Rules', icon:'🛑', name:'No Gambling' },
-{ section:'🚫Discipline Rules', icon:'🛑', name:'No Smoking <br>No Alcohol <br>No Porn' },
-
-
-
-/*
+  { section:'Morning', icon:'☀️', name:'Wake up on time' },
+  { section:'Morning', icon:'📚', name:'Study / upskill (1 hr)' },
   { section:'Morning', icon:'🗣️', name:'English practice (30 min)' },
   { section:'Daytime', icon:'💼', name:'Check job boards (15 min)' },
   { section:'Daytime', icon:'🔧', name:'Work on certification' },
   { section:'Daytime', icon:'🤝', name:'Talk to 1 potential client' },
   { section:'Evening', icon:'💻', name:'Practice tech skills' },
-  { section:'Level-Up', icon:'❤️', name:'Family time' },
-  { section:'Grow-Up', icon:'📚', name:'Study / upskill (1 hr)' },
+  { section:'Evening', icon:'❤️', name:'Family time' },
   { section:'Evening', icon:'🌙', name:'Review progress & plan tomorrow' },
-*/
 ];
 let weekOffset = 0, allData = {};
 
