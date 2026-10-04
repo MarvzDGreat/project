@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notes · Marvin</title>
+<title>Notes · Marvz</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="session.js"></script>
-
 <script>
-// ✅ Same Firebase config as index.html
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyDQGpWGqyD5r6neSTd2ZWyO_3hv3gxnliM",
   authDomain:        "marvzdgreat-451c1.firebaseapp.com",
@@ -23,185 +21,178 @@ const FIREBASE_CONFIG = {
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f7f5f0;
-  --surface:#ffffff;
-  --text:#1c1917;
-  --text2:#78716c;
-  --text3:#a8a29e;
-  --border:rgba(0,0,0,0.08);
+  --bg:#f7f5f0;--surface:#ffffff;--text:#1c1917;--text2:#78716c;--text3:#a8a29e;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
   --shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
   --shadow-hover:0 4px 12px rgba(0,0,0,0.12),0 8px 32px rgba(0,0,0,0.1);
-  --radius:16px;
-  --radius-sm:10px;
-
-  /* Note colors */
-  --c0:#ffffff;
-  --c1:#fef9c3; /* yellow */
-  --c2:#dcfce7; /* green */
-  --c3:#dbeafe; /* blue */
-  --c4:#fce7f3; /* pink */
-  --c5:#ede9fe; /* purple */
-  --c6:#ffedd5; /* orange */
-  --c7:#f1f5f9; /* slate */
+  --amber:#a16207;--amber-bg:#fef3c7;
+  --radius:16px;--rsm:10px;
 }
 body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* ── NO ACCESS ── */
+/* NO ACCESS */
 #noAccess{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--bg)}
 .no-access-box{background:var(--surface);border-radius:20px;border:0.5px solid var(--border);padding:40px 32px;max-width:360px;text-align:center;box-shadow:var(--shadow)}
 .no-access-box h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
 .no-access-box p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
-.back-btn{padding:11px 24px;background:#1c1917;color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.back-btn{padding:11px 24px;background:#1c1917;color:#fff;border:none;border-radius:var(--rsm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
 
-/* ── LAYOUT ── */
+/* LAYOUT */
 #mainApp{display:none}
-.topbar{
-  position:sticky;top:0;z-index:50;
-  background:rgba(247,245,240,0.85);backdrop-filter:blur(12px);
-  border-bottom:0.5px solid var(--border);
-  padding:12px 20px;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-}
-.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:500}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(247,245,240,0.9);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.back-link{font-size:13px;color:var(--text2);text-decoration:none;background:var(--surface);border:0.5px solid var(--border);padding:6px 12px;border-radius:var(--rsm);display:inline-flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:500}
 .back-link:hover{background:#f0ece6}
 .topbar-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.03em;flex:1}
-.topbar-title span{color:#a16207}
-.user-pill{font-size:12px;background:#fef3c7;color:#92400e;padding:5px 12px;border-radius:99px;font-weight:500;font-family:'Syne',sans-serif}
+.topbar-title span{color:var(--amber)}
+.user-pill{font-size:12px;background:var(--amber-bg);color:#92400e;padding:5px 12px;border-radius:99px;font-weight:500;font-family:'Syne',sans-serif}
 .sync-pill{font-size:11px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px;font-family:'Syne',sans-serif}
 .sync-pill.synced{background:#dcfce7;color:#166534}
-.sync-pill.saving{background:#fef3c7;color:#92400e}
+.sync-pill.saving{background:var(--amber-bg);color:#92400e}
 .sync-pill.error{background:#fee2e2;color:#991b1b}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
-/* ── SEARCH ── */
+/* SEARCH */
 .search-wrap{padding:20px 20px 0;max-width:1200px;margin:0 auto}
-.search-box{
-  display:flex;align-items:center;gap:10px;
-  background:var(--surface);border-radius:99px;
-  border:0.5px solid var(--border);
-  padding:10px 18px;box-shadow:var(--shadow);
-  transition:box-shadow 0.2s;
-}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:99px;border:0.5px solid var(--border);padding:10px 18px;box-shadow:var(--shadow);transition:box-shadow 0.2s}
 .search-box:focus-within{box-shadow:var(--shadow-hover)}
-.search-icon{font-size:16px;color:var(--text3);flex-shrink:0}
 .search-input{flex:1;border:none;outline:none;font-family:'Lora',serif;font-size:14px;background:transparent;color:var(--text)}
 .search-input::placeholder{color:var(--text3)}
 
-/* ── ADD NOTE CARD ── */
-.add-wrap{padding:20px;max-width:1200px;margin:0 auto}
-.add-card{
-  background:var(--surface);border-radius:var(--radius);
-  border:0.5px solid var(--border);box-shadow:var(--shadow);
-  overflow:hidden;transition:box-shadow 0.2s;
-  cursor:text;
-}
+/* ADD NOTE CARD */
+.add-wrap{padding:16px 20px;max-width:1200px;margin:0 auto}
+.add-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:box-shadow 0.2s}
 .add-card:focus-within{box-shadow:var(--shadow-hover)}
-.add-collapsed{padding:14px 18px;font-size:14px;color:var(--text3);font-family:'Lora',serif;font-style:italic}
+.add-collapsed{padding:14px 18px;font-size:14px;color:var(--text3);font-family:'Lora',serif;font-style:italic;cursor:text}
 .add-expanded{display:none}
-.add-title-input{
-  width:100%;padding:16px 18px 8px;border:none;outline:none;
-  font-family:'Syne',sans-serif;font-size:16px;font-weight:600;
-  background:transparent;color:var(--text);
-}
+.add-title-input{width:100%;padding:16px 18px 8px;border:none;outline:none;font-family:'Syne',sans-serif;font-size:16px;font-weight:600;background:transparent;color:var(--text)}
 .add-title-input::placeholder{color:var(--text3)}
-.add-content-input{
-  width:100%;padding:4px 18px 12px;border:none;outline:none;
-  font-family:'Lora',serif;font-size:14px;line-height:1.7;
-  background:transparent;color:var(--text);resize:none;min-height:80px;
-}
-.add-content-input::placeholder{color:var(--text3)}
-.add-toolbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;border-top:0.5px solid var(--border);
-  flex-wrap:wrap;gap:8px;
-}
-.color-picks{display:flex;gap:6px;align-items:center}
-.color-pick{
-  width:22px;height:22px;border-radius:50%;cursor:pointer;
-  border:2px solid transparent;transition:transform 0.15s,border-color 0.15s;
-}
+.add-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:0.5px solid var(--border);flex-wrap:wrap;gap:8px;background:#fafaf8}
+.toolbar-left{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.toolbar-right{display:flex;gap:8px;align-items:center}
+.color-picks{display:flex;gap:5px;align-items:center}
+.color-pick{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform 0.15s,border-color 0.15s;flex-shrink:0}
 .color-pick:hover{transform:scale(1.2)}
 .color-pick.selected{border-color:#1c1917;transform:scale(1.15)}
-.pin-btn,.close-btn{
-  background:none;border:none;cursor:pointer;font-size:18px;
-  padding:4px 8px;border-radius:8px;transition:background 0.15s;
-  font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
-  color:var(--text2);
-}
+.pin-btn,.close-btn{background:none;border:none;cursor:pointer;font-size:12px;font-family:'Syne',sans-serif;font-weight:600;color:var(--text2);padding:5px 8px;border-radius:6px;transition:background 0.15s}
 .pin-btn:hover,.close-btn:hover{background:rgba(0,0,0,0.06)}
-.save-note-btn{
-  background:#1c1917;color:#fff;border:none;border-radius:var(--radius-sm);
-  padding:8px 18px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
-  cursor:pointer;letter-spacing:0.03em;transition:opacity 0.15s;
-}
+.save-note-btn{background:#1c1917;color:#fff;border:none;border-radius:var(--rsm);padding:8px 18px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity 0.15s}
 .save-note-btn:hover{opacity:0.85}
 
-/* ── NOTES GRID ── */
-.notes-wrap{padding:0 20px 40px;max-width:1200px;margin:0 auto}
-.section-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:20px 0 12px 4px}
-.notes-grid{
-  columns:2;column-gap:14px;
+/* RICH TEXT TOOLBAR */
+.rich-toolbar{display:flex;align-items:center;gap:2px;padding:6px 14px;border-bottom:0.5px solid var(--border);flex-wrap:wrap;background:#fafaf8;row-gap:4px}
+.tb-btn{background:none;border:none;cursor:pointer;height:28px;min-width:28px;padding:0 4px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2);transition:background 0.15s,color 0.15s;flex-shrink:0;font-family:'Syne',sans-serif;font-weight:600;white-space:nowrap}
+.tb-btn:hover{background:rgba(0,0,0,0.08);color:var(--text)}
+.tb-btn.active,.tb-btn:active{background:rgba(0,0,0,0.12);color:var(--text)}
+.tb-sep{width:1px;height:20px;background:var(--border2);margin:0 4px;flex-shrink:0}
+.tb-label{font-size:10px;font-family:'Syne',sans-serif;font-weight:700;color:var(--text3);padding:0 3px;white-space:nowrap}
+
+/* HEADING BUTTONS */
+.tb-h{background:none;border:none;cursor:pointer;height:28px;padding:0 7px;border-radius:6px;font-family:'Syne',sans-serif;font-weight:800;color:var(--text2);transition:background 0.15s,color 0.15s;flex-shrink:0;display:inline-flex;align-items:center;white-space:nowrap}
+.tb-h:hover{background:rgba(0,0,0,0.08);color:var(--text)}
+.tb-h1{font-size:15px}
+.tb-h2{font-size:13px}
+.tb-h3{font-size:11px}
+
+/* SIZE BUTTONS */
+.tb-size{background:none;border:none;cursor:pointer;border-radius:5px;padding:0 5px;font-family:'Syne',sans-serif;font-weight:700;color:var(--text2);transition:background 0.15s,color 0.15s;flex-shrink:0;display:inline-flex;align-items:center;height:28px}
+.tb-size:hover{background:rgba(0,0,0,0.07);color:var(--text)}
+.tb-size.active{background:rgba(0,0,0,0.1);color:var(--text)}
+.tb-size-s{font-size:10px}
+.tb-size-m{font-size:13px}
+.tb-size-l{font-size:17px}
+
+/* EMOJI PICKER */
+.emoji-wrap{position:relative;display:inline-block}
+.emoji-panel{position:absolute;top:calc(100% + 6px);left:0;z-index:200;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;box-shadow:var(--shadow-hover);padding:10px;width:260px;display:none;flex-wrap:wrap;gap:4px;animation:emojiIn 0.15s ease}
+.emoji-panel.open{display:flex}
+@keyframes emojiIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.emoji-cat{width:100%;font-size:10px;font-family:'Syne',sans-serif;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:4px 2px 2px;border-bottom:0.5px solid var(--border);margin-bottom:4px}
+.emoji-btn{width:30px;height:30px;border:none;background:none;cursor:pointer;border-radius:6px;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background 0.1s}
+.emoji-btn:hover{background:#f0ece6}
+
+/* CONTENTEDITABLE EDITOR */
+.note-editor{min-height:90px;padding:8px 18px 14px;outline:none;font-family:'Lora',serif;font-size:14.5px;line-height:1.8;color:var(--text);word-break:break-word}
+.note-editor:empty::before{content:attr(data-placeholder);color:var(--text3);pointer-events:none;font-style:italic}
+/* inline formats */
+.note-editor b,.note-editor strong{font-weight:700;color:#0d0c0b}
+.note-editor i,.note-editor em{font-style:italic}
+.note-editor u{text-decoration:underline}
+.note-editor s{text-decoration:line-through;color:var(--text2)}
+/* headings */
+.note-editor h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1.25;margin:14px 0 6px;color:#0d0c0b;letter-spacing:-0.03em}
+.note-editor h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;line-height:1.3;margin:12px 0 5px;color:#0d0c0b;letter-spacing:-0.02em}
+.note-editor h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;line-height:1.4;margin:10px 0 4px;color:#0d0c0b}
+/* lists */
+.note-editor ul{margin-left:22px;margin-top:4px;margin-bottom:6px;list-style-type:disc}
+.note-editor ol{margin-left:22px;margin-top:4px;margin-bottom:6px;list-style-type:decimal}
+.note-editor li{margin-bottom:3px;line-height:1.7}
+.note-editor li::marker{color:var(--amber)}
+/* size spans */
+.note-editor .sz-small{font-size:11.5px;line-height:1.6}
+.note-editor .sz-medium{font-size:14.5px}
+.note-editor .sz-large{font-size:19px;line-height:1.5}
+/* blockquote — matches screenshot bottom quote style */
+.note-editor blockquote{
+  border-left:3.5px solid #0d0c0b;
+  padding:8px 14px;
+  margin:10px 0;
+  background:rgba(0,0,0,0.03);
+  border-radius:0 6px 6px 0;
+  font-weight:700;
+  font-style:normal;
+  color:#0d0c0b;
+  font-size:14px;
 }
+.note-editor hr{border:none;border-top:1.5px solid var(--border2);margin:12px 0}
+/* paragraph spacing */
+.note-editor p{margin-bottom:4px}
+
+/* NOTES GRID */
+.notes-wrap{padding:0 20px 40px;max-width:1200px;margin:0 auto}
+.section-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:16px 0 10px 4px}
+.notes-grid{columns:2;column-gap:14px}
 @media(min-width:600px){.notes-grid{columns:3}}
 @media(min-width:900px){.notes-grid{columns:4}}
 @media(min-width:1100px){.notes-grid{columns:5}}
-
-.note-card{
-  break-inside:avoid;
-  border-radius:var(--radius);border:0.5px solid var(--border);
-  box-shadow:var(--shadow);margin-bottom:14px;
-  transition:box-shadow 0.2s,transform 0.2s;
-  position:relative;overflow:hidden;
-  animation:noteIn 0.3s ease both;
-}
+.note-card{break-inside:avoid;border-radius:var(--radius);border:0.5px solid var(--border);box-shadow:var(--shadow);margin-bottom:14px;transition:box-shadow 0.2s,transform 0.2s;position:relative;overflow:hidden;animation:noteIn 0.3s ease both}
 @keyframes noteIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
 .note-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
-.note-card.pinned::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,#a16207,#d97706);
-}
+.note-card.pinned::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--amber),rgba(161,98,7,0))}
 .note-body{padding:14px 14px 10px;cursor:pointer}
 .note-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.3;word-break:break-word}
-.note-content{font-size:13px;line-height:1.65;color:var(--text2);white-space:pre-wrap;word-break:break-word;max-height:200px;overflow:hidden;mask-image:linear-gradient(180deg,#000 80%,transparent 100%)}
+/* rendered note content preview */
+.note-content-preview{font-size:13px;line-height:1.65;color:var(--text2);max-height:220px;overflow:hidden;mask-image:linear-gradient(180deg,#000 75%,transparent 100%);word-break:break-word}
+.note-content-preview b,.note-content-preview strong{font-weight:700;color:var(--text)}
+.note-content-preview i,.note-content-preview em{font-style:italic}
+.note-content-preview h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;letter-spacing:-0.02em}
+.note-content-preview h2{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.note-content-preview h3{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
+.note-content-preview ul{margin-left:16px;list-style-type:disc}
+.note-content-preview ol{margin-left:16px;list-style-type:decimal}
+.note-content-preview li{margin-bottom:1px}
+.note-content-preview blockquote{border-left:2.5px solid #1c1917;padding-left:8px;font-weight:700;color:var(--text);font-size:12px}
+.note-content-preview .sz-small{font-size:11px}
+.note-content-preview .sz-large{font-size:15px}
 .note-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;opacity:0;transition:opacity 0.15s}
 .note-card:hover .note-footer{opacity:1}
 .note-date{font-size:11px;color:var(--text3);font-family:'Syne',sans-serif}
 .note-actions{display:flex;gap:2px}
 .note-act-btn{background:none;border:none;cursor:pointer;padding:5px;border-radius:6px;font-size:14px;color:var(--text3);transition:background 0.15s,color 0.15s}
 .note-act-btn:hover{background:rgba(0,0,0,0.08);color:var(--text)}
-.note-pin-btn.is-pinned{color:#d97706}
+.note-pin-btn.is-pinned{color:var(--amber)}
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-style:italic}
 .empty-icon{font-size:48px;margin-bottom:12px;display:block;opacity:0.4}
 
-/* ── EDIT MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(4px)}
-.modal-card{
-  background:var(--surface);border-radius:var(--radius);
-  width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,0.2);
-  animation:modalIn 0.2s ease both;overflow:hidden;
-}
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;backdrop-filter:blur(4px)}
+.modal-card{background:var(--surface);border-radius:var(--radius);width:100%;max-width:620px;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:modalIn 0.2s ease both;overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
 @keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-.modal-title-input{
-  width:100%;padding:20px 20px 8px;border:none;outline:none;
-  font-family:'Syne',sans-serif;font-size:17px;font-weight:700;
-  background:transparent;color:var(--text);
-}
-.modal-content-input{
-  width:100%;padding:4px 20px 16px;border:none;outline:none;
-  font-family:'Lora',serif;font-size:14px;line-height:1.75;
-  background:transparent;color:var(--text);resize:none;min-height:140px;
-}
-.modal-footer{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-top:0.5px solid var(--border);flex-wrap:wrap;gap:8px;
-}
+.modal-title-input{width:100%;padding:18px 20px 8px;border:none;outline:none;font-family:'Syne',sans-serif;font-size:17px;font-weight:700;background:transparent;color:var(--text);flex-shrink:0}
+.modal-editor-scroll{flex:1;overflow-y:auto;min-height:0}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:0.5px solid var(--border);flex-wrap:wrap;gap:8px;flex-shrink:0;background:#fafaf8}
 .modal-date{font-size:11px;color:var(--text3);font-family:'Syne',sans-serif}
 .modal-btns{display:flex;gap:8px;align-items:center}
-.modal-close-btn{
-  padding:8px 16px;border-radius:var(--radius-sm);border:none;
-  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
-  cursor:pointer;background:#1c1917;color:#fff;transition:opacity 0.15s;
-}
+.modal-close-btn{padding:8px 18px;border-radius:var(--rsm);border:none;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:#1c1917;color:#fff;transition:opacity 0.15s}
 .modal-close-btn:hover{opacity:0.85}
 </style>
 </head>
@@ -212,7 +203,7 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
   <div class="no-access-box">
     <div style="font-size:40px;margin-bottom:12px">🔒</div>
     <h2>Please Sign In First</h2>
-    <p>You need to sign in from the main menu to access your Notes.</p>
+    <p>You need to sign in from the main menu.</p>
     <a class="back-btn" href="index.html">← Go to Sign In</a>
   </div>
 </div>
@@ -220,7 +211,6 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
 <!-- MAIN APP -->
 <div id="mainApp">
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <a class="back-link" href="index.html">← Menu</a>
     <div class="topbar-title">📝 <span>Notes</span></div>
@@ -228,10 +218,9 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
     <span class="sync-pill saving" id="syncPill"><span class="sync-dot"></span><span id="syncText">Connecting...</span></span>
   </div>
 
-  <!-- SEARCH -->
   <div class="search-wrap">
     <div class="search-box">
-      <span class="search-icon">🔍</span>
+      <span style="color:var(--text3)">🔍</span>
       <input class="search-input" id="searchInput" type="text" placeholder="Search your notes..." oninput="renderNotes()"/>
     </div>
   </div>
@@ -242,11 +231,15 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
       <div class="add-collapsed" id="addCollapsed" onclick="expandAdd()">Take a note...</div>
       <div class="add-expanded" id="addExpanded">
         <input class="add-title-input" id="addTitle" type="text" placeholder="Title"/>
-        <textarea class="add-content-input" id="addContent" placeholder="Write your note..."></textarea>
+        <!-- Rich toolbar for add -->
+        <div class="rich-toolbar" id="addRichToolbar"></div>
+        <div class="note-editor" id="addEditor" contenteditable="true" data-placeholder="Write your note..." spellcheck="true"></div>
         <div class="add-toolbar">
-          <div class="color-picks" id="addColorPicks"></div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="pin-btn" id="addPinBtn" onclick="toggleAddPin()" title="Pin note">📌 Pin</button>
+          <div class="toolbar-left">
+            <div class="color-picks" id="addColorPicks"></div>
+            <button class="pin-btn" id="addPinBtn" onclick="toggleAddPin()">📌 Pin</button>
+          </div>
+          <div class="toolbar-right">
             <button class="close-btn" onclick="collapseAdd()">✕ Close</button>
             <button class="save-note-btn" onclick="saveNewNote()">Save Note</button>
           </div>
@@ -255,24 +248,18 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
     </div>
   </div>
 
-  <!-- NOTES -->
+  <!-- NOTES GRID -->
   <div class="notes-wrap">
     <div id="pinnedSection" style="display:none">
       <div class="section-label">📌 Pinned</div>
       <div class="notes-grid" id="pinnedGrid"></div>
     </div>
     <div id="otherSection">
-      <div class="section-label" id="otherLabel">Others</div>
+      <div class="section-label" id="otherLabel">All Notes</div>
       <div class="notes-grid" id="otherGrid"></div>
     </div>
-    <div id="emptyState" class="empty-state" style="display:none">
-      <span class="empty-icon">📝</span>
-      No notes yet. Tap above to write your first note!
-    </div>
-    <div id="emptySearch" class="empty-state" style="display:none">
-      <span class="empty-icon">🔍</span>
-      No notes match your search.
-    </div>
+    <div id="emptyState" class="empty-state" style="display:none"><span class="empty-icon">📝</span>No notes yet. Tap above to write your first!</div>
+    <div id="emptySearch" class="empty-state" style="display:none"><span class="empty-icon">🔍</span>No notes match your search.</div>
   </div>
 </div>
 
@@ -280,7 +267,10 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
 <div class="modal-overlay" id="modalOverlay" onclick="handleModalClick(event)">
   <div class="modal-card" id="modalCard">
     <input class="modal-title-input" id="modalTitle" type="text" placeholder="Title"/>
-    <textarea class="modal-content-input" id="modalContent" placeholder="Write your note..."></textarea>
+    <div class="rich-toolbar" id="modalRichToolbar"></div>
+    <div class="modal-editor-scroll">
+      <div class="note-editor" id="modalEditor" contenteditable="true" data-placeholder="Write your note..." spellcheck="true" style="padding:10px 20px 20px;min-height:180px"></div>
+    </div>
     <div class="modal-footer">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div class="color-picks" id="modalColorPicks"></div>
@@ -296,32 +286,35 @@ body{font-family:'Lora',serif;background:var(--bg);color:var(--text);min-height:
   </div>
 </div>
 
+<!-- EMOJI PANEL (shared) -->
+<div class="emoji-panel" id="globalEmojiPanel"></div>
+
 <script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 1: Firebase init
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ── Firebase ──────────────────────────────────
 let db = null, unsubscribe = null;
 try {
   const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
   db = firebase.firestore();
 } catch(e) { console.warn('Firebase:', e.message); }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 2: Variables
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let notes = [];
-let addColor   = 0;
-let addPinned  = false;
-let editingId  = null;
-let modalColor = 0;
-let modalPinned = false;
+// ── State ─────────────────────────────────────
+let notes = [], addColor = 0, addPinned = false, editingId = null, modalColor = 0, modalPinned = false;
+let activeEditorId = null; // 'addEditor' or 'modalEditor'
+let emojiOpen = false;
 
 const COLORS = ['#ffffff','#fef9c3','#dcfce7','#dbeafe','#fce7f3','#ede9fe','#ffedd5','#f1f5f9'];
 const COLOR_LABELS = ['White','Yellow','Green','Blue','Pink','Purple','Orange','Slate'];
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 3: Helpers
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const EMOJIS = {
+  '😊 Faces':  ['😊','😂','😍','🥰','😎','🤔','😢','😡','🥳','😴','🤩','😇','🙃','😤','🤯'],
+  '👍 Hands':  ['👍','👎','👏','🙌','🤝','✌️','🤞','💪','🖐️','👋','🤜','🤛','✋','👊','🫶'],
+  '❤️ Hearts': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💕','💞','💓','💗','💖','💘','💝'],
+  '🔥 Fun':    ['🔥','⭐','✨','💫','🎉','🎊','🎯','🚀','💡','🏆','🥇','🎖️','🌟','⚡','🌈'],
+  '📌 Work':   ['📌','📎','📋','📊','📈','📉','💼','🖊️','📝','✅','❌','⚠️','💬','📣','🔔'],
+  '🍎 Food':   ['🍎','🍕','🍔','🍜','🍣','☕','🍵','🥤','🍰','🍩','🍇','🥑','🌮','🍱','🧁'],
+};
+
+// ── Session ───────────────────────────────────
 function getSession() {
   try { const s = JSON.parse(localStorage.getItem('mlt_session')||'{}'); if(s.userId) return s; } catch(e) {}
   return null;
@@ -342,67 +335,202 @@ function formatDate(iso) {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
 }
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 4: Color pickers
+// RICH TOOLBAR
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function buildToolbar(containerId, editorId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = `
+    <!-- HEADINGS -->
+    <span class="tb-label">Heading</span>
+    <button class="tb-h tb-h1" title="Heading 1 — big title" onclick="fmtHeading('h1','${editorId}')">H1</button>
+    <button class="tb-h tb-h2" title="Heading 2 — section title" onclick="fmtHeading('h2','${editorId}')">H2</button>
+    <button class="tb-h tb-h3" title="Heading 3 — sub-section" onclick="fmtHeading('h3','${editorId}')">H3</button>
+    <button class="tb-h" title="Normal paragraph" onclick="fmtHeading('p','${editorId}')" style="font-size:11px;font-weight:600">¶ Normal</button>
+    <div class="tb-sep"></div>
+    <!-- FORMAT -->
+    <button class="tb-btn" title="Bold (Ctrl+B)"      onclick="fmt('bold','${editorId}')"><b style="font-size:14px">B</b></button>
+    <button class="tb-btn" title="Italic (Ctrl+I)"    onclick="fmt('italic','${editorId}')"><i style="font-size:14px">I</i></button>
+    <button class="tb-btn" title="Underline (Ctrl+U)" onclick="fmt('underline','${editorId}')"><u style="font-size:14px">U</u></button>
+    <button class="tb-btn" title="Strikethrough"      onclick="fmt('strikeThrough','${editorId}')"><s style="font-size:14px">S</s></button>
+    <div class="tb-sep"></div>
+    <!-- SIZE -->
+    <span class="tb-label">Size</span>
+    <button class="tb-size tb-size-s" title="Small text"  onclick="setSize('small','${editorId}')">A</button>
+    <button class="tb-size tb-size-m" title="Medium text" onclick="setSize('medium','${editorId}')">A</button>
+    <button class="tb-size tb-size-l" title="Large text"  onclick="setSize('large','${editorId}')">A</button>
+    <div class="tb-sep"></div>
+    <!-- LISTS -->
+    <button class="tb-btn" title="Bullet list (•)"  onclick="fmt('insertUnorderedList','${editorId}')">• List</button>
+    <button class="tb-btn" title="Numbered list"    onclick="fmt('insertOrderedList','${editorId}')">1. List</button>
+    <button class="tb-btn" title="Blockquote"       onclick="fmtBlockquote('${editorId}')" style="font-size:15px">"</button>
+    <div class="tb-sep"></div>
+    <!-- ALIGN -->
+    <button class="tb-btn" title="Align left"   onclick="fmt('justifyLeft','${editorId}')">⯇</button>
+    <button class="tb-btn" title="Align center" onclick="fmt('justifyCenter','${editorId}')">≡</button>
+    <button class="tb-btn" title="Align right"  onclick="fmt('justifyRight','${editorId}')">⯈</button>
+    <div class="tb-sep"></div>
+    <!-- EXTRAS -->
+    <button class="tb-btn" title="Horizontal divider line" onclick="fmtHR('${editorId}')">── Line</button>
+    <button class="tb-btn" title="Clear all formatting"    onclick="fmt('removeFormat','${editorId}')">✕ Clear</button>
+    <div class="tb-sep"></div>
+    <!-- EMOJI -->
+    <div class="emoji-wrap" id="emojiWrap_${editorId}">
+      <button class="tb-btn" title="Insert emoji" onclick="toggleEmoji('${editorId}')">😊 Emoji</button>
+    </div>
+  `;
+}
+
+function fmt(cmd, editorId) {
+  focusEditor(editorId);
+  document.execCommand(cmd, false, null);
+}
+
+function setSize(size, editorId) {
+  focusEditor(editorId);
+  const sel = window.getSelection();
+  if (!sel.rangeCount || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  const span  = document.createElement('span');
+  span.className = 'sz-' + size;
+  try {
+    range.surroundContents(span);
+  } catch(e) {
+    const frag = range.extractContents();
+    span.appendChild(frag);
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+  const newRange = document.createRange();
+  newRange.selectNodeContents(span);
+  newRange.collapse(false);
+  sel.addRange(newRange);
+}
+
+function fmtBlockquote(editorId) {
+  focusEditor(editorId);
+  document.execCommand('formatBlock', false, 'blockquote');
+}
+function fmtHR(editorId) {
+  focusEditor(editorId);
+  document.execCommand('insertHorizontalRule', false, null);
+}
+
+function fmtHeading(tag, editorId) {
+  focusEditor(editorId);
+  document.execCommand('formatBlock', false, tag);
+}
+
+function focusEditor(editorId) {
+  const el = document.getElementById(editorId);
+  if (el) { el.focus(); activeEditorId = editorId; }
+}
+
+// ── Emoji panel ───────────────────────────────
+function buildEmojiPanel() {
+  const panel = document.getElementById('globalEmojiPanel');
+  panel.innerHTML = Object.entries(EMOJIS).map(([cat, emojis]) =>
+    `<div class="emoji-cat">${cat}</div>` +
+    emojis.map(e =>
+      `<button class="emoji-btn" onclick="insertEmoji('${e}')" title="${e}">${e}</button>`
+    ).join('')
+  ).join('');
+}
+
+function toggleEmoji(editorId) {
+  activeEditorId = editorId;
+  const wrap  = document.getElementById('emojiWrap_' + editorId);
+  const panel = document.getElementById('globalEmojiPanel');
+  if (!wrap) return;
+
+  if (emojiOpen && panel.dataset.owner === editorId) {
+    panel.classList.remove('open');
+    emojiOpen = false;
+    return;
+  }
+
+  // Position panel below the emoji button
+  const btnRect = wrap.getBoundingClientRect();
+  panel.style.position  = 'fixed';
+  panel.style.top       = (btnRect.bottom + 6) + 'px';
+  panel.style.left      = Math.min(btnRect.left, window.innerWidth - 270) + 'px';
+  panel.style.zIndex    = '9999';
+  panel.dataset.owner   = editorId;
+  panel.classList.add('open');
+  emojiOpen = true;
+}
+
+function insertEmoji(emoji) {
+  const editorEl = document.getElementById(activeEditorId);
+  if (!editorEl) return;
+  editorEl.focus();
+  document.execCommand('insertText', false, emoji);
+  document.getElementById('globalEmojiPanel').classList.remove('open');
+  emojiOpen = false;
+}
+
+// Close emoji on outside click
+document.addEventListener('click', e => {
+  if (emojiOpen && !e.target.closest('.emoji-wrap') && !e.target.closest('#globalEmojiPanel')) {
+    document.getElementById('globalEmojiPanel').classList.remove('open');
+    emojiOpen = false;
+  }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// COLOR PICKER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function buildColorPicker(containerId, selectedIdx, onSelect) {
   const el = document.getElementById(containerId);
   el.innerHTML = COLORS.map((c, i) =>
-    `<div class="color-pick ${i === selectedIdx ? 'selected' : ''}"
-      style="background:${c};${c==='#ffffff'?'border:1px solid #e0e0e0':''}"
+    `<div class="color-pick ${i===selectedIdx?'selected':''}"
+      style="background:${c};${c==='#ffffff'?'border:1px solid #ddd':''}"
       title="${COLOR_LABELS[i]}"
       onclick="(${onSelect.toString()})(${i})"></div>`
   ).join('');
 }
-
-function selectAddColor(i) {
-  addColor = i;
-  document.getElementById('addCard').style.background = COLORS[i];
-  buildColorPicker('addColorPicks', i, selectAddColor);
-}
+function selectAddColor(i)   { addColor   = i; document.getElementById('addCard').style.background = COLORS[i]; buildColorPicker('addColorPicks', i, selectAddColor); }
 function selectModalColor(i) {
   modalColor = i;
   document.getElementById('modalCard').style.background = COLORS[i];
   buildColorPicker('modalColorPicks', i, selectModalColor);
-  if (editingId) {
-    const note = notes.find(n => n.id === editingId);
-    if (note) { note.color = i; saveToFirestore(); }
-  }
+  if (editingId) { const n = notes.find(n=>n.id===editingId); if(n){ n.color=i; saveToFirestore(); } }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 5: Add note
+// ADD NOTE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function expandAdd() {
   document.getElementById('addCollapsed').style.display = 'none';
   document.getElementById('addExpanded').style.display  = 'block';
-  document.getElementById('addTitle').focus();
+  buildToolbar('addRichToolbar', 'addEditor');
   buildColorPicker('addColorPicks', addColor, selectAddColor);
+  document.getElementById('addTitle').focus();
+  activeEditorId = 'addEditor';
 }
 function collapseAdd() {
   document.getElementById('addCollapsed').style.display = 'block';
   document.getElementById('addExpanded').style.display  = 'none';
-  document.getElementById('addTitle').value   = '';
-  document.getElementById('addContent').value = '';
+  document.getElementById('addTitle').value = '';
+  document.getElementById('addEditor').innerHTML = '';
   document.getElementById('addCard').style.background = COLORS[0];
   addColor = 0; addPinned = false;
   document.getElementById('addPinBtn').style.color = '';
 }
-function toggleAddPin() {
-  addPinned = !addPinned;
-  document.getElementById('addPinBtn').style.color = addPinned ? '#d97706' : '';
-}
+function toggleAddPin() { addPinned = !addPinned; document.getElementById('addPinBtn').style.color = addPinned ? '#a16207' : ''; }
+
 function saveNewNote() {
   const title   = document.getElementById('addTitle').value.trim();
-  const content = document.getElementById('addContent').value.trim();
-  if (!title && !content) { alert('Please write something first!'); return; }
+  const content = document.getElementById('addEditor').innerHTML.trim();
+  if (!title && (!content || content === '<br>')) { alert('Please write something first!'); return; }
   notes.unshift({
-    id:      Date.now().toString(),
-    title:   title,
-    content: content,
-    color:   addColor,
-    pinned:  addPinned,
+    id: Date.now().toString(), title,
+    content,     // stored as HTML
+    color: addColor, pinned: addPinned,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
@@ -411,117 +539,109 @@ function saveNewNote() {
   collapseAdd();
 }
 
-// Enter in title → go to content
-document.getElementById('addTitle').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addContent').focus(); }
-});
-// Ctrl+Enter in content → save
-document.getElementById('addContent').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); saveNewNote(); }
+// Ctrl+Enter saves
+document.getElementById('addEditor') && document.getElementById('addEditor').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveNewNote(); }
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 6: Edit / modal
+// EDIT MODAL
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function openNote(id) {
-  const note = notes.find(n => n.id === id);
+  const note = notes.find(n=>n.id===id);
   if (!note) return;
-  editingId  = id;
-  modalColor = note.color || 0;
+  editingId   = id;
+  modalColor  = note.color  || 0;
   modalPinned = note.pinned || false;
 
-  document.getElementById('modalTitle').value   = note.title || '';
-  document.getElementById('modalContent').value = note.content || '';
+  document.getElementById('modalTitle').value       = note.title   || '';
+  document.getElementById('modalEditor').innerHTML  = note.content || '';
   document.getElementById('modalCard').style.background = COLORS[modalColor];
-  document.getElementById('modalDate').textContent = 'Edited ' + formatDate(note.updatedAt || note.createdAt);
+  document.getElementById('modalDate').textContent  = 'Edited ' + formatDate(note.updatedAt || note.createdAt);
   updateModalPinBtn();
+  buildToolbar('modalRichToolbar', 'modalEditor');
   buildColorPicker('modalColorPicks', modalColor, selectModalColor);
   document.getElementById('modalOverlay').style.display = 'flex';
-  document.getElementById('modalTitle').focus();
+  activeEditorId = 'modalEditor';
+  setTimeout(() => document.getElementById('modalTitle').focus(), 50);
 }
 
 function updateModalPinBtn() {
-  document.getElementById('modalPinIcon').textContent = '📌';
+  document.getElementById('modalPinIcon').textContent  = '📌';
   document.getElementById('modalPinLabel').textContent = modalPinned ? 'Unpin' : 'Pin';
-  document.getElementById('modalPinBtn').style.color = modalPinned ? '#d97706' : '';
+  document.getElementById('modalPinBtn').style.color   = modalPinned ? '#a16207' : '';
 }
-
 function toggleModalPin() {
   modalPinned = !modalPinned;
   updateModalPinBtn();
-  const note = notes.find(n => n.id === editingId);
-  if (note) { note.pinned = modalPinned; saveToFirestore(); renderNotes(); }
+  const n = notes.find(n=>n.id===editingId);
+  if (n) { n.pinned = modalPinned; saveToFirestore(); renderNotes(); }
 }
 
 function closeModal() {
-  const note = notes.find(n => n.id === editingId);
-  if (note) {
-    note.title   = document.getElementById('modalTitle').value.trim();
-    note.content = document.getElementById('modalContent').value.trim();
-    note.color   = modalColor;
-    note.pinned  = modalPinned;
-    note.updatedAt = new Date().toISOString();
+  const n = notes.find(n=>n.id===editingId);
+  if (n) {
+    n.title   = document.getElementById('modalTitle').value.trim();
+    n.content = document.getElementById('modalEditor').innerHTML.trim();
+    n.color   = modalColor;
+    n.pinned  = modalPinned;
+    n.updatedAt = new Date().toISOString();
     saveToFirestore();
     renderNotes();
   }
   document.getElementById('modalOverlay').style.display = 'none';
   editingId = null;
 }
+function handleModalClick(e) { if(e.target===e.currentTarget) closeModal(); }
 
-function handleModalClick(e) {
-  if (e.target === e.currentTarget) closeModal();
-}
-
-// Auto-save while typing in modal
-let modalSaveTimer = null;
-function autoSaveModal() {
-  clearTimeout(modalSaveTimer);
-  modalSaveTimer = setTimeout(() => {
-    const note = notes.find(n => n.id === editingId);
-    if (note) {
-      note.title   = document.getElementById('modalTitle').value.trim();
-      note.content = document.getElementById('modalContent').value.trim();
-      note.updatedAt = new Date().toISOString();
-      saveToFirestore();
-    }
-  }, 1000);
-}
-document.getElementById('modalTitle').addEventListener('input', autoSaveModal);
-document.getElementById('modalContent').addEventListener('input', autoSaveModal);
+// Auto-save while typing
+let autoSaveTimer = null;
+['modalTitle','modalEditor'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+      const n = notes.find(n=>n.id===editingId);
+      if (n) {
+        n.title   = document.getElementById('modalTitle').value.trim();
+        n.content = document.getElementById('modalEditor').innerHTML.trim();
+        n.updatedAt = new Date().toISOString();
+        saveToFirestore();
+      }
+    }, 1200);
+  });
+});
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 7: Delete & pin from card
+// DELETE & PIN from card
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function deleteNote(id) {
   if (!confirm('Delete this note?')) return;
-  notes = notes.filter(n => n.id !== id);
-  saveToFirestore();
-  renderNotes();
+  notes = notes.filter(n=>n.id!==id);
+  saveToFirestore(); renderNotes();
 }
 function togglePin(id) {
-  const note = notes.find(n => n.id === id);
-  if (!note) return;
-  note.pinned = !note.pinned;
-  saveToFirestore();
-  renderNotes();
+  const n = notes.find(n=>n.id===id);
+  if (!n) return;
+  n.pinned = !n.pinned;
+  saveToFirestore(); renderNotes();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 8: Render
+// RENDER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function noteCardHTML(note) {
-  const bg = COLORS[note.color || 0];
+  const bg      = COLORS[note.color || 0];
   const isPinned = note.pinned ? 'pinned' : '';
-  const pinColor = note.pinned ? 'color:#d97706' : '';
+  const pinColor = note.pinned ? 'color:#a16207' : '';
   const hasTitle = note.title && note.title.trim();
-  const hasContent = note.content && note.content.trim();
   return `<div class="note-card ${isPinned}" style="background:${bg}" onclick="openNote('${note.id}')">
     <div class="note-body">
-      ${hasTitle ? `<div class="note-title">${escapeHtml(note.title)}</div>` : ''}
-      ${hasContent ? `<div class="note-content">${escapeHtml(note.content)}</div>` : ''}
+      ${hasTitle ? `<div class="note-title">${escHtml(note.title)}</div>` : ''}
+      ${note.content ? `<div class="note-content-preview">${note.content}</div>` : ''}
     </div>
     <div class="note-footer" onclick="event.stopPropagation()">
-      <span class="note-date">${formatDate(note.updatedAt || note.createdAt)}</span>
+      <span class="note-date">${formatDate(note.updatedAt||note.createdAt)}</span>
       <div class="note-actions">
         <button class="note-act-btn note-pin-btn ${note.pinned?'is-pinned':''}" style="${pinColor}" onclick="togglePin('${note.id}')" title="${note.pinned?'Unpin':'Pin'}">📌</button>
         <button class="note-act-btn" onclick="deleteNote('${note.id}')" title="Delete">🗑️</button>
@@ -530,87 +650,75 @@ function noteCardHTML(note) {
   </div>`;
 }
 
-function escapeHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
 function renderNotes() {
-  const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-  let filtered = query
-    ? notes.filter(n =>
-        (n.title||'').toLowerCase().includes(query) ||
-        (n.content||'').toLowerCase().includes(query))
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
+  // Strip HTML for search
+  const strip = html => html.replace(/<[^>]+>/g,' ').toLowerCase();
+  let filtered = q
+    ? notes.filter(n => (n.title||'').toLowerCase().includes(q) || strip(n.content||'').includes(q))
     : notes;
 
-  const pinned = filtered.filter(n => n.pinned);
-  const others = filtered.filter(n => !n.pinned);
+  const pinned = filtered.filter(n=>n.pinned);
+  const others = filtered.filter(n=>!n.pinned);
 
-  const pinnedSection = document.getElementById('pinnedSection');
-  const otherSection  = document.getElementById('otherSection');
-  const emptyState    = document.getElementById('emptyState');
-  const emptySearch   = document.getElementById('emptySearch');
+  const pSec = document.getElementById('pinnedSection');
+  const oSec = document.getElementById('otherSection');
+  const eEmp = document.getElementById('emptyState');
+  const eSrh = document.getElementById('emptySearch');
 
-  // Empty states
-  if (notes.length === 0) {
-    emptyState.style.display = 'block';
-    emptySearch.style.display = 'none';
-    pinnedSection.style.display = 'none';
-    otherSection.style.display  = 'none';
-    return;
+  if (!notes.length) {
+    eEmp.style.display = 'block'; eSrh.style.display = 'none';
+    pSec.style.display = 'none';  oSec.style.display  = 'none'; return;
   }
-  emptyState.style.display = 'none';
+  eEmp.style.display = 'none';
 
-  if (query && filtered.length === 0) {
-    emptySearch.style.display = 'block';
-    pinnedSection.style.display = 'none';
-    otherSection.style.display  = 'none';
-    return;
+  if (q && !filtered.length) {
+    eSrh.style.display = 'block';
+    pSec.style.display = 'none'; oSec.style.display = 'none'; return;
   }
-  emptySearch.style.display = 'none';
+  eSrh.style.display = 'none';
 
-  // Pinned section
-  if (pinned.length > 0) {
-    pinnedSection.style.display = 'block';
-    document.getElementById('pinnedGrid').innerHTML = pinned.map(noteCardHTML).join('');
-  } else {
-    pinnedSection.style.display = 'none';
-  }
+  pSec.style.display = pinned.length ? 'block' : 'none';
+  if (pinned.length) document.getElementById('pinnedGrid').innerHTML = pinned.map(noteCardHTML).join('');
 
-  // Others section
-  otherSection.style.display = 'block';
-  document.getElementById('otherLabel').textContent = pinned.length > 0 ? 'Others' : 'All Notes';
+  oSec.style.display = 'block';
+  document.getElementById('otherLabel').textContent = pinned.length ? 'Others' : 'All Notes';
   document.getElementById('otherGrid').innerHTML = others.length
     ? others.map(noteCardHTML).join('')
     : '<div style="font-size:13px;color:var(--text3);padding:8px 4px;font-style:italic">No other notes.</div>';
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 9: Firebase listener
+// KEYBOARD SHORTCUTS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// FIREBASE LISTENER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function initApp(userId) {
   renderNotes();
+  buildEmojiPanel();
   if (!db) { setSyncStatus('error','Firebase not configured'); return; }
   setSyncStatus('saving','Connecting...');
   if (unsubscribe) unsubscribe();
   unsubscribe = db.collection('notes').doc(userId).onSnapshot(
-    doc => {
-      notes = (doc.exists && doc.data().notes) ? doc.data().notes : [];
-      setSyncStatus('synced','Synced ✓');
-      renderNotes();
-    },
+    doc => { notes = (doc.exists && doc.data().notes) ? doc.data().notes : []; setSyncStatus('synced','Synced ✓'); renderNotes(); },
     err => { console.warn(err); setSyncStatus('error','Offline'); }
   );
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 10: Session check (LAST)
+// SESSION CHECK (LAST)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const session = getSession();
 if (!session) {
   document.getElementById('noAccess').style.display = 'flex';
 } else {
-  document.getElementById('mainApp').style.display = 'block';
-  document.getElementById('userDisplay').textContent = session.userId;
+  document.getElementById('mainApp').style.display   = 'block';
+  document.getElementById('userDisplay').textContent  = session.userId;
   initApp(session.userId);
 }
 </script>
