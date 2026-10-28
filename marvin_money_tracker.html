@@ -297,10 +297,12 @@ select.modal-input option{background:var(--surface2)}
     <button id="nextMonth">&#8250;</button>
   </div>
 
-  <div class="period-tabs">
-    <button class="period-tab active" id="ptMonth" onclick="setPeriodFilter('month')">Month</button>
-    <button class="period-tab" id="ptYear"  onclick="setPeriodFilter('year')">Year</button>
-    <button class="period-tab" id="ptToday" onclick="setPeriodFilter('today')">Today</button>
+  <div class="list-controls" aria-label="Filter dashboard and transactions by account" style="justify-content:space-between;gap:8px;margin:12px 0 18px">
+    <button class="account-filter-btn active" onclick="setAccountFilter('ALL',this)">All</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('Cash',this)">Cash</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('RCBC',this)">RCBC</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('BPI',this)">BPI</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('BDO',this)">BDO</button>
   </div>
 
   <div class="summary-grid">
@@ -386,13 +388,6 @@ select.modal-input option{background:var(--surface2)}
       <button class="filter-btn" onclick="setFilter('income',this)">Income</button>
       <button class="filter-btn" onclick="setFilter('expense',this)">Expenses</button>
       <button class="filter-btn" onclick="setFilter('savings',this)">Savings</button>
-    </div>
-    <div class="list-controls" aria-label="Filter transactions by account">
-      <button class="account-filter-btn active" onclick="setAccountFilter('ALL',this)">ALL</button>
-      <button class="account-filter-btn" onclick="setAccountFilter('Cash',this)">CASH</button>
-      <button class="account-filter-btn" onclick="setAccountFilter('RCBC',this)">RCBC</button>
-      <button class="account-filter-btn" onclick="setAccountFilter('BPI',this)">BPI</button>
-      <button class="account-filter-btn" onclick="setAccountFilter('BDO',this)">BDO</button>
     </div>
     <div id="txnList"><div class="empty-state">No transactions yet. Add your first one above! 💪</div></div>
   </div>
@@ -553,8 +548,10 @@ function setFilter(f, el) {
 function setAccountFilter(account, el) {
   currentAccountFilter = account;
   document.querySelectorAll('.account-filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderTxnList();
+  document.querySelectorAll('.account-filter-btn').forEach(b => {
+    if (b.getAttribute('onclick') === `setAccountFilter('${account}',this)`) b.classList.add('active');
+  });
+  renderAll();
 }
 
 function saveFirestore() {
@@ -639,7 +636,8 @@ function renderAll() {
   renderMonthLabel();
   const { year, month } = getCurrentMonth();
   const key = year + '-' + month;
-  const monthly  = data.transactions.filter(t => inCurrentMonth(t.date));
+  const monthlyAll = data.transactions.filter(t => inCurrentMonth(t.date));
+  const monthly = currentAccountFilter === 'ALL' ? monthlyAll : monthlyAll.filter(t => (t.account || '') === currentAccountFilter);
   const income   = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const expense  = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const saved    = monthly.filter(t => t.category === 'Savings').reduce((s, t) => s + t.amount, 0);
