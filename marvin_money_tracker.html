@@ -186,6 +186,43 @@ select.modal-input option{background:var(--surface2)}
 .lsum-card{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center}
 .lsum-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
 .lsum-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+
+/* ACCOUNTS SECTION */
+.accounts-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:600px){.accounts-row{grid-template-columns:repeat(2,1fr)}}
+.acct-card{
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:var(--radius);padding:14px 14px 12px;
+  position:relative;overflow:hidden;cursor:default;
+  transition:border-color 0.2s;
+}
+.acct-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.acct-cash::before  {background:linear-gradient(90deg,#00e5a0,#00b37d)}
+.acct-rcbc::before  {background:linear-gradient(90deg,#ffd166,#e6a817)}
+.acct-bpi::before   {background:linear-gradient(90deg,#ff5c7a,#cc3355)}
+.acct-bdo::before   {background:linear-gradient(90deg,#5c9aff,#2d6ee0)}
+.acct-card:hover{border-color:rgba(255,255,255,0.18)}
+.acct-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.acct-icon{font-size:18px;line-height:1}
+.acct-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em}
+.acct-balance{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px}
+.acct-cash   .acct-balance{color:#00e5a0}
+.acct-rcbc   .acct-balance{color:#ffd166}
+.acct-bpi    .acct-balance{color:#ff5c7a}
+.acct-bdo    .acct-balance{color:#5c9aff}
+.acct-sub{font-size:10px;color:var(--text2);display:flex;gap:8px}
+.acct-sub span{display:inline-flex;align-items:center;gap:2px}
+.acct-badge{
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;
+  font-family:'Syne',sans-serif;
+}
+.acct-cash .acct-badge  {background:rgba(0,229,160,0.12);color:#00e5a0}
+.acct-rcbc .acct-badge  {background:rgba(255,209,102,0.12);color:#ffd166}
+.acct-bpi  .acct-badge  {background:rgba(255,92,122,0.12);color:#ff5c7a}
+.acct-bdo  .acct-badge  {background:rgba(92,154,255,0.12);color:#5c9aff}
 </style>
 </head>
 <body>
@@ -221,6 +258,42 @@ select.modal-input option{background:var(--surface2)}
     <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
     <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
     <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
+  </div>
+
+  <!-- ACCOUNTS ROW -->
+  <div class="accounts-row" id="accountsRow">
+    <div class="acct-card acct-cash">
+      <div class="acct-top"><span class="acct-icon">💵</span><span class="acct-name">Cash</span></div>
+      <div class="acct-balance" id="acctBal_Cash">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_Cash" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_Cash" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-rcbc">
+      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">RCBC</span></div>
+      <div class="acct-balance" id="acctBal_RCBC">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_RCBC" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_RCBC" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-bpi">
+      <div class="acct-top"><span class="acct-icon">🏧</span><span class="acct-name">BPI</span></div>
+      <div class="acct-balance" id="acctBal_BPI">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_BPI" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_BPI" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-bdo">
+      <div class="acct-top"><span class="acct-icon">💳</span><span class="acct-name">BDO</span></div>
+      <div class="acct-balance" id="acctBal_BDO">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_BDO" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_BDO" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
   </div>
 
   <div class="section-box">
@@ -278,7 +351,14 @@ select.modal-input option{background:var(--surface2)}
           <option value="Other">📦 Other</option>
         </optgroup>
       </select>
-      <input class="form-input" id="txnDate" type="date"/>
+      <select class="form-input" id="txnAccount">
+        <option value="">-- Account --</option>
+        <option value="Cash">💵 Cash</option>
+        <option value="RCBC">🏦 RCBC</option>
+        <option value="BPI">🏧 BPI</option>
+        <option value="BDO">💳 BDO</option>
+      </select>
+      <input class="form-input" id="txnDate" type="date" style="grid-column:span 2"/>
     </div>
     <button class="add-btn" id="addBtn">Add Transaction</button>
   </div>
@@ -321,7 +401,7 @@ select.modal-input option{background:var(--surface2)}
           <label>Date</label>
           <input class="modal-input" id="editDate" type="date"/>
         </div>
-        <div class="modal-fg" style="grid-column:span 2">
+        <div class="modal-fg">
           <label>Category</label>
           <select class="modal-input" id="editCategory">
             <option value="">-- Category --</option>
@@ -342,6 +422,16 @@ select.modal-input option{background:var(--surface2)}
               <option value="Shopping">🛒 Shopping</option>
               <option value="Other">📦 Other</option>
             </optgroup>
+          </select>
+        </div>
+        <div class="modal-fg">
+          <label>Account</label>
+          <select class="modal-input" id="editAccount">
+            <option value="">-- Account --</option>
+            <option value="Cash">💵 Cash</option>
+            <option value="RCBC">🏦 RCBC</option>
+            <option value="BPI">🏧 BPI</option>
+            <option value="BDO">💳 BDO</option>
           </select>
         </div>
       </div>
@@ -375,6 +465,8 @@ let data          = { transactions: [], savingGoals: {}, expenseLimits: {} };
 
 const EXPENSE_CATS = ['Food','Transport','Bills','Family','Education','Health','Savings','Shopping','Other'];
 const CAT_ICONS = { Food:'🍚', Transport:'🚌', Bills:'💡', Family:'👨‍👩‍👧', Education:'📚', Health:'🏥', Savings:'🏦', Shopping:'🛒', Other:'📦' };
+const ACCOUNTS = ['Cash','RCBC','BPI','BDO'];
+const ACCT_ICONS = { Cash:'💵', RCBC:'🏦', BPI:'🏧', BDO:'💳' };
 
 const CATEGORY_ICONS = {
   Salary:'💼', Freelance:'💻', Business:'🏪', 'Other Income':'💵',
@@ -461,6 +553,7 @@ function openEditModal(id) {
   document.getElementById('editAmount').value   = t.amount   || '';
   document.getElementById('editDate').value     = t.date     || '';
   document.getElementById('editCategory').value = t.category || '';
+  document.getElementById('editAccount').value  = t.account  || '';
   setEditType(t.type);
 
   document.getElementById('editModalOverlay').style.display = 'flex';
@@ -487,11 +580,12 @@ function saveEditedTxn() {
   const amount   = parseFloat(document.getElementById('editAmount').value);
   const date     = document.getElementById('editDate').value;
   const category = document.getElementById('editCategory').value;
+  const account  = document.getElementById('editAccount').value;
 
-  if (!desc)            { document.getElementById('editDesc').focus();   alert('Please enter a description.'); return; }
-  if (!amount||amount<=0){ document.getElementById('editAmount').focus();alert('Please enter a valid amount.'); return; }
+  if (!desc)            { document.getElementById('editDesc').focus();    alert('Please enter a description.'); return; }
+  if (!amount||amount<=0){ document.getElementById('editAmount').focus(); alert('Please enter a valid amount.'); return; }
   if (!category)        { document.getElementById('editCategory').focus();alert('Please select a category.'); return; }
-  if (!date)            { document.getElementById('editDate').focus();   alert('Please select a date.'); return; }
+  if (!date)            { document.getElementById('editDate').focus();    alert('Please select a date.'); return; }
 
   const idx = data.transactions.findIndex(t => t.id === editingTxnId);
   if (idx === -1) return;
@@ -499,7 +593,7 @@ function saveEditedTxn() {
   data.transactions[idx] = {
     ...data.transactions[idx],
     type: editTxnType,
-    desc, amount, category, date
+    desc, amount, category, date, account
   };
 
   saveFirestore();
@@ -532,6 +626,23 @@ function renderAll() {
   renderBreakdown(monthly);
   renderLimits(monthly);
   renderTxnList();
+  renderAccounts();
+}
+
+function renderAccounts() {
+  // All-time balances per account (not filtered by month)
+  ACCOUNTS.forEach(acct => {
+    const txns  = data.transactions.filter(t => t.account === acct);
+    const inAmt  = txns.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+    const outAmt = txns.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+    const bal    = inAmt - outAmt;
+    const balEl  = document.getElementById('acctBal_' + acct);
+    const inEl   = document.getElementById('acctIn_'  + acct);
+    const outEl  = document.getElementById('acctOut_' + acct);
+    if (balEl)  { balEl.textContent  = fmt(bal); balEl.style.color = bal < 0 ? 'var(--red)' : ''; }
+    if (inEl)   inEl.textContent  = fmt(inAmt);
+    if (outEl)  outEl.textContent = fmt(outAmt);
+  });
 }
 
 function renderLimits(monthly) {
@@ -660,7 +771,7 @@ function renderTxnList() {
       <div class="txn-icon ${t.type}">${icon}</div>
       <div class="txn-body">
         <div class="txn-desc">${t.desc}</div>
-        <div class="txn-meta">${t.category} · ${dateStr}</div>
+        <div class="txn-meta">${t.category} · ${dateStr}${t.account ? ' · '+( ACCT_ICONS[t.account]||'')+''+t.account : ''}</div>
       </div>
       <div class="txn-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
       <div class="txn-btns">
@@ -704,17 +815,19 @@ function addTransaction() {
   const desc     = document.getElementById('txnDesc').value.trim();
   const amount   = parseFloat(document.getElementById('txnAmount').value);
   const category = document.getElementById('txnCategory').value;
+  const account  = document.getElementById('txnAccount').value;
   const date     = document.getElementById('txnDate').value;
 
   if (!desc)     { document.getElementById('txnDesc').focus();     alert('Please enter a description.'); return; }
   if (!amount || amount <= 0) { document.getElementById('txnAmount').focus(); alert('Please enter a valid amount.'); return; }
   if (!category) { document.getElementById('txnCategory').focus(); alert('Please select a category.'); return; }
+  if (!account)  { document.getElementById('txnAccount').focus();  alert('Please select an account (Cash, RCBC, BPI, or BDO).'); return; }
   if (!date)     { document.getElementById('txnDate').focus();     alert('Please select a date.'); return; }
 
   data.transactions.push({
     id: Date.now().toString(),
     type: txnType,
-    desc, amount, category, date
+    desc, amount, category, account, date
   });
 
   saveFirestore();
@@ -724,6 +837,7 @@ function addTransaction() {
   document.getElementById('txnDesc').value     = '';
   document.getElementById('txnAmount').value   = '';
   document.getElementById('txnCategory').value = '';
+  document.getElementById('txnAccount').value  = '';
   document.getElementById('txnDate').value     = new Date().toISOString().slice(0, 10);
   document.getElementById('txnDesc').focus();
 }
