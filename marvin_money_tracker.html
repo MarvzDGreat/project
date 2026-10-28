@@ -226,9 +226,9 @@ select.modal-input option{background:var(--surface2)}
   font-family:'Syne',sans-serif;
 }
 .acct-cash .acct-badge  {background:rgba(0,229,160,0.12);color:#00e5a0}
-.acct-rcbc .acct-badge  {background:rgba(255,209,102,0.12);color:#ffd166}
+.acct-bdo .acct-badge  {background:rgba(255,209,102,0.12);color:#ffd166}
 .acct-bpi  .acct-badge  {background:rgba(255,92,122,0.12);color:#ff5c7a}
-.acct-bdo  .acct-badge  {background:rgba(92,154,255,0.12);color:#5c9aff}
+.acct-rcbc  .acct-badge  {background:rgba(92,154,255,0.12);color:#5c9aff}
 </style>
 </head>
 <body>
@@ -253,6 +253,42 @@ select.modal-input option{background:var(--surface2)}
     <span class="sync-pill synced" id="syncPill"><span class="sync-dot"></span><span id="syncText">Synced</span></span>
   </div>
 
+    <!-- ACCOUNTS ROW -->
+  <div class="accounts-row" id="accountsRow">
+    <div class="acct-card acct-cash">
+      <div class="acct-top"><span class="acct-icon">💵</span><span class="acct-name">Cash</span></div>
+      <div class="acct-balance" id="acctBal_Cash">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_Cash" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_Cash" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-rcbc">
+      <div class="acct-top"><span class="acct-icon">🏧</span><span class="acct-name">RCBC</span></div>
+      <div class="acct-balance" id="acctBal_RCBC">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_RCBC" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_RCBC" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-bpi">
+      <div class="acct-top"><span class="acct-icon">💳</span><span class="acct-name">BPI</span></div>
+      <div class="acct-balance" id="acctBal_BPI">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_BPI" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_BPI" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-bdo">
+      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">BDO</span></div>
+      <div class="acct-balance" id="acctBal_BDO">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_BDO" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_BDO" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+  </div>
+
   <div class="month-nav">
     <button id="prevMonth">&#8249;</button>
     <span class="month-label" id="monthLabel"></span>
@@ -272,41 +308,7 @@ select.modal-input option{background:var(--surface2)}
     <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
   </div>
 
-  <!-- ACCOUNTS ROW -->
-  <div class="accounts-row" id="accountsRow">
-    <div class="acct-card acct-cash">
-      <div class="acct-top"><span class="acct-icon">💵</span><span class="acct-name">Cash</span></div>
-      <div class="acct-balance" id="acctBal_Cash">₱0</div>
-      <div class="acct-sub">
-        <span>↑<span id="acctIn_Cash" style="color:#00e5a0">₱0</span></span>
-        <span>↓<span id="acctOut_Cash" style="color:#ff5c7a">₱0</span></span>
-      </div>
-    </div>
-    <div class="acct-card acct-rcbc">
-      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">RCBC</span></div>
-      <div class="acct-balance" id="acctBal_RCBC">₱0</div>
-      <div class="acct-sub">
-        <span>↑<span id="acctIn_RCBC" style="color:#00e5a0">₱0</span></span>
-        <span>↓<span id="acctOut_RCBC" style="color:#ff5c7a">₱0</span></span>
-      </div>
-    </div>
-    <div class="acct-card acct-bpi">
-      <div class="acct-top"><span class="acct-icon">🏧</span><span class="acct-name">BPI</span></div>
-      <div class="acct-balance" id="acctBal_BPI">₱0</div>
-      <div class="acct-sub">
-        <span>↑<span id="acctIn_BPI" style="color:#00e5a0">₱0</span></span>
-        <span>↓<span id="acctOut_BPI" style="color:#ff5c7a">₱0</span></span>
-      </div>
-    </div>
-    <div class="acct-card acct-bdo">
-      <div class="acct-top"><span class="acct-icon">💳</span><span class="acct-name">BDO</span></div>
-      <div class="acct-balance" id="acctBal_BDO">₱0</div>
-      <div class="acct-sub">
-        <span>↑<span id="acctIn_BDO" style="color:#00e5a0">₱0</span></span>
-        <span>↓<span id="acctOut_BDO" style="color:#ff5c7a">₱0</span></span>
-      </div>
-    </div>
-  </div>
+
 
   <div class="section-box">
     <div class="section-title">🎯 Savings Goal</div>
