@@ -187,11 +187,15 @@ select.modal-input option{background:var(--surface2)}
 .lsum-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
 .lsum-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
 
-/* PERIOD FILTER TABS */
-.period-tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:5px}
-.period-tab{flex:1;text-align:center;padding:7px 0;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.03em;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:background 0.18s,color 0.18s}
-.period-tab:hover{background:rgba(255,255,255,0.06);color:var(--text)}
-.period-tab.active{background:var(--accent);color:#0f1117}
+/* ACCOUNT FILTER TABS */
+.acct-tabs{display:flex;gap:5px;margin-bottom:12px;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:5px}
+.acct-tab{flex:1;text-align:center;padding:7px 4px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.02em;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:background 0.18s,color 0.18s;white-space:nowrap}
+.acct-tab:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.acct-tab.active-all  {background:var(--green);color:#0f1117}
+.acct-tab.active-cash {background:#00e5a0;color:#0f1117}
+.acct-tab.active-rcbc {background:#ffd166;color:#0f1117}
+.acct-tab.active-bpi  {background:#ff5c7a;color:#0f1117}
+.acct-tab.active-bdo  {background:#5c9aff;color:#0f1117}
 
 /* ACCOUNTS SECTION */
 .accounts-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
@@ -226,9 +230,9 @@ select.modal-input option{background:var(--surface2)}
   font-family:'Syne',sans-serif;
 }
 .acct-cash .acct-badge  {background:rgba(0,229,160,0.12);color:#00e5a0}
-.acct-bdo .acct-badge  {background:rgba(255,209,102,0.12);color:#ffd166}
+.acct-rcbc .acct-badge  {background:rgba(255,209,102,0.12);color:#ffd166}
 .acct-bpi  .acct-badge  {background:rgba(255,92,122,0.12);color:#ff5c7a}
-.acct-rcbc  .acct-badge  {background:rgba(92,154,255,0.12);color:#5c9aff}
+.acct-bdo  .acct-badge  {background:rgba(92,154,255,0.12);color:#5c9aff}
 </style>
 </head>
 <body>
@@ -253,7 +257,28 @@ select.modal-input option{background:var(--surface2)}
     <span class="sync-pill synced" id="syncPill"><span class="sync-dot"></span><span id="syncText">Synced</span></span>
   </div>
 
-    <!-- ACCOUNTS ROW -->
+  <div class="month-nav">
+    <button id="prevMonth">&#8249;</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button id="nextMonth">&#8250;</button>
+  </div>
+
+  <div class="acct-tabs">
+    <button class="acct-tab active-all"  id="atAll"  onclick="setAcctFilter('all')">All</button>
+    <button class="acct-tab" id="atCash" onclick="setAcctFilter('Cash')">💵 Cash</button>
+    <button class="acct-tab" id="atRCBC" onclick="setAcctFilter('RCBC')">🏦 RCBC</button>
+    <button class="acct-tab" id="atBPI"  onclick="setAcctFilter('BPI')">🏧 BPI</button>
+    <button class="acct-tab" id="atBDO"  onclick="setAcctFilter('BDO')">💳 BDO</button>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
+    <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
+    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
+    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
+  </div>
+
+  <!-- ACCOUNTS ROW -->
   <div class="accounts-row" id="accountsRow">
     <div class="acct-card acct-cash">
       <div class="acct-top"><span class="acct-icon">💵</span><span class="acct-name">Cash</span></div>
@@ -264,7 +289,7 @@ select.modal-input option{background:var(--surface2)}
       </div>
     </div>
     <div class="acct-card acct-rcbc">
-      <div class="acct-top"><span class="acct-icon">🏧</span><span class="acct-name">RCBC</span></div>
+      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">RCBC</span></div>
       <div class="acct-balance" id="acctBal_RCBC">₱0</div>
       <div class="acct-sub">
         <span>↑<span id="acctIn_RCBC" style="color:#00e5a0">₱0</span></span>
@@ -272,7 +297,7 @@ select.modal-input option{background:var(--surface2)}
       </div>
     </div>
     <div class="acct-card acct-bpi">
-      <div class="acct-top"><span class="acct-icon">💳</span><span class="acct-name">BPI</span></div>
+      <div class="acct-top"><span class="acct-icon">🏧</span><span class="acct-name">BPI</span></div>
       <div class="acct-balance" id="acctBal_BPI">₱0</div>
       <div class="acct-sub">
         <span>↑<span id="acctIn_BPI" style="color:#00e5a0">₱0</span></span>
@@ -280,60 +305,13 @@ select.modal-input option{background:var(--surface2)}
       </div>
     </div>
     <div class="acct-card acct-bdo">
-      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">BDO</span></div>
+      <div class="acct-top"><span class="acct-icon">💳</span><span class="acct-name">BDO</span></div>
       <div class="acct-balance" id="acctBal_BDO">₱0</div>
       <div class="acct-sub">
         <span>↑<span id="acctIn_BDO" style="color:#00e5a0">₱0</span></span>
         <span>↓<span id="acctOut_BDO" style="color:#ff5c7a">₱0</span></span>
       </div>
     </div>
-  </div>
-
-  <div class="month-nav">
-    <button id="prevMonth">&#8249;</button>
-    <span class="month-label" id="monthLabel"></span>
-    <button id="nextMonth">&#8250;</button>
-  </div>
-
-  <div class="period-tabs">
-    <button class="period-tab active" id="ptMonth" onclick="setPeriodFilter('month')">Month</button>
-    <button class="period-tab" id="ptYear"  onclick="setPeriodFilter('year')">Year</button>
-    <button class="period-tab" id="ptToday" onclick="setPeriodFilter('today')">Today</button>
-  </div>
-
-  <div class="summary-grid">
-    <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
-    <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
-    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
-    <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
-  </div>
-
-
-
-  <div class="section-box">
-    <div class="section-title">🎯 Savings Goal</div>
-    <div class="goal-row">
-      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
-      <button class="set-btn" id="setGoalBtn">Set Goal</button>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
-    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
-  </div>
-
-  <!-- EXPENSE LIMITS -->
-  <div class="section-box">
-    <div class="section-title">🚨 Expense Limits by Category</div>
-    <div class="limits-summary">
-      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
-      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
-      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
-    </div>
-    <div class="limit-grid" id="limitGrid"></div>
-  </div>
-
-  <div class="section-box">
-    <div class="section-title">📊 Spending by Category</div>
-    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
   </div>
 
   <div class="section-box">
@@ -375,6 +353,32 @@ select.modal-input option{background:var(--surface2)}
       <input class="form-input" id="txnDate" type="date" style="grid-column:span 2"/>
     </div>
     <button class="add-btn" id="addBtn">Add Transaction</button>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">🎯 Savings Goal</div>
+    <div class="goal-row">
+      <input class="goal-input" id="goalInput" type="number" placeholder="Set monthly savings goal (₱)" min="0"/>
+      <button class="set-btn" id="setGoalBtn">Set Goal</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="goalBar" style="width:0%"></div></div>
+    <div class="progress-label"><span id="goalSavedLabel">₱0 saved</span><span id="goalTargetLabel">Goal: not set</span></div>
+  </div>
+
+  <!-- EXPENSE LIMITS -->
+  <div class="section-box">
+    <div class="section-title">🚨 Expense Limits by Category</div>
+    <div class="limits-summary">
+      <div class="lsum-card"><div class="lsum-val" id="limTotalBudget" style="color:var(--yellow)">₱0</div><div class="lsum-lbl">Total Budget</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalSpent" style="color:var(--red)">₱0</div><div class="lsum-lbl">Total Spent</div></div>
+      <div class="lsum-card"><div class="lsum-val" id="limTotalLeft" style="color:var(--green)">₱0</div><div class="lsum-lbl">Remaining</div></div>
+    </div>
+    <div class="limit-grid" id="limitGrid"></div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-title">📊 Spending by Category</div>
+    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
   </div>
 
   <div class="section-box">
@@ -472,6 +476,7 @@ try {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let currentFilter = 'all';
 let monthOffset   = 0;
+let acctFilter    = 'all'; // 'all' | 'Cash' | 'RCBC' | 'BPI' | 'BDO'
 let txnType       = 'income';
 let editTxnType   = 'income';
 let editingTxnId  = null;
@@ -521,6 +526,18 @@ function inCurrentMonth(ds) {
   const { year, month } = getCurrentMonth();
   const d = new Date(ds);
   return d.getFullYear() === year && d.getMonth() === month;
+}
+
+function setAcctFilter(acct) {
+  acctFilter = acct;
+  // Reset all tab classes
+  const tabMap = { all:'atAll', Cash:'atCash', RCBC:'atRCBC', BPI:'atBPI', BDO:'atBDO' };
+  const activeMap = { all:'active-all', Cash:'active-cash', RCBC:'active-rcbc', BPI:'active-bpi', BDO:'active-bdo' };
+  Object.keys(tabMap).forEach(k => {
+    const el = document.getElementById(tabMap[k]);
+    el.className = 'acct-tab' + (k === acct ? ' ' + activeMap[k] : '');
+  });
+  renderAll();
 }
 
 function fmt(n) {
@@ -622,7 +639,9 @@ function renderAll() {
   renderMonthLabel();
   const { year, month } = getCurrentMonth();
   const key = year + '-' + month;
-  const monthly  = data.transactions.filter(t => inCurrentMonth(t.date));
+  const monthly  = data.transactions.filter(t =>
+    inCurrentMonth(t.date) && (acctFilter === 'all' || t.account === acctFilter)
+  );
   const income   = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const expense  = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const saved    = monthly.filter(t => t.category === 'Savings').reduce((s, t) => s + t.amount, 0);
@@ -756,7 +775,8 @@ function renderBreakdown(monthly) {
   expenses.forEach(t => { cats[t.category] = (cats[t.category] || 0) + t.amount; });
   const sorted   = Object.entries(cats).sort((a, b) => b[1] - a[1]);
   const el = document.getElementById('breakdownList');
-  if (!sorted.length) { el.innerHTML = '<div class="empty-state">No expenses yet this month.</div>'; return; }
+  const periodLabel = periodFilter === 'year' ? 'this year' : periodFilter === 'today' ? 'today' : 'this month';
+  if (!sorted.length) { el.innerHTML = `<div class="empty-state">No expenses yet ${periodLabel}.</div>`; return; }
   el.innerHTML = sorted.map(([cat, amt]) => {
     const pct  = total > 0 ? Math.round(amt / total * 100) : 0;
     const icon = CATEGORY_ICONS[cat] || '📦';
@@ -769,7 +789,9 @@ function renderBreakdown(monthly) {
 }
 
 function renderTxnList() {
-  const monthly = data.transactions.filter(t => inCurrentMonth(t.date));
+  const monthly = data.transactions.filter(t =>
+    inCurrentMonth(t.date) && (acctFilter === 'all' || t.account === acctFilter)
+  );
   let filtered  = [...monthly];
   if (currentFilter === 'income')  filtered = filtered.filter(t => t.type === 'income');
   else if (currentFilter === 'expense') filtered = filtered.filter(t => t.type === 'expense');
