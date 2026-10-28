@@ -187,6 +187,12 @@ select.modal-input option{background:var(--surface2)}
 .lsum-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
 .lsum-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
 
+/* PERIOD FILTER TABS */
+.period-tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:5px}
+.period-tab{flex:1;text-align:center;padding:7px 0;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.03em;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:background 0.18s,color 0.18s}
+.period-tab:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.period-tab.active{background:var(--accent);color:#0f1117}
+
 /* ACCOUNTS SECTION */
 .accounts-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
 @media(max-width:600px){.accounts-row{grid-template-columns:repeat(2,1fr)}}
@@ -251,6 +257,12 @@ select.modal-input option{background:var(--surface2)}
     <button id="prevMonth">&#8249;</button>
     <span class="month-label" id="monthLabel"></span>
     <button id="nextMonth">&#8250;</button>
+  </div>
+
+  <div class="period-tabs">
+    <button class="period-tab active" id="ptMonth" onclick="setPeriodFilter('month')">Month</button>
+    <button class="period-tab" id="ptYear"  onclick="setPeriodFilter('year')">Year</button>
+    <button class="period-tab" id="ptToday" onclick="setPeriodFilter('today')">Today</button>
   </div>
 
   <div class="summary-grid">
