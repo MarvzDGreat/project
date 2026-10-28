@@ -306,7 +306,11 @@ select.modal-input option{background:var(--surface2)}
     </div>
   </div>
 
-   <div class="section-box">
+   <!-- ADD TRANSACTION ROW (hidden by default) -->
+   <button class="accounts-toggle-btn" id="addTransactionToggleBtn"
+           type="button" aria-controls="addTransactionRow" aria-expanded="false"
+           onclick="toggleAddTransaction()">➕ Add Transaction</button>
+   <div class="section-box" id="addTransactionRow" hidden>
     <div class="section-title">➕ Add Transaction</div>
     <div class="type-toggle">
       <button class="type-btn active-income" id="btnIncome" onclick="setType('income')">📥 Income</button>
@@ -362,9 +366,9 @@ select.modal-input option{background:var(--surface2)}
   </div>
 
   <div class="summary-grid">
+    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
     <div class="sum-card income"><div class="sum-icon">📥</div><div class="sum-label">Income</div><div class="sum-amount" id="totalIncome">₱0</div></div>
     <div class="sum-card expense"><div class="sum-icon">📤</div><div class="sum-label">Spent</div><div class="sum-amount" id="totalExpense">₱0</div></div>
-    <div class="sum-card balance"><div class="sum-icon">💰</div><div class="sum-label">Balance</div><div class="sum-amount" id="totalBalance">₱0</div></div>
     <div class="sum-card savings"><div class="sum-icon">🏦</div><div class="sum-label">Saved</div><div class="sum-amount" id="totalSaved">₱0</div></div>
   </div>
 
@@ -379,7 +383,10 @@ select.modal-input option{background:var(--surface2)}
     <div id="txnList"><div class="empty-state">No transactions yet. Add your first one above! 💪</div></div>
   </div>
 
-
+    <div class="section-box">
+    <div class="section-title">📊 Spending by Category</div>
+    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
+  </div>
 
   <div class="section-box">
     <div class="section-title">🎯 Savings Goal</div>
@@ -402,10 +409,7 @@ select.modal-input option{background:var(--surface2)}
     <div class="limit-grid" id="limitGrid"></div>
   </div>
 
-  <div class="section-box">
-    <div class="section-title">📊 Spending by Category</div>
-    <div id="breakdownList"><div class="empty-state">No expenses yet this month.</div></div>
-  </div>
+
 
  
 
@@ -684,6 +688,15 @@ function toggleAccounts() {
   row.hidden = !shouldShow;
   btn.setAttribute('aria-expanded', String(shouldShow));
   btn.textContent = shouldShow ? '🙈 Hide Accounts' : '👁 View Accounts';
+}
+
+function toggleAddTransaction() {
+  const row = document.getElementById('addTransactionRow');
+  const btn = document.getElementById('addTransactionToggleBtn');
+  const shouldShow = row.hidden;
+  row.hidden = !shouldShow;
+  btn.setAttribute('aria-expanded', String(shouldShow));
+  btn.textContent = shouldShow ? '🙈 Hide Transaction Form' : '➕ Add Transaction';
 }
 
 function renderAccounts() {
