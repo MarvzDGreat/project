@@ -289,7 +289,7 @@ select.modal-input option{background:var(--surface2)}
       </div>
     </div>
     <div class="acct-card acct-bpi">
-      <div class="acct-top"><span class="acct-icon">💳</span><span class="acct-name">BPI</span></div>
+      <div class="acct-top"><span class="acct-icon">🧧</span><span class="acct-name">BPI</span></div>
       <div class="acct-balance" id="acctBal_BPI">₱0</div>
       <div class="acct-sub">
         <span>↑<span id="acctIn_BPI" style="color:#00e5a0">₱0</span></span>
@@ -297,7 +297,7 @@ select.modal-input option{background:var(--surface2)}
       </div>
     </div>
     <div class="acct-card acct-bdo">
-      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">BDO</span></div>
+      <div class="acct-top"><span class="acct-icon">🪙</span><span class="acct-name">BDO</span></div>
       <div class="acct-balance" id="acctBal_BDO">₱0</div>
       <div class="acct-sub">
         <span>↑<span id="acctIn_BDO" style="color:#00e5a0">₱0</span></span>
@@ -322,13 +322,18 @@ select.modal-input option{background:var(--surface2)}
       <select class="form-input" id="txnCategory">
         <option value="">-- Category --</option>
         <optgroup label="Income">
-          <option value="Salary">Salary</option>
-          <option value="Freelance">Freelance</option>
-          <option value="Business">Business</option>
-          <option value="Other Income">Other Income</option>
+          <option value="Transfer">🔄 Funds Transfer</option>
+          <option value="Salary">💼 Salary</option>
+          <option value="Freelance">💻 Freelance</option>
+          <option value="Sideline">🛠️ Sideline</option>
+          <option value="Business">🏛️ Business</option>
+          <option value="Other Income">📋 Other Income</option>
+
         </optgroup>
         <optgroup label="Expenses">
+          <option value="Transfer">🔄 Funds Transfer</option>
           <option value="Food">🍚 Food</option>
+          <option value="Self">😎 Self</option>
           <option value="Transport">🚌 Transport</option>
           <option value="Bills">💡 Bills</option>
           <option value="Family">👨‍👩‍👧 Family</option>
@@ -336,15 +341,16 @@ select.modal-input option{background:var(--surface2)}
           <option value="Health">🏥 Health</option>
           <option value="Savings">🏦 Savings</option>
           <option value="Shopping">🛒 Shopping</option>
+          <option value="Toys">🚗 Toys</option>
           <option value="Other">📦 Other</option>
         </optgroup>
       </select>
       <select class="form-input" id="txnAccount">
         <option value="">-- Account --</option>
         <option value="Cash">💵 Cash</option>
-        <option value="RCBC">🏦 RCBC</option>
-        <option value="BPI">🏧 BPI</option>
-        <option value="BDO">💳 BDO</option>
+        <option value="RCBC">🏧 RCBC</option>
+        <option value="BPI">🧧 BPI</option>
+        <option value="BDO">🪙 BDO</option>
       </select>
       <input class="form-input" id="txnDate" type="date" style="grid-column:span 2"/>
     </div>
@@ -358,11 +364,11 @@ select.modal-input option{background:var(--surface2)}
   </div>
 
   <div class="list-controls" aria-label="Filter dashboard and transactions by account" style="justify-content:space-between;gap:8px;margin:12px 0 18px">
-    <button class="account-filter-btn active" onclick="setAccountFilter('ALL',this)">All</button>
-    <button class="account-filter-btn" onclick="setAccountFilter('Cash',this)">Cash</button>
-    <button class="account-filter-btn" onclick="setAccountFilter('RCBC',this)">RCBC</button>
-    <button class="account-filter-btn" onclick="setAccountFilter('BPI',this)">BPI</button>
-    <button class="account-filter-btn" onclick="setAccountFilter('BDO',this)">BDO</button>
+    <button class="account-filter-btn active" onclick="setAccountFilter('ALL',this)">⚪ All</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('Cash',this)">💵 Cash</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('RCBC',this)">🏧 RCBC</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('BPI',this)">🧧 BPI</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('BDO',this)">🪙 BDO</button>
   </div>
 
   <div class="summary-grid">
