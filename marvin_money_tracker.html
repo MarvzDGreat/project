@@ -680,7 +680,7 @@ function renderAll() {
   const { year, month } = getCurrentMonth();
   const key = year + '-' + month;
   const monthlyAll = data.transactions.filter(t => inCurrentMonth(t.date));
-  const monthly = currentAccountFilter === 'ALL' ? monthlyAll : monthlyAll.filter(t => (t.account || '') === currentAccountFilter);
+  const monthly = currentAccountFilter === 'ALL' ? monthlyAll : monthlyAll.filter(t => (t.account || '') === currentAccountFilter || (t.type === 'transfer' && t.toAccount === currentAccountFilter));
   const income   = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const expense  = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const saved    = monthly.filter(t => t.category === 'Savings').reduce((s, t) => s + t.amount, 0);
@@ -722,7 +722,7 @@ function toggleAddTransaction() {
 function renderAccounts() {
   // All-time balances per account (not filtered by month)
   ACCOUNTS.forEach(acct => {
-    const txns  = data.transactions.filter(t => t.account === acct);
+    const txns  = data.transactions.filter(t => t.account === acct || (t.type === 'transfer' && t.toAccount === acct));
     const inAmt  = txns.filter(t => t.type === 'income' || (t.type === 'transfer' && t.toAccount === acct)).reduce((s,t) => s + t.amount, 0);
     const outAmt = txns.filter(t => t.type === 'expense' || (t.type === 'transfer' && t.account === acct)).reduce((s,t) => s + t.amount, 0);
     const bal    = inAmt - outAmt;
