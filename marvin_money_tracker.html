@@ -225,6 +225,8 @@ select.modal-input option{background:var(--surface2)}
 .acct-rcbc::before  {background:linear-gradient(90deg,#5c9aff,#2d6ee0)}
 .acct-bpi::before   {background:linear-gradient(90deg,#ff5c7a,#cc3355)}
 .acct-bdo::before   {background:linear-gradient(90deg,#ffd166,#e6a817)}
+.acct-gcash::before{background:linear-gradient(90deg,#00a8ff,#0066cc)}
+.acct-savings::before{background:linear-gradient(90deg,#b28dff,#805ad5)}
 .acct-card:hover{border-color:rgba(255,255,255,0.18)}
 .acct-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .acct-icon{font-size:18px;line-height:1}
@@ -234,6 +236,8 @@ select.modal-input option{background:var(--surface2)}
 .acct-rcbc   .acct-balance{color:#5c9aff}
 .acct-bpi    .acct-balance{color:#ff5c7a}
 .acct-bdo    .acct-balance{color:#ffd166}
+.acct-gcash  .acct-balance{color:#00a8ff}
+.acct-savings .acct-balance{color:#b28dff}
 .acct-sub{font-size:10px;color:var(--text2);display:flex;gap:8px}
 .acct-sub span{display:inline-flex;align-items:center;gap:2px}
 .acct-badge{
@@ -244,6 +248,8 @@ select.modal-input option{background:var(--surface2)}
 .acct-rcbc .acct-badge  {background:rgba(255,209,102,0.12);color:#5c9aff}
 .acct-bpi  .acct-badge  {background:rgba(255,92,122,0.12);color:#ff5c7a}
 .acct-bdo  .acct-badge  {background:rgba(92,154,255,0.12);color:#ffd166}
+.acct-gcash .acct-badge{background:rgba(0,168,255,0.12);color:#00a8ff}
+.acct-savings .acct-badge{background:rgba(178,141,255,0.12);color:#b28dff}
 </style>
 </head>
 <body>
@@ -305,6 +311,22 @@ select.modal-input option{background:var(--surface2)}
         <span>↓<span id="acctOut_BDO" style="color:#ff5c7a">₱0</span></span>
       </div>
     </div>
+    <div class="acct-card acct-gcash">
+      <div class="acct-top"><span class="acct-icon">📱</span><span class="acct-name">GCash</span></div>
+      <div class="acct-balance" id="acctBal_GCash">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_GCash" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_GCash" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
+    <div class="acct-card acct-savings">
+      <div class="acct-top"><span class="acct-icon">🏦</span><span class="acct-name">Savings</span></div>
+      <div class="acct-balance" id="acctBal_Savings">₱0</div>
+      <div class="acct-sub">
+        <span>↑<span id="acctIn_Savings" style="color:#00e5a0">₱0</span></span>
+        <span>↓<span id="acctOut_Savings" style="color:#ff5c7a">₱0</span></span>
+      </div>
+    </div>
   </div>
 
    <!-- ADD TRANSACTION ROW (hidden by default) -->
@@ -353,11 +375,14 @@ select.modal-input option{background:var(--surface2)}
         <option value="RCBC">🏧 RCBC</option>
         <option value="BPI">🧧 BPI</option>
         <option value="BDO">🪙 BDO</option>
+        <option value="GCash">📱 GCash</option>
+        <option value="Savings">🏦 Savings</option>
       </select>
       <select class="form-input" id="txnToAccount" style="display:none">
         <option value="">-- To Account --</option>
         <option value="Cash">💵 Cash</option><option value="RCBC">🏧 RCBC</option>
         <option value="BPI">🧧 BPI</option><option value="BDO">🪙 BDO</option>
+        <option value="GCash">📱 GCash</option><option value="Savings">🏦 Savings</option>
       </select>
       <input class="form-input" id="txnDate" type="date" style="grid-column:span 2"/>
     </div>
@@ -376,6 +401,8 @@ select.modal-input option{background:var(--surface2)}
     <button class="account-filter-btn" onclick="setAccountFilter('RCBC',this)">🏧 RCBC</button>
     <button class="account-filter-btn" onclick="setAccountFilter('BPI',this)">🧧 BPI</button>
     <button class="account-filter-btn" onclick="setAccountFilter('BDO',this)">🪙 BDO</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('GCash',this)">📱 GCash</button>
+    <button class="account-filter-btn" onclick="setAccountFilter('Savings',this)">🏦 Savings</button>
   </div>
 
   <div class="summary-grid">
@@ -487,6 +514,8 @@ select.modal-input option{background:var(--surface2)}
             <option value="RCBC">🏦 RCBC</option>
             <option value="BPI">🏧 BPI</option>
             <option value="BDO">💳 BDO</option>
+            <option value="GCash">📱 GCash</option>
+            <option value="Savings">🏦 Savings</option>
           </select>
         </div>
       </div>
@@ -521,8 +550,8 @@ let data          = { transactions: [], savingGoals: {}, expenseLimits: {} };
 
 const EXPENSE_CATS = ['Food','Transport','Bills','Family','Education','Health','Savings','Shopping','Other'];
 const CAT_ICONS = { Food:'🍚', Transport:'🚌', Bills:'💡', Family:'👨‍👩‍👧', Education:'📚', Health:'🏥', Savings:'🏦', Shopping:'🛒', Other:'📦' };
-const ACCOUNTS = ['Cash','RCBC','BPI','BDO'];
-const ACCT_ICONS = { Cash:'💵', RCBC:'🏦', BPI:'🏧', BDO:'💳' };
+const ACCOUNTS = ['Cash','RCBC','BPI','BDO','GCash','Savings'];
+const ACCT_ICONS = { Cash:'💵', RCBC:'🏦', BPI:'🏧', BDO:'💳', GCash:'📱', Savings:'🏦' };
 
 const CATEGORY_ICONS = {
   Salary:'💼', Freelance:'💻', Business:'🏪', 'Other Income':'💵',
