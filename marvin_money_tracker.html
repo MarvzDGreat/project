@@ -84,6 +84,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .type-btn{flex:1;padding:9px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .type-btn.active-income{background:var(--green-dim);color:var(--green);border-color:var(--green)}
 .type-btn.active-expense{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.type-btn.active-transfer{background:var(--blue-dim);color:var(--blue);border-color:var(--blue)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:500px){.form-grid{grid-template-columns:1fr}}
 .form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border 0.15s}
@@ -315,6 +316,7 @@ select.modal-input option{background:var(--surface2)}
     <div class="type-toggle">
       <button class="type-btn active-income" id="btnIncome" onclick="setType('income')">📥 Income</button>
       <button class="type-btn" id="btnExpense" onclick="setType('expense')">📤 Expense</button>
+      <button class="type-btn" id="btnTransfer" onclick="setType('transfer')">🔄 Transfer</button>
     </div>
     <div class="form-grid">
       <input class="form-input" id="txnDesc" type="text" placeholder="Description (e.g. Salary, Groceries)"/>
@@ -327,7 +329,6 @@ select.modal-input option{background:var(--surface2)}
           <option value="Freelance">💻 Freelance</option>
           <option value="Sideline">🛠️ Sideline</option>
           <option value="Business">🏛️ Business</option>
-          <option value="Selling">🏷️ Selling Item</option>
           <option value="Other Income">📋 Other Income</option>
 
         </optgroup>
@@ -347,11 +348,16 @@ select.modal-input option{background:var(--surface2)}
         </optgroup>
       </select>
       <select class="form-input" id="txnAccount">
-        <option value="">-- Account --</option>
+        <option value="">-- From Account --</option>
         <option value="Cash">💵 Cash</option>
         <option value="RCBC">🏧 RCBC</option>
         <option value="BPI">🧧 BPI</option>
         <option value="BDO">🪙 BDO</option>
+      </select>
+      <select class="form-input" id="txnToAccount" style="display:none">
+        <option value="">-- To Account --</option>
+        <option value="Cash">💵 Cash</option><option value="RCBC">🏧 RCBC</option>
+        <option value="BPI">🧧 BPI</option><option value="BDO">🪙 BDO</option>
       </select>
       <input class="form-input" id="txnDate" type="date" style="grid-column:span 2"/>
     </div>
@@ -385,6 +391,7 @@ select.modal-input option{background:var(--surface2)}
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
       <button class="filter-btn" onclick="setFilter('income',this)">Income</button>
       <button class="filter-btn" onclick="setFilter('expense',this)">Expenses</button>
+      <button class="filter-btn" onclick="setFilter('transfer',this)">Transfers</button>
       <button class="filter-btn" onclick="setFilter('savings',this)">Savings</button>
     </div>
     <div id="txnList"><div class="empty-state">No transactions yet. Add your first one above! 💪</div></div>
@@ -520,7 +527,7 @@ const ACCT_ICONS = { Cash:'💵', RCBC:'🏦', BPI:'🏧', BDO:'💳' };
 const CATEGORY_ICONS = {
   Salary:'💼', Freelance:'💻', Business:'🏪', 'Other Income':'💵',
   Food:'🍚', Transport:'🚌', Bills:'💡', Family:'👨‍👩‍👧',
-  Education:'📚', Health:'🏥', Savings:'🏦', Shopping:'🛒', Other:'📦'
+  Education:'📚', Health:'🏥', Savings:'🏦', Shopping:'🛒', Other:'📦', Transfer:'🔄'
 };
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -564,8 +571,14 @@ function fmt(n) {
 
 function setType(t) {
   txnType = t;
-  document.getElementById('btnIncome').className  = 'type-btn' + (t === 'income'  ? ' active-income'  : '');
+  document.getElementById('btnIncome').className = 'type-btn' + (t === 'income' ? ' active-income' : '');
   document.getElementById('btnExpense').className = 'type-btn' + (t === 'expense' ? ' active-expense' : '');
+  document.getElementById('btnTransfer').className = 'type-btn' + (t === 'transfer' ? ' active-transfer' : '');
+  const isTransfer = t === 'transfer';
+  document.getElementById('txnToAccount').style.display = isTransfer ? '' : 'none';
+  document.getElementById('txnCategory').style.display = isTransfer ? 'none' : '';
+  if (isTransfer) document.getElementById('txnCategory').value = 'Transfer';
+  else if (document.getElementById('txnCategory').value === 'Transfer') document.getElementById('txnCategory').value = '';
 }
 
 function setFilter(f, el) {
@@ -710,8 +723,8 @@ function renderAccounts() {
   // All-time balances per account (not filtered by month)
   ACCOUNTS.forEach(acct => {
     const txns  = data.transactions.filter(t => t.account === acct);
-    const inAmt  = txns.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-    const outAmt = txns.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+    const inAmt  = txns.filter(t => t.type === 'income' || (t.type === 'transfer' && t.toAccount === acct)).reduce((s,t) => s + t.amount, 0);
+    const outAmt = txns.filter(t => t.type === 'expense' || (t.type === 'transfer' && t.account === acct)).reduce((s,t) => s + t.amount, 0);
     const bal    = inAmt - outAmt;
     const balEl  = document.getElementById('acctBal_' + acct);
     const inEl   = document.getElementById('acctIn_'  + acct);
@@ -836,24 +849,26 @@ function renderTxnList() {
   let filtered  = [...monthly];
   if (currentFilter === 'income')  filtered = filtered.filter(t => t.type === 'income');
   else if (currentFilter === 'expense') filtered = filtered.filter(t => t.type === 'expense');
+  else if (currentFilter === 'transfer') filtered = filtered.filter(t => t.type === 'transfer');
   else if (currentFilter === 'savings') filtered = filtered.filter(t => t.category === 'Savings');
   if (currentAccountFilter !== 'ALL') {
-    filtered = filtered.filter(t => (t.account || '') === currentAccountFilter);
+    filtered = filtered.filter(t => (t.account || '') === currentAccountFilter || (t.type === 'transfer' && t.toAccount === currentAccountFilter));
   }
   filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const el = document.getElementById('txnList');
   if (!filtered.length) { el.innerHTML = '<div class="empty-state">No transactions found. Add one above! 💪</div>'; return; }
   el.innerHTML = filtered.map(t => {
-    const icon    = CATEGORY_ICONS[t.category] || (t.type === 'income' ? '💵' : '💸');
+    const icon = CATEGORY_ICONS[t.category] || (t.type === 'transfer' ? '🔄' : (t.type === 'income' ? '💵' : '💸'));
     const dateStr = new Date(t.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+    const amountLabel = t.type === 'transfer' ? `${fmt(t.amount)} · ${t.account} → ${t.toAccount || '?'}` : `${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}`;
     return `<div class="txn-item">
       <div class="txn-icon ${t.type}">${icon}</div>
       <div class="txn-body">
         <div class="txn-desc">${t.desc}</div>
         <div class="txn-meta">${t.category} · ${dateStr}${t.account ? ' · '+( ACCT_ICONS[t.account]||'')+''+t.account : ''}</div>
       </div>
-      <div class="txn-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
+      <div class="txn-amount ${t.type === 'transfer' ? '' : t.type}">${amountLabel}</div>
       <div class="txn-btns">
         <button class="edit-btn" onclick="openEditModal('${t.id}')" title="Edit">✏️</button>
         <button class="del-btn" onclick="deleteTxn('${t.id}')" title="Delete">✕</button>
@@ -892,33 +907,28 @@ function initApp(userId) {
 // STEP 6: Event listeners
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function addTransaction() {
-  const desc     = document.getElementById('txnDesc').value.trim();
-  const amount   = parseFloat(document.getElementById('txnAmount').value);
-  const category = document.getElementById('txnCategory').value;
-  const account  = document.getElementById('txnAccount').value;
-  const date     = document.getElementById('txnDate').value;
-
-  if (!desc)     { document.getElementById('txnDesc').focus();     alert('Please enter a description.'); return; }
+  const desc = document.getElementById('txnDesc').value.trim();
+  const amount = parseFloat(document.getElementById('txnAmount').value);
+  const category = txnType === 'transfer' ? 'Transfer' : document.getElementById('txnCategory').value;
+  const account = document.getElementById('txnAccount').value;
+  const toAccount = document.getElementById('txnToAccount').value;
+  const date = document.getElementById('txnDate').value;
+  if (!desc) { document.getElementById('txnDesc').focus(); alert('Please enter a description.'); return; }
   if (!amount || amount <= 0) { document.getElementById('txnAmount').focus(); alert('Please enter a valid amount.'); return; }
   if (!category) { document.getElementById('txnCategory').focus(); alert('Please select a category.'); return; }
-  if (!account)  { document.getElementById('txnAccount').focus();  alert('Please select an account (Cash, RCBC, BPI, or BDO).'); return; }
-  if (!date)     { document.getElementById('txnDate').focus();     alert('Please select a date.'); return; }
-
-  data.transactions.push({
-    id: Date.now().toString(),
-    type: txnType,
-    desc, amount, category, account, date
-  });
-
-  saveFirestore();
-  renderAll();
-
-  // Clear inputs
-  document.getElementById('txnDesc').value     = '';
-  document.getElementById('txnAmount').value   = '';
+  if (!account) { document.getElementById('txnAccount').focus(); alert('Please select an account.'); return; }
+  if (txnType === 'transfer' && !toAccount) { document.getElementById('txnToAccount').focus(); alert('Please select the destination account.'); return; }
+  if (txnType === 'transfer' && account === toAccount) { alert('Choose two different accounts for a transfer.'); return; }
+  if (!date) { document.getElementById('txnDate').focus(); alert('Please select a date.'); return; }
+  data.transactions.push({ id: Date.now().toString(), type: txnType, desc, amount, category, account,
+    ...(txnType === 'transfer' ? { toAccount } : {}), date });
+  saveFirestore(); renderAll();
+  document.getElementById('txnDesc').value = '';
+  document.getElementById('txnAmount').value = '';
   document.getElementById('txnCategory').value = '';
-  document.getElementById('txnAccount').value  = '';
-  document.getElementById('txnDate').value     = new Date().toISOString().slice(0, 10);
+  document.getElementById('txnAccount').value = '';
+  document.getElementById('txnToAccount').value = '';
+  document.getElementById('txnDate').value = new Date().toISOString().slice(0, 10);
   document.getElementById('txnDesc').focus();
 }
 
